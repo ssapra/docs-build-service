@@ -300,6 +300,12 @@ The output of the command will look similar to this:
 
 This is the output of a successful build. Failed builds should indicate the reason of the failure in the logs and can be used during debugging.
 
+The logs for a running build can be followed by using the `-f` flag, much like this:
+
+```bash
+pb image logs <image-tag> -b <build-number> -f
+```
+ This should follow along with the progress of the build and terminate when the build completes.
 
 ### <a id='install'></a> Deleting `teams` and `images`
 
