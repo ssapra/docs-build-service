@@ -61,6 +61,10 @@ pb team apply -f /path/to/<example-team>.yaml
 
 If the operation is successful, the cli will display the message: `Successfully applied team example-team-name`
 
+**Constraints:**
+1. Only one user per team
+1. Cannot reference UAA user groups
+
 ### <a id='install'></a> Creating an `image`
 
 An image defines the specification that Build Service uses to create images for a user. Here is an example of an image configuration: 
@@ -90,6 +94,16 @@ The configuration of the team can be applied to build service:
 ```bash
 pb image apply -f /path/to/<my-example-image>.yaml
 ```
+
+New builds of an images when one or more of the following things change:
+1. New buildpack versions are made available through an updated builder image
+1. New commit on a branch build service is tracking
+1. Updating the commit, branch, or git repo on the image's configuration file and re-applying it via `pb image apply`
+
+**Constraints:**
+
+1. Users can only specify source code that lives in a git repo  
+1. The Build Service Alpha does not rebuild images based on new OS packages (like cflinuxfs3)
 
 ### <a id='install'></a> Monitoring `builds` against an `image`
 
@@ -305,7 +319,11 @@ The logs for a running build can be followed by using the `-f` flag, much like t
 ```bash
 pb image logs <image-tag> -b <build-number> -f
 ```
- This should follow along with the progress of the build and terminate when the build completes.
+This should follow along with the progress of the build and terminate when the build completes.
+
+**Constraints:**
+
+Build Service stores the 10 most recent successful builds and 10 most recent failed builds.
 
 ### <a id='install'></a> Deleting `teams` and `images`
 
@@ -315,6 +333,8 @@ The commands to delete a team and an image are similar. To delete an image run:
 pb image delete <image-tag>
 ```
 
+If the operation is successful, the cli will display the message: `Successfully delete image <image-tag>`
+
 This will delete all the builds that belong. This **WILL NOT** delete the images that have been created by those builds. Presently, do delete those images, one would have to do them manually from the registry.
 
 Similarly, team deletion can be performed using:
@@ -322,5 +342,6 @@ Similarly, team deletion can be performed using:
 ```bash
 pb team delete <team-name>
 ```
+If the operation is successful, the cli will display the message: `Successfully applied team <team-name>`
 
 Teams **CAN NOT** be deleted if they have images that belong to them. A team can be deleted only once all images owned by the team have been deleted.
