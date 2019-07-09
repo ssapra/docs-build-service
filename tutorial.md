@@ -309,7 +309,7 @@ The commands to delete a team and an image are similar. To delete an image run:
 pb image delete <image-tag>
 ```
 
-This will delete all the builds that belong. This *WILL NOT* delete the images that have been created by those builds. Presently, do delete those images, one would have to do them manually from the registry.
+This will delete all the builds that belong. This **WILL NOT** delete the images that have been created by those builds. Presently, do delete those images, one would have to do them manually from the registry.
 
 Similarly, team deletion can be performed using:
 
@@ -317,4 +317,4 @@ Similarly, team deletion can be performed using:
 pb team delete <team-name>
 ```
 
-Teams *cannot* be deleted if they have images that belong to them. A team can be deleted only once all images owned by the team have been deleted.
+Teams **CAN NOT** be deleted if they have images that belong to them. A team can be deleted only once all images owned by the team have been deleted.
