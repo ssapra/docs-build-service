@@ -139,176 +139,163 @@ pb image logs <image-tag> -b <build-number>
 The output of the command will look similar to this:
 
 ```
-[build-step-credential-initializer] {"level":"info","ts":1562622962.7271485,"logger":"fallback-logger","caller":"creds-init/main.go:40","msg":"Credentials initialized.","commit":"002a41a"}
+[build-step-credential-initializer] {"level":"info","ts":1562684107.3441668,"logger":"fallback-logger","caller":"creds-init/main.go:40","msg":"Credentials initialized.","commit":"002a41a"}
 [build-step-credential-initializer]
-[build-step-git-source-0] git-init:main.go:81: Successfully cloned "https://github.com/repository/sample-app" @ "493d972356b185cd6f086f903d604693c051b2ad" in path "/workspace"
+[build-step-git-source-0] git-init:main.go:81: Successfully cloned "https://github.com/buildpack/sample-java-app" @ "abde24efc17802b7e2b3814e0ead63a460e66f5f" in path "/workspace"
 [build-step-git-source-0]
 [build-step-prepare]
-[build-step-detect] Trying group 1 out of 1 with 2 buildpacks...
+[build-step-detect] Trying group 1 out of 3 with 27 buildpacks...
 [build-step-detect] ======== Results ========
-[build-step-detect] pass: Node.js Buildpack
-[build-step-detect] pass: NPM Buildpack
+[build-step-detect] skip: Cloud Foundry Archive Expanding Buildpack
+[build-step-detect] pass: Pivotal OpenJDK Buildpack
+[build-step-detect] pass: Pivotal Build System Buildpack
+[build-step-detect] pass: Cloud Foundry JVM Application Buildpack
+[build-step-detect] pass: Cloud Foundry Spring Boot Buildpack
+[build-step-detect] pass: Cloud Foundry Apache Tomcat Buildpack
+[build-step-detect] pass: Cloud Foundry DistZip Buildpack
+[build-step-detect] skip: Cloud Foundry Procfile Buildpack
+[build-step-detect] skip: Pivotal AppDynamics Buildpack
+[build-step-detect] skip: Pivotal AspectJ Buildpack
+[build-step-detect] skip: Pivotal CA Introscope Buildpack
+[build-step-detect] pass: Pivotal Client Certificate Mapper Buildpack
+[build-step-detect] skip: Pivotal Elastic APM Buildpack
+[build-step-detect] skip: Pivotal JaCoCo Buildpack
+[build-step-detect] skip: Pivotal JProfiler Buildpack
+[build-step-detect] skip: Pivotal JRebel Buildpack
+[build-step-detect] skip: Pivotal New Relic Buildpack
+[build-step-detect] skip: Pivotal OverOps Buildpack
+[build-step-detect] skip: Pivotal Riverbed AppInternals Buildpack
+[build-step-detect] skip: Pivotal SkyWalking Buildpack
+[build-step-detect] skip: Pivotal YourKit Buildpack
+[build-step-detect] skip: Cloud Foundry Azure Application Insights Buildpack
+[build-step-detect] skip: Cloud Foundry Debug Buildpack
+[build-step-detect] skip: Cloud Foundry Google Stackdriver Buildpack
+[build-step-detect] skip: Cloud Foundry JDBC Buildpack
+[build-step-detect] skip: Cloud Foundry JMX Buildpack
+[build-step-detect] pass: Cloud Foundry Spring Auto-reconfiguration Buildpack
 [build-step-detect]
-[build-step-restore] Cache '/cache': metadata not found, nothing to restore
+[build-step-restore] Restoring cached layer 'io.pivotal.openjdk:openjdk-jdk'
+[build-step-restore] Restoring cached layer 'io.pivotal.buildsystem:build-system-application'
+[build-step-restore] Restoring cached layer 'io.pivotal.buildsystem:build-system-cache'
+[build-step-restore] Restoring cached layer 'org.cloudfoundry.jvmapplication:executable-jar'
+[build-step-restore] Restoring cached layer 'org.cloudfoundry.springboot:spring-boot'
 [build-step-restore]
-[build-step-analyze] Image 'gcr.io/sample-registry/test/build:latest' not found
+[build-step-analyze] Analyzing image 'registry.com/sample/demo@sha256:8ff708081ee10f7039f77275f1e6eb6359cae8d90028c79a5c493ced0dc63f68'
+[build-step-analyze] Using cached layer 'io.pivotal.openjdk:openjdk-jdk'
+[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:memory-calculator'
+[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:openjdk-jre'
+[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:security-provider-configurer'
+[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:class-counter'
+[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:java-security-properties'
+[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:jvmkill'
+[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:link-local-dns'
+[build-step-analyze] Using cached layer 'io.pivotal.buildsystem:build-system-application'
+[build-step-analyze] Using cached layer 'io.pivotal.buildsystem:build-system-cache'
+[build-step-analyze] Using cached launch layer 'org.cloudfoundry.jvmapplication:executable-jar'
+[build-step-analyze] Rewriting metadata for layer 'org.cloudfoundry.jvmapplication:executable-jar'
+[build-step-analyze] Using cached launch layer 'org.cloudfoundry.springboot:spring-boot'
+[build-step-analyze] Rewriting metadata for layer 'org.cloudfoundry.springboot:spring-boot'
+[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.clientcertificatemapper:client-certificate-mapper'
+[build-step-analyze] Writing metadata for uncached layer 'org.cloudfoundry.springautoreconfiguration:auto-reconfiguration'
 [build-step-analyze]
-[build-step-build] -----> Node.js Buildpack 0.0.6
-[build-step-build] -----> NodeJS 6.16.0: Contributing to layer
-[build-step-build]        Downloading from https://nodejs.org/dist/v6.16.0/node-v6.16.0-linux-x64.tar.gz
-[build-step-build]        Verifying checksum
-[build-step-build]        Expanding to /layers/org.cloudfoundry.buildpacks.nodejs/node
-[build-step-build]        Writing NODE_HOME to shared
-[build-step-build]        Writing NODE_ENV to shared
-[build-step-build]        Writing NODE_MODULES_CACHE to shared
-[build-step-build]        Writing NODE_VERBOSE to shared
-[build-step-build]        Writing NPM_CONFIG_PRODUCTION to shared
-[build-step-build]        Writing NPM_CONFIG_LOGLEVEL to shared
-[build-step-build]        Writing WEB_MEMORY to shared
-[build-step-build]        Writing WEB_CONCURRENCY to shared
-[build-step-build]        Writing .profile.d/0_memory_available.sh
 [build-step-build]
-[build-step-build] -----> NPM Buildpack 0.0.7
-[build-step-build] -----> node_modules 31cdf8958fc50703537518168b3bc65884a6c5497116aa8a8d77a20e39ab6bb5: Contributing to layer
-[build-step-build] Installing node_modules
-[build-step-build] sample-node-app@0.0.0 /workspace
-[build-step-build] +-- express@4.16.4
-[build-step-build] | +-- accepts@1.3.7
-[build-step-build] | | +-- mime-types@2.1.24
-[build-step-build] | | | `-- mime-db@1.40.0
-[build-step-build] | | `-- negotiator@0.6.2
-[build-step-build] | +-- array-flatten@1.1.1
-[build-step-build] | +-- body-parser@1.18.3
-[build-step-build] | | +-- bytes@3.0.0
-[build-step-build] | | +-- http-errors@1.6.3
-[build-step-build] | | | `-- inherits@2.0.3
-[build-step-build] | | +-- iconv-lite@0.4.23
-[build-step-build] | | | `-- safer-buffer@2.1.2
-[build-step-build] | | `-- raw-body@2.3.3
-[build-step-build] | +-- content-disposition@0.5.2
-[build-step-build] | +-- content-type@1.0.4
-[build-step-build] | +-- cookie@0.3.1
-[build-step-build] | +-- cookie-signature@1.0.6
-[build-step-build] | +-- debug@2.6.9
-[build-step-build] | | `-- ms@2.0.0
-[build-step-build] | +-- depd@1.1.2
-[build-step-build] | +-- encodeurl@1.0.2
-[build-step-build] | +-- escape-html@1.0.3
-[build-step-build] | +-- etag@1.8.1
-[build-step-build] | +-- finalhandler@1.1.1
-[build-step-build] | | `-- unpipe@1.0.0
-[build-step-build] | +-- fresh@0.5.2
-[build-step-build] | +-- merge-descriptors@1.0.1
-[build-step-build] | +-- methods@1.1.2
-[build-step-build] | +-- on-finished@2.3.0
-[build-step-build] | | `-- ee-first@1.1.1
-[build-step-build] | +-- parseurl@1.3.3
-[build-step-build] | +-- path-to-regexp@0.1.7
-[build-step-build] | +-- proxy-addr@2.0.5
-[build-step-build] | | +-- forwarded@0.1.2
-[build-step-build] | | `-- ipaddr.js@1.9.0
-[build-step-build] | +-- qs@6.5.2
-[build-step-build] | +-- range-parser@1.2.1
-[build-step-build] | +-- safe-buffer@5.1.2
-[build-step-build] | +-- send@0.16.2
-[build-step-build] | | +-- destroy@1.0.4
-[build-step-build] | | `-- mime@1.4.1
-[build-step-build] | +-- serve-static@1.13.2
-[build-step-build] | +-- setprototypeof@1.1.0
-[build-step-build] | +-- statuses@1.4.0
-[build-step-build] | +-- type-is@1.6.18
-[build-step-build] | | `-- media-typer@0.3.0
-[build-step-build] | +-- utils-merge@1.0.1
-[build-step-build] | `-- vary@1.1.2
-[build-step-build] +-- jade@1.11.0
-[build-step-build] | +-- character-parser@1.2.1
-[build-step-build] | +-- clean-css@3.4.28
-[build-step-build] | | +-- commander@2.8.1
-[build-step-build] | | | `-- graceful-readlink@1.0.1
-[build-step-build] | | `-- source-map@0.4.4
-[build-step-build] | |   `-- amdefine@1.0.1
-[build-step-build] | +-- commander@2.6.0
-[build-step-build] | +-- constantinople@3.0.2
-[build-step-build] | | `-- acorn@2.7.0
-[build-step-build] | +-- jstransformer@0.0.2
-[build-step-build] | | +-- is-promise@2.1.0
-[build-step-build] | | `-- promise@6.1.0
-[build-step-build] | |   `-- asap@1.0.0
-[build-step-build] | +-- mkdirp@0.5.1
-[build-step-build] | | `-- minimist@0.0.8
-[build-step-build] | +-- transformers@2.1.0
-[build-step-build] | | +-- css@1.0.8
-[build-step-build] | | | +-- css-parse@1.0.4
-[build-step-build] | | | `-- css-stringify@1.0.5
-[build-step-build] | | +-- promise@2.0.0
-[build-step-build] | | | `-- is-promise@1.0.1
-[build-step-build] | | `-- uglify-js@2.2.5
-[build-step-build] | |   +-- optimist@0.3.7
-[build-step-build] | |   | `-- wordwrap@0.0.3
-[build-step-build] | |   `-- source-map@0.1.43
-[build-step-build] | +-- uglify-js@2.8.29
-[build-step-build] | | +-- source-map@0.5.7
-[build-step-build] | | +-- uglify-to-browserify@1.0.2
-[build-step-build] | | `-- yargs@3.10.0
-[build-step-build] | |   +-- camelcase@1.2.1
-[build-step-build] | |   +-- cliui@2.1.0
-[build-step-build] | |   | +-- center-align@0.1.3
-[build-step-build] | |   | | +-- align-text@0.1.4
-[build-step-build] | |   | | | +-- kind-of@3.2.2
-[build-step-build] | |   | | | | `-- is-buffer@1.1.6
-[build-step-build] | |   | | | +-- longest@1.0.1
-[build-step-build] | |   | | | `-- repeat-string@1.6.1
-[build-step-build] | |   | | `-- lazy-cache@1.0.4
-[build-step-build] | |   | +-- right-align@0.1.3
-[build-step-build] | |   | `-- wordwrap@0.0.2
-[build-step-build] | |   `-- window-size@0.1.0
-[build-step-build] | +-- void-elements@2.0.1
-[build-step-build] | `-- with@4.0.3
-[build-step-build] |   +-- acorn@1.2.2
-[build-step-build] |   `-- acorn-globals@1.0.9
-[build-step-build] `-- nconf@0.8.5
-[build-step-build]   +-- async@1.5.2
-[build-step-build]   +-- ini@1.3.5
-[build-step-build]   +-- secure-keys@1.0.0
-[build-step-build]   `-- yargs@3.32.0
-[build-step-build]     +-- camelcase@2.1.1
-[build-step-build]     +-- cliui@3.2.0
-[build-step-build]     | +-- strip-ansi@3.0.1
-[build-step-build]     | | `-- ansi-regex@2.1.1
-[build-step-build]     | `-- wrap-ansi@2.1.0
-[build-step-build]     +-- decamelize@1.2.0
-[build-step-build]     +-- os-locale@1.4.0
-[build-step-build]     | `-- lcid@1.0.0
-[build-step-build]     |   `-- invert-kv@1.0.0
-[build-step-build]     +-- string-width@1.0.2
-[build-step-build]     | +-- code-point-at@1.1.0
-[build-step-build]     | `-- is-fullwidth-code-point@1.0.0
-[build-step-build]     |   `-- number-is-nan@1.0.1
-[build-step-build]     +-- window-size@0.1.4
-[build-step-build]     `-- y18n@3.2.1
+[build-step-build] Pivotal OpenJDK Buildpack 1.0.0-M9
+[build-step-build]   OpenJDK JDK 11.0.3: Reusing cached layer
+[build-step-build]   OpenJDK JRE 11.0.3: Reusing cached layer
+[build-step-build]   Java Security Properties 1.0.0-M9: Reusing cached layer
+[build-step-build]   Security Provider Configurer 1.0.0-M9: Reusing cached layer
+[build-step-build]   Link-Local DNS 1.0.0-M9: Reusing cached layer
+[build-step-build]   JVMKill Agent 1.16.0: Reusing cached layer
+[build-step-build]   Class Counter 1.0.0-M9: Reusing cached layer
+[build-step-build]   Memory Calculator 4.0.0: Reusing cached layer
 [build-step-build]
-[build-step-build]        Writing NODE_PATH to shared
-[build-step-build]        Writing PATH to shared
-[build-step-build] -----> cache 31cdf8958fc50703537518168b3bc65884a6c5497116aa8a8d77a20e39ab6bb5: Contributing to layer
-[build-step-build] -----> Process types:
-[build-step-build]        web: npm start
+[build-step-build] Pivotal Build System Buildpack 1.0.0-M9
+[build-step-build]     Using wrapper
+[build-step-build]     Linking Cache to /home/vcap/.m2
+[build-step-build]   Compiled Application (146 files): Contributing to layer
+[build-step-build] [INFO] Scanning for projects...
+[build-step-build] [INFO]
+[build-step-build] [INFO] --------------------< io.buildpacks.example:sample >--------------------
+[build-step-build] [INFO] Building sample 0.0.1-SNAPSHOT
+[build-step-build] [INFO] --------------------------------[ jar ]---------------------------------
+[build-step-build] [INFO]
+[build-step-build] [INFO] --- maven-resources-plugin:3.1.0:resources (default-resources) @ sample ---
+[build-step-build] [INFO] Using 'UTF-8' encoding to copy filtered resources.
+[build-step-build] [INFO] Copying 1 resource
+[build-step-build] [INFO] Copying 4 resources
+[build-step-build] [INFO]
+[build-step-build] [INFO] --- maven-compiler-plugin:3.8.0:compile (default-compile) @ sample ---
+[build-step-build] [INFO] Changes detected - recompiling the module!
+[build-step-build] [INFO] Compiling 1 source file to /workspace/target/classes
+[build-step-build] [INFO]
+[build-step-build] [INFO] --- maven-resources-plugin:3.1.0:testResources (default-testResources) @ sample ---
+[build-step-build] [INFO] Not copying test resources
+[build-step-build] [INFO]
+[build-step-build] [INFO] --- maven-compiler-plugin:3.8.0:testCompile (default-testCompile) @ sample ---
+[build-step-build] [INFO] Not compiling test sources
+[build-step-build] [INFO]
+[build-step-build] [INFO] --- maven-surefire-plugin:2.22.1:test (default-test) @ sample ---
+[build-step-build] [INFO] Tests are skipped.
+[build-step-build] [INFO]
+[build-step-build] [INFO] --- maven-jar-plugin:3.1.1:jar (default-jar) @ sample ---
+[build-step-build] [INFO] Building jar: /workspace/target/sample-0.0.1-SNAPSHOT.jar
+[build-step-build] [INFO]
+[build-step-build] [INFO] --- spring-boot-maven-plugin:2.1.3.RELEASE:repackage (repackage) @ sample ---
+[build-step-build] [INFO] Replacing main artifact with repackaged archive
+[build-step-build] [INFO] ------------------------------------------------------------------------
+[build-step-build] [INFO] BUILD SUCCESS
+[build-step-build] [INFO] ------------------------------------------------------------------------
+[build-step-build] [INFO] Total time:  9.479 s
+[build-step-build] [INFO] Finished at: 2019-07-09T14:55:53Z
+[build-step-build] [INFO] ------------------------------------------------------------------------
+[build-step-build]   Removing source code
 [build-step-build]
+[build-step-build] Cloud Foundry JVM Application Buildpack 1.0.0-M9
+[build-step-build]   Executable JAR: Reusing cached layer
+[build-step-build]   Process types:
+[build-step-build]     executable-jar: java -cp $CLASSPATH $JAVA_OPTS org.springframework.boot.loader.JarLauncher
+[build-step-build]     task:           java -cp $CLASSPATH $JAVA_OPTS org.springframework.boot.loader.JarLauncher
+[build-step-build]     web:            java -cp $CLASSPATH $JAVA_OPTS org.springframework.boot.loader.JarLauncher
 [build-step-build]
-[build-step-export] Exporting layer 'app' with SHA sha256:d4cce8da12ac36ba584dd64d55ca5e828dc13707d18eea8b596bff75927fd3d4
-[build-step-export] Exporting layer 'config' with SHA sha256:b616aa82930eb4d1360b048db518d51c45b86cc684c7200e9896267a81124e55
-[build-step-export] Exporting layer 'launcher' with SHA sha256:2187c4179a3ddaae0e4ad2612c576b3b594927ba15dd610bbf720197209ceaa6
-[build-step-export] Exporting layer 'org.cloudfoundry.buildpacks.nodejs:node' with SHA sha256:01a665b0d2123c870527835625b05935d6f95dcdcf614e07f6e8375c653dd69c
-[build-step-export] Exporting layer 'org.cloudfoundry.buildpacks.npm:node_modules' with SHA sha256:f91092a7723e6a573564c673d32aea089deb1c3bd547c2f2888ed3f90853ed23
+[build-step-build] Cloud Foundry Spring Boot Buildpack 1.0.0-M9
+[build-step-build]   Spring Boot 2.1.3.RELEASE: Reusing cached layer
+[build-step-build]   Process types:
+[build-step-build]     spring-boot: java -cp $CLASSPATH $JAVA_OPTS io.buildpacks.example.sample.SampleApplication
+[build-step-build]     task:        java -cp $CLASSPATH $JAVA_OPTS io.buildpacks.example.sample.SampleApplication
+[build-step-build]     web:         java -cp $CLASSPATH $JAVA_OPTS io.buildpacks.example.sample.SampleApplication
+[build-step-build]
+[build-step-build] Pivotal Client Certificate Mapper Buildpack 1.0.0-M9
+[build-step-build]   Cloud Foundry Client Certificate Mapper 1.8.0: Reusing cached layer
+[build-step-build]
+[build-step-build] Cloud Foundry Spring Auto-reconfiguration Buildpack 1.0.0-M9
+[build-step-build]   Spring Auto-reconfiguration 2.7.0: Reusing cached layer
+[build-step-build]
+[build-step-export] Reusing layers from image 'index.docker.io/matthewmcnew/demo@sha256:8ff708081ee10f7039f77275f1e6eb6359cae8d90028c79a5c493ced0dc63f68'
+[build-step-export] Reusing layer 'app' with SHA sha256:02e0070ce11bac1829174ec1296dcb1f3f04a4c30a958e2c41ad5498f78898fe
+[build-step-export] Reusing layer 'config' with SHA sha256:d4c588715ae43b01a3e52084c1176f4b4869f9e9d3c5f34b9e022222b186e006
+[build-step-export] Reusing layer 'launcher' with SHA sha256:c8a8ddb80dd9923057bd12f9f69c6b093925a8925f3c37550a88b90f02699aa9
+[build-step-export] Reusing layer 'io.pivotal.openjdk:java-security-properties' with SHA sha256:936083baf63eb580e9fa014b5ad9ddf478eea50e2dc5df365c26e9ad52c6d74b
+[build-step-export] Reusing layer 'io.pivotal.openjdk:jvmkill' with SHA sha256:8109ccdcdb4c5a9c3e9f6416c5509798140d540e175af6c73dcd4a6a2d260c34
+[build-step-export] Reusing layer 'io.pivotal.openjdk:link-local-dns' with SHA sha256:2b7b43de758ad440aa98a54fc0f35ca76586a3552e19cf7e4c7a0edd3180773f
+[build-step-export] Reusing layer 'io.pivotal.openjdk:memory-calculator' with SHA sha256:cbf263efdf8fc3397a9df5b5a1b8a0d9abed5e25d796c7ef3ecd82f3dc48559e
+[build-step-export] Reusing layer 'io.pivotal.openjdk:openjdk-jre' with SHA sha256:f69bf645a2e9cf26a421758bb2e3ff07a009a364ff68e69598e2772d33631e6f
+[build-step-export] Reusing layer 'io.pivotal.openjdk:security-provider-configurer' with SHA sha256:617e8e83470c5802962ebbefee0c45d791c966ea8dbe1d78f794b191da6c7723
+[build-step-export] Reusing layer 'io.pivotal.openjdk:class-counter' with SHA sha256:976f0598f70dd13afb92581b997e1918137086bf8e96b662b9ca92069befb786
+[build-step-export] Reusing layer 'org.cloudfoundry.jvmapplication:executable-jar' with SHA sha256:1aa0be79085534fdd3dfc2ad2bae0a77fa78bfa160176574ee4234d14ca559cf
+[build-step-export] Reusing layer 'org.cloudfoundry.springboot:spring-boot' with SHA sha256:effa8b80729cafa9f9a01b21a4badb5203510de0bb2e6b309ffd2593b0a28de7
+[build-step-export] Reusing layer 'io.pivotal.clientcertificatemapper:client-certificate-mapper' with SHA sha256:5f3eb30976168cabcc374c49e8b9cfdc4d1b1abd2dc7a9ebcf951b04721e07e2
+[build-step-export] Reusing layer 'org.cloudfoundry.springautoreconfiguration:auto-reconfiguration' with SHA sha256:93d94baf6d0dfc4981eb7d8ddfc4ae51f5c13cf87789b64ae8c4b015318a1b43
 [build-step-export] *** Images:
-[build-step-export]       gcr.io/sample-registry/test/build:latest - succeeded
-[build-step-export]       gcr.io/sample-registry/test/build:b3.20190708.215527 - succeeded
+[build-step-export]       registry.com/sample/demo:latest - succeeded
+[build-step-export]       registry.com/sample/demo:b2.20190709.145448 - succeeded
 [build-step-export]
-[build-step-export] *** Digest: sha256:f5a1725fa5a29421870334ad7a16bad1492130c16febb43b75f84d0655b53141
+[build-step-export] *** Digest: sha256:48a4ca8e4d8e8a9af26437588d0ce0e9d5c09b53aeb3ef64230a3d58d4b0dc90
 [build-step-export]
-[build-step-cache] Caching layer 'org.cloudfoundry.buildpacks.nodejs:7f26cd9a2845df23773755a428d61b74fd80d48a991e964d12e85ae90ced81a0' with SHA sha256:2e6bf47b26fd9ca6a308dd680b6bc2b201ef6e860c1e54e34fb387455f6bee98
-[build-step-cache] Caching layer 'org.cloudfoundry.buildpacks.nodejs:node' with SHA sha256:01a665b0d2123c870527835625b05935d6f95dcdcf614e07f6e8375c653dd69c
-[build-step-cache] Caching layer 'org.cloudfoundry.buildpacks.npm:cache' with SHA sha256:01aa7d0778ae3900f69ded6a8e0b3b27c906fdf357a9eeef0b6abd052659942c
-[build-step-cache] Caching layer 'org.cloudfoundry.buildpacks.npm:node_modules' with SHA sha256:f91092a7723e6a573564c673d32aea089deb1c3bd547c2f2888ed3f90853ed23
+[build-step-cache] Reusing layer 'io.pivotal.openjdk:openjdk-jdk' with SHA sha256:5554c7c06a266eb44a7cbdf0ecfaa14070e21af2b0bdfd1edd3b96f5168cd511
+[build-step-cache] Reusing layer 'io.pivotal.buildsystem:build-system-cache' with SHA sha256:3b03fdd870a2dc1e924a040b604c25b76efafc1324ceb08eae8eae686fc3a940
+[build-step-cache] Caching layer 'io.pivotal.buildsystem:build-system-application' with SHA sha256:f2a8a8445bb7f861296e3dd282a04efbbad62821927f8ed05b6491bcf915f35d
+[build-step-cache] Reusing layer 'org.cloudfoundry.jvmapplication:executable-jar' with SHA sha256:1aa0be79085534fdd3dfc2ad2bae0a77fa78bfa160176574ee4234d14ca559cf
+[build-step-cache] Reusing layer 'org.cloudfoundry.springboot:spring-boot' with SHA sha256:effa8b80729cafa9f9a01b21a4badb5203510de0bb2e6b309ffd2593b0a28de7
 [build-step-cache]
 ```
 
