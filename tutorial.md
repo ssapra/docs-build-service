@@ -42,16 +42,18 @@ You can configure a team using a file with the following `yaml` structure.
 name: example-team-name
 registries:
 - registry: registry.default.com
-  username: <username with write access to above registry>
-  password: <password for above user>
+  username: <registry username>
+  password: <registry password>
 - registry: example.artifactory.com
   username: <artifactory username>
-  password: <artifactory user password>
+  password: <artifactory password>
 repositories:
 - domain: github.com
   username: <github-username>
   password: <password-for-github-user>
 ```
+
+The registry credentials provided should belong to a user with `write` access on the registry. 
 
 Save this file as `<example-team>.yaml` which can then be provided to Pivotal Build Service:
 
@@ -82,8 +84,8 @@ image:
 It is composed of the following components:
 
 1. The `team` that the image belongs to. It has to be the team you are a part of as well. You can only create images for teams you belong to.
-1. The `source` that defines that src that images will be built against. The revision can either be a branch, tag or a commit-sha. When targeted against a branch, a build is triggered for every new commit. In case this is a private git repo, its credentials must be specified in the `repositories` section of the team configuration.
-1. An `image registry` that defines the destination registry of the builds for the image. The credentials for the target registry must be specified in the `registries` section of the team configuration.
+1. The `source` defines the git location of the code that images will be built against. The `revision` can either be a branch, tag or a commit-sha. When targeted against a branch, a build is triggered for every new commit. In case this is a private git repo, its credentials must be specified in the `repositories` section of the team configuration.
+1. An `image registry` defines the destination registry of the builds for the image. The credentials for the target registry must be specified in the `registries` section of the team configuration. This should also match the domain of one of the registries provided in the team configuration.
 
 The value of `image.tag` will be used to refer to the image once it has been created within Pivotal Build Service. Updating this field will lead to the creation of a new image.
 
@@ -103,7 +105,7 @@ Pivotal Build Service auto-rebuilds images when one or more of the following thi
 **Constraints:**
 
 1. Users can only specify source code that lives in a git repository
-1. Pivotal Build Service Alpha does not rebuild images based on new OS packages (like cflinuxfs3)
+1. Pivotal Build Service does not rebuild images based on new OS packages (like cflinuxfs3)
 
 ### <a id='install'></a> Monitoring `builds` for an `image`
 
@@ -149,51 +151,19 @@ The output of the command will look similar to this:
 [build-step-detect] skip: Cloud Foundry Archive Expanding Buildpack
 [build-step-detect] pass: Pivotal OpenJDK Buildpack
 [build-step-detect] pass: Pivotal Build System Buildpack
-[build-step-detect] pass: Cloud Foundry JVM Application Buildpack
 [build-step-detect] pass: Cloud Foundry Spring Boot Buildpack
 [build-step-detect] pass: Cloud Foundry Apache Tomcat Buildpack
-[build-step-detect] pass: Cloud Foundry DistZip Buildpack
-[build-step-detect] skip: Cloud Foundry Procfile Buildpack
-[build-step-detect] skip: Pivotal AppDynamics Buildpack
-[build-step-detect] skip: Pivotal AspectJ Buildpack
-[build-step-detect] skip: Pivotal CA Introscope Buildpack
-[build-step-detect] pass: Pivotal Client Certificate Mapper Buildpack
-[build-step-detect] skip: Pivotal Elastic APM Buildpack
-[build-step-detect] skip: Pivotal JaCoCo Buildpack
-[build-step-detect] skip: Pivotal JProfiler Buildpack
-[build-step-detect] skip: Pivotal JRebel Buildpack
-[build-step-detect] skip: Pivotal New Relic Buildpack
-[build-step-detect] skip: Pivotal OverOps Buildpack
-[build-step-detect] skip: Pivotal Riverbed AppInternals Buildpack
-[build-step-detect] skip: Pivotal SkyWalking Buildpack
-[build-step-detect] skip: Pivotal YourKit Buildpack
-[build-step-detect] skip: Cloud Foundry Azure Application Insights Buildpack
-[build-step-detect] skip: Cloud Foundry Debug Buildpack
-[build-step-detect] skip: Cloud Foundry Google Stackdriver Buildpack
-[build-step-detect] skip: Cloud Foundry JDBC Buildpack
+...
 [build-step-detect] skip: Cloud Foundry JMX Buildpack
 [build-step-detect] pass: Cloud Foundry Spring Auto-reconfiguration Buildpack
 [build-step-detect]
 [build-step-restore] Restoring cached layer 'io.pivotal.openjdk:openjdk-jdk'
-[build-step-restore] Restoring cached layer 'io.pivotal.buildsystem:build-system-application'
-[build-step-restore] Restoring cached layer 'io.pivotal.buildsystem:build-system-cache'
-[build-step-restore] Restoring cached layer 'org.cloudfoundry.jvmapplication:executable-jar'
+...
 [build-step-restore] Restoring cached layer 'org.cloudfoundry.springboot:spring-boot'
 [build-step-restore]
 [build-step-analyze] Analyzing image 'registry.com/sample/demo@sha256:8ff708081ee10f7039f77275f1e6eb6359cae8d90028c79a5c493ced0dc63f68'
 [build-step-analyze] Using cached layer 'io.pivotal.openjdk:openjdk-jdk'
-[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:memory-calculator'
-[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:openjdk-jre'
-[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:security-provider-configurer'
-[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:class-counter'
-[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:java-security-properties'
-[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:jvmkill'
-[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.openjdk:link-local-dns'
-[build-step-analyze] Using cached layer 'io.pivotal.buildsystem:build-system-application'
-[build-step-analyze] Using cached layer 'io.pivotal.buildsystem:build-system-cache'
-[build-step-analyze] Using cached launch layer 'org.cloudfoundry.jvmapplication:executable-jar'
-[build-step-analyze] Rewriting metadata for layer 'org.cloudfoundry.jvmapplication:executable-jar'
-[build-step-analyze] Using cached launch layer 'org.cloudfoundry.springboot:spring-boot'
+...
 [build-step-analyze] Rewriting metadata for layer 'org.cloudfoundry.springboot:spring-boot'
 [build-step-analyze] Writing metadata for uncached layer 'io.pivotal.clientcertificatemapper:client-certificate-mapper'
 [build-step-analyze] Writing metadata for uncached layer 'org.cloudfoundry.springautoreconfiguration:auto-reconfiguration'
@@ -202,88 +172,21 @@ The output of the command will look similar to this:
 [build-step-build] Pivotal OpenJDK Buildpack 1.0.0-M9
 [build-step-build]   OpenJDK JDK 11.0.3: Reusing cached layer
 [build-step-build]   OpenJDK JRE 11.0.3: Reusing cached layer
-[build-step-build]   Java Security Properties 1.0.0-M9: Reusing cached layer
-[build-step-build]   Security Provider Configurer 1.0.0-M9: Reusing cached layer
-[build-step-build]   Link-Local DNS 1.0.0-M9: Reusing cached layer
 [build-step-build]   JVMKill Agent 1.16.0: Reusing cached layer
 [build-step-build]   Class Counter 1.0.0-M9: Reusing cached layer
 [build-step-build]   Memory Calculator 4.0.0: Reusing cached layer
 [build-step-build]
-[build-step-build] Pivotal Build System Buildpack 1.0.0-M9
-[build-step-build]     Using wrapper
-[build-step-build]     Linking Cache to /home/vcap/.m2
-[build-step-build]   Compiled Application (146 files): Contributing to layer
-[build-step-build] [INFO] Scanning for projects...
-[build-step-build] [INFO]
-[build-step-build] [INFO] --------------------< io.buildpacks.example:sample >--------------------
-[build-step-build] [INFO] Building sample 0.0.1-SNAPSHOT
-[build-step-build] [INFO] --------------------------------[ jar ]---------------------------------
-[build-step-build] [INFO]
-[build-step-build] [INFO] --- maven-resources-plugin:3.1.0:resources (default-resources) @ sample ---
-[build-step-build] [INFO] Using 'UTF-8' encoding to copy filtered resources.
-[build-step-build] [INFO] Copying 1 resource
-[build-step-build] [INFO] Copying 4 resources
-[build-step-build] [INFO]
-[build-step-build] [INFO] --- maven-compiler-plugin:3.8.0:compile (default-compile) @ sample ---
-[build-step-build] [INFO] Changes detected - recompiling the module!
-[build-step-build] [INFO] Compiling 1 source file to /workspace/target/classes
-[build-step-build] [INFO]
-[build-step-build] [INFO] --- maven-resources-plugin:3.1.0:testResources (default-testResources) @ sample ---
-[build-step-build] [INFO] Not copying test resources
-[build-step-build] [INFO]
-[build-step-build] [INFO] --- maven-compiler-plugin:3.8.0:testCompile (default-testCompile) @ sample ---
-[build-step-build] [INFO] Not compiling test sources
-[build-step-build] [INFO]
-[build-step-build] [INFO] --- maven-surefire-plugin:2.22.1:test (default-test) @ sample ---
-[build-step-build] [INFO] Tests are skipped.
-[build-step-build] [INFO]
-[build-step-build] [INFO] --- maven-jar-plugin:3.1.1:jar (default-jar) @ sample ---
-[build-step-build] [INFO] Building jar: /workspace/target/sample-0.0.1-SNAPSHOT.jar
-[build-step-build] [INFO]
-[build-step-build] [INFO] --- spring-boot-maven-plugin:2.1.3.RELEASE:repackage (repackage) @ sample ---
-[build-step-build] [INFO] Replacing main artifact with repackaged archive
-[build-step-build] [INFO] ------------------------------------------------------------------------
-[build-step-build] [INFO] BUILD SUCCESS
-[build-step-build] [INFO] ------------------------------------------------------------------------
-[build-step-build] [INFO] Total time:  9.479 s
-[build-step-build] [INFO] Finished at: 2019-07-09T14:55:53Z
-[build-step-build] [INFO] ------------------------------------------------------------------------
-[build-step-build]   Removing source code
-[build-step-build]
-[build-step-build] Cloud Foundry JVM Application Buildpack 1.0.0-M9
-[build-step-build]   Executable JAR: Reusing cached layer
-[build-step-build]   Process types:
-[build-step-build]     executable-jar: java -cp $CLASSPATH $JAVA_OPTS org.springframework.boot.loader.JarLauncher
-[build-step-build]     task:           java -cp $CLASSPATH $JAVA_OPTS org.springframework.boot.loader.JarLauncher
-[build-step-build]     web:            java -cp $CLASSPATH $JAVA_OPTS org.springframework.boot.loader.JarLauncher
-[build-step-build]
-[build-step-build] Cloud Foundry Spring Boot Buildpack 1.0.0-M9
-[build-step-build]   Spring Boot 2.1.3.RELEASE: Reusing cached layer
-[build-step-build]   Process types:
-[build-step-build]     spring-boot: java -cp $CLASSPATH $JAVA_OPTS io.buildpacks.example.sample.SampleApplication
+...
 [build-step-build]     task:        java -cp $CLASSPATH $JAVA_OPTS io.buildpacks.example.sample.SampleApplication
 [build-step-build]     web:         java -cp $CLASSPATH $JAVA_OPTS io.buildpacks.example.sample.SampleApplication
 [build-step-build]
 [build-step-build] Pivotal Client Certificate Mapper Buildpack 1.0.0-M9
-[build-step-build]   Cloud Foundry Client Certificate Mapper 1.8.0: Reusing cached layer
-[build-step-build]
 [build-step-build] Cloud Foundry Spring Auto-reconfiguration Buildpack 1.0.0-M9
 [build-step-build]   Spring Auto-reconfiguration 2.7.0: Reusing cached layer
 [build-step-build]
 [build-step-export] Reusing layers from image 'index.docker.io/matthewmcnew/demo@sha256:8ff708081ee10f7039f77275f1e6eb6359cae8d90028c79a5c493ced0dc63f68'
 [build-step-export] Reusing layer 'app' with SHA sha256:02e0070ce11bac1829174ec1296dcb1f3f04a4c30a958e2c41ad5498f78898fe
-[build-step-export] Reusing layer 'config' with SHA sha256:d4c588715ae43b01a3e52084c1176f4b4869f9e9d3c5f34b9e022222b186e006
-[build-step-export] Reusing layer 'launcher' with SHA sha256:c8a8ddb80dd9923057bd12f9f69c6b093925a8925f3c37550a88b90f02699aa9
-[build-step-export] Reusing layer 'io.pivotal.openjdk:java-security-properties' with SHA sha256:936083baf63eb580e9fa014b5ad9ddf478eea50e2dc5df365c26e9ad52c6d74b
-[build-step-export] Reusing layer 'io.pivotal.openjdk:jvmkill' with SHA sha256:8109ccdcdb4c5a9c3e9f6416c5509798140d540e175af6c73dcd4a6a2d260c34
-[build-step-export] Reusing layer 'io.pivotal.openjdk:link-local-dns' with SHA sha256:2b7b43de758ad440aa98a54fc0f35ca76586a3552e19cf7e4c7a0edd3180773f
-[build-step-export] Reusing layer 'io.pivotal.openjdk:memory-calculator' with SHA sha256:cbf263efdf8fc3397a9df5b5a1b8a0d9abed5e25d796c7ef3ecd82f3dc48559e
-[build-step-export] Reusing layer 'io.pivotal.openjdk:openjdk-jre' with SHA sha256:f69bf645a2e9cf26a421758bb2e3ff07a009a364ff68e69598e2772d33631e6f
-[build-step-export] Reusing layer 'io.pivotal.openjdk:security-provider-configurer' with SHA sha256:617e8e83470c5802962ebbefee0c45d791c966ea8dbe1d78f794b191da6c7723
-[build-step-export] Reusing layer 'io.pivotal.openjdk:class-counter' with SHA sha256:976f0598f70dd13afb92581b997e1918137086bf8e96b662b9ca92069befb786
-[build-step-export] Reusing layer 'org.cloudfoundry.jvmapplication:executable-jar' with SHA sha256:1aa0be79085534fdd3dfc2ad2bae0a77fa78bfa160176574ee4234d14ca559cf
-[build-step-export] Reusing layer 'org.cloudfoundry.springboot:spring-boot' with SHA sha256:effa8b80729cafa9f9a01b21a4badb5203510de0bb2e6b309ffd2593b0a28de7
-[build-step-export] Reusing layer 'io.pivotal.clientcertificatemapper:client-certificate-mapper' with SHA sha256:5f3eb30976168cabcc374c49e8b9cfdc4d1b1abd2dc7a9ebcf951b04721e07e2
+...
 [build-step-export] Reusing layer 'org.cloudfoundry.springautoreconfiguration:auto-reconfiguration' with SHA sha256:93d94baf6d0dfc4981eb7d8ddfc4ae51f5c13cf87789b64ae8c4b015318a1b43
 [build-step-export] *** Images:
 [build-step-export]       registry.com/sample/demo:latest - succeeded
@@ -293,8 +196,7 @@ The output of the command will look similar to this:
 [build-step-export]
 [build-step-cache] Reusing layer 'io.pivotal.openjdk:openjdk-jdk' with SHA sha256:5554c7c06a266eb44a7cbdf0ecfaa14070e21af2b0bdfd1edd3b96f5168cd511
 [build-step-cache] Reusing layer 'io.pivotal.buildsystem:build-system-cache' with SHA sha256:3b03fdd870a2dc1e924a040b604c25b76efafc1324ceb08eae8eae686fc3a940
-[build-step-cache] Caching layer 'io.pivotal.buildsystem:build-system-application' with SHA sha256:f2a8a8445bb7f861296e3dd282a04efbbad62821927f8ed05b6491bcf915f35d
-[build-step-cache] Reusing layer 'org.cloudfoundry.jvmapplication:executable-jar' with SHA sha256:1aa0be79085534fdd3dfc2ad2bae0a77fa78bfa160176574ee4234d14ca559cf
+...
 [build-step-cache] Reusing layer 'org.cloudfoundry.springboot:spring-boot' with SHA sha256:effa8b80729cafa9f9a01b21a4badb5203510de0bb2e6b309ffd2593b0a28de7
 [build-step-cache]
 ```
