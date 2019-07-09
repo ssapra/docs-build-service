@@ -30,7 +30,7 @@ This command prompts you for a `username` and `password` which correspond to you
 
 ### <a id='create-team'></a> Creating a `team`
 
-A `team` is an entity on Pivotal Build Service that is used to managed authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.
+A `team` is an entity on Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.
 
 **All the credentials required during image creation need to be a part of the team configuration. This includes registry credentials for the built images and repository credentials for the source code if it lies in a private repository**
 
