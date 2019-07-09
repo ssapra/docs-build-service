@@ -25,7 +25,7 @@ pb login
 ```
 
 This command prompts you for a `username` and `password` which correspond to your UAA credentials. Additionally, the username and password can be passed in via env variable with the following names:
-`BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The cli will default to pick these up and use them if they exist in the env.  
+`BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The cli will default to pick these up and use them if they exist in the environment.  
 
 
 ### <a id='install'></a> Creating a `team`
@@ -34,7 +34,7 @@ A `team` is an entity on Pivotal Build Service that is used to managed auth for 
 
 **All the credentials required during image creation need to be a part of the team configuration. This includes registry credentials for the built images and repository credentials for the source code if it lies in a private repository**
 
-Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be they only ones who can monitor the builds against an image.
+Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
 
 You can configure a team using a file with the following `yaml` structure.
 
@@ -102,12 +102,12 @@ Pivotal Build Service auto-rebuilds images when one or more of the following thi
 
 **Constraints:**
 
-1. Users can only specify source code that lives in a git repo  
+1. Users can only specify source code that lives in a git repository
 1. Pivotal Build Service Alpha does not rebuild images based on new OS packages (like cflinuxfs3)
 
-### <a id='install'></a> Monitoring `builds` against an `image`
+### <a id='install'></a> Monitoring `builds` for an `image`
 
-You can list all the builds created against an image with:
+You can list all the builds created for an image with:
 
 ```bash
 pb image builds <image-tag>
