@@ -24,13 +24,13 @@ Once you are targeting the intended Pivotal Build Service, you can login to it a
 pb login
 ```
 
-This command prompts you for a `username` and `password` which correspond to your UAA credentials. Additionally, the username and password can be passed in via env variable with the following names:
+This command prompts you for a `username` and `password` which correspond to your UAA credentials. Additionally, the username and password can be passed in via environment variables with the following names:
 `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The cli will default to pick these up and use them if they exist in the environment.  
 
 
 ### <a id='install'></a> Creating a `team`
 
-A `team` is an entity on Pivotal Build Service that is used to managed auth for the images Pivotal Build Service builds and to manage registry and git credentials for the images managed by said team.
+A `team` is an entity on Pivotal Build Service that is used to managed authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.
 
 **All the credentials required during image creation need to be a part of the team configuration. This includes registry credentials for the built images and repository credentials for the source code if it lies in a private repository**
 
@@ -89,7 +89,7 @@ The value of `image.tag` will be used to refer to the image once it has been cre
 
 The above image configuration can be saved as `<my-example-image>.yaml`
 
-The configuration of the team can be applied to Pivotal Build Service:
+The configuration of the image can be applied to Pivotal Build Service:
 
 ```bash
 pb image apply -f /path/to/<my-example-image>.yaml
