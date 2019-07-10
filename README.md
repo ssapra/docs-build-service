@@ -7,7 +7,7 @@ Understanding the differences between declarative and imperative programming mod
 
 The `pb` (Pivotal Build) CLI doesn’t have commands like `push`, `build`, or `rebase`.  Instead, users utilize `pb` to declare and modify two configurations.  
 
-1) The “Image” config:  Users describe their app through several inputs, and build service will deliver new images that resolve discrepancies between how the app is described and the latest version of the image. When the user requests the latest version of an application dependency, and that dependency becomes available, a new image is automatically built to replace the old image.
+1) The “Image” config:  Users describe their app through several inputs, and build service will deliver new images that resolve discrepancies between how the app is described and the latest version of the image. When the user requests the latest version of an application dependency, and that dependency becomes available, a new image is automatically built.
 
 2) The “Team” config:   An extension to build service that provides access control to image configs using UAA.
 
