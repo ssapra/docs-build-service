@@ -15,13 +15,13 @@ These configurations help platform engineers and application developers enjoy th
 
 ## Helpful Links
 
-* For more information on isntalling Build Service, please visit [Installing.md](https://github.com/pivotal-cf/docs-build-service/blob/master/installing.md)
+* For more information on isntalling Build Service, visit [Installing.md](https://github.com/pivotal-cf/docs-build-service/blob/master/installing.md)
 
-* For more information on using the `pb` CLI to control build service, visit [Using.md](https://github.com/pivotal-cf/docs-build-service/blob/master/using.md)   
+* For more information on using the `pb` CLI to control Build Service, visit [Using.md](https://github.com/pivotal-cf/docs-build-service/blob/master/using.md)   
 
 ## Troubleshooting
 
-Reach out to your Pivotal account team or reach out the Build Service team directly:
+Reach out to your Pivotal account team or the Build Service team directly:
 
 * Stephen Levine - Product Manager/Senior Software Engineer (slevine@pivotal.io)
 * Matt Gibson - Product Manager (mgibson@pivotal.io)
