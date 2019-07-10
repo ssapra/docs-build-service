@@ -11,7 +11,7 @@ The `pb` (Pivotal Build) CLI doesn’t have commands like `push`, `build`, or `r
 
 2) The “Team” config:   An extension to build service that provides access control to image configs using UAA.
 
-Through utilizing these configs, platform engineers and application developers can more easily and securly enjoy the benefits of containerized software development at enterprise scale.  
+These configurations help platform engineers and application developers enjoy the benefits of containerized software development at enterprise scale more easily and securely.  
 
 ## Helpful Links
 
