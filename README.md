@@ -1,6 +1,6 @@
 # Pivotal Build Service
 
-Build Service is a source code to container (S2I) solution that utilizes the OSS [Cloud Native Buildpacks project](http://buildpacks.io) to execute consistent builds that adhere to [modern container standards](
+Build Service is a source code to container (S2I) solution that utilizes the OSS [Cloud Native Buildpacks project](http://buildpacks.io) to execute reproducible builds that adhere to [modern container standards](
 https://github.com/opencontainers/image-spec/blob/master/spec.md).  Additionally, Build Service employs declarative logic to automate image re-builds.
 
 Understanding the differences between declarative and imperative programming models as they relate to producing container images from source code is key to deriving the most value possible from Build Service.  Pivotal Application Service, based on Cloud Foundry, currently follows an imperative model.  The user instructs the platform to perform various tasks through the `cf push` model.  Similarly, the [Cloud Native Buildpacks project](http://buildpacks.io), follows an imperative model.  Users perform commands like `build` and `rebase` using the `pack` CLI to trigger one-time execution of these commands.
