@@ -44,15 +44,14 @@ The users of Pivotal Build Service are configured on a UAA.
 In order to talk with UAA, Pivotal Build Service must have a client
 configured. To configure this client we recommend using `uaac` tool
 
-1. Install `uaac` tool on your machine, run the following command
-
+1) Install `uaac` tool on your machine, run the following command
   ```bash
   gem install cf-uaac
   ```
 
   **Note:** if not using `rbenv` or `rvm` you may need to execute `sudo gem install cf-uaac`
 
-1. Target the UAA that will be used to authenticate the Build Service Users
+2) Target the UAA that will be used to authenticate the Build Service Users
 
   ```bash
   uaac target <UAA_URL>
@@ -60,7 +59,15 @@ configured. To configure this client we recommend using `uaac` tool
 
   **Note:** When using a self-signed certificate, you must use the `--skip-ssl-validation` flag in conjuction with `uaac` 
 
-1. Install the UAA Client
+3) Login as user management admin user
+
+  ```bash
+  uaac token client get admin -s <user-management-admin-user>
+  ```
+  
+  **Note:** this password can be found in you UAA credentials section from Opsman
+
+4) Install the UAA Client
 
   ```bash
   uaac client add pb_cli --scope="openid" --secret="" --authorized_grant_types="password,refresh_token" --access_token_validity 600 --refresh_token_validity 21600
