@@ -79,7 +79,9 @@ configured. To configure this client we recommend using `uaac` tool
 
 ## Configure TLS certificates for Pivotal Build Service
 
-Download the `.crt` and `.key` files to `/tmp/certificate.crt` and `/tmp/certificate.key`
+You need to get or create certificate for the Pivotal Build Service Domain that will be used in [Install Pivotal Build Service step](#install-pivotal-build-service). These certificates can be self signed or not.
+
+When you have the `.crt` and `.key` files place them in `/tmp/certificate.crt` and `/tmp/certificate.key`
 
 Create the secret in the Kubernetes cluster
 
@@ -153,7 +155,7 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     duffle relocate -f /tmp/build-service/*/bundle.json -m /tmp/relocated.json -p <SOME_IMAGE_REGISTRY>
     ```
 
-1) Install Pivotal Build Service
+1) <a href="install-pivotal-build-service"></a>Install Pivotal Build Service
     
     ```bash
     duffle install <my-build-service-installation-name> -c /tmp/credentials.yml  \
