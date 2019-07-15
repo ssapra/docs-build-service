@@ -163,8 +163,8 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
         --set kubernetes_env=<PKS_CLUSTER_NAME> \
         --set ingress_ip=<BUILD_SERVICE_IP> \
         --set docker_registry=<DOCKER_REGISTRY> \
-        --set registry_username=<REGISTRY_USERNAME> \
-        --set registry_password=<REGISTRY_PASSWORD> \
+        --set registry_username="<REGISTRY_USERNAME>" \
+        --set registry_password="<REGISTRY_PASSWORD>" \
         --set uaa_url=<UAA_URL> \
         -f /tmp/build-service/*/bundle.json
         -m /tmp/relocated.json
