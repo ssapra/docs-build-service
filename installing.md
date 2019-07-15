@@ -135,6 +135,8 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     This file should be created in `/tmp/credentials.yml` this location can be changed but
     the next command must be updated accordingly
     
+    **Note:** In the credentials file all the local paths need to be absolute.
+    
 1) Import the images bundle
 
     This step will extract the bundle
