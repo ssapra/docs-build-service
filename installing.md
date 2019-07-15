@@ -163,7 +163,6 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     duffle install <my-build-service-installation-name> -c /tmp/credentials.yml  \
         --set domain=<BUILD_SERVICE_DOMAIN> \
         --set kubernetes_env=<PKS_CLUSTER_NAME> \
-        --set ingress_ip=<BUILD_SERVICE_IP> \
         --set docker_registry=<DOCKER_REGISTRY> \
         --set registry_username="<REGISTRY_USERNAME>" \
         --set registry_password="<REGISTRY_PASSWORD>" \
@@ -179,7 +178,6 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     - `BUILD_SERVICE_DOMAIN` is the domain name that will be used to target Pivotal Build Service.
     This domain should have been configured as the domain for the Ingress controller.
     - `PKS_CLUSTER_NAME` Name of the PKS cluster where Pivotal Build Service will be installed
-    - `BUILD_SERVICE_IP` IP address that the `BUILD_SERVICE_DOMAIN` should resolve to
     - `DOCKER_REGISTRY` Image Registry used in the previous step to push images to
     - `REGISTRY_USERNAME` Username to access the registry
     - `REGISTRY_PASSWORD` Password to access the registry
