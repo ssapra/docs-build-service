@@ -70,7 +70,7 @@ configured. To configure this client we recommend using `uaac` tool
 4) Install the UAA Client
 
   ```bash
-  uaac client add pb_cli --scope="openid" --secret="" --authorized_grant_types="password,refresh_token" --access_token_validity 600 --refresh_token_validity 21600
+  uaac client add pivotal_build_service_cli --scope="openid" --secret="" --authorized_grant_types="password,refresh_token" --access_token_validity 600 --refresh_token_validity 21600
   ```
   
   **Note:** this command need to be executed as is. The secret in this case **need** to be an empty string
