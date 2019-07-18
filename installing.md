@@ -183,6 +183,11 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     - `REGISTRY_PASSWORD` Password to access the registry
     - `UAA_URL` URL to access UAA
     
+    Additional optional properties: 
+    - `disable_builder_polling` this will prevent the build service from polling builder images for buildpack updates
+    This option requires you to set up a [Builder Webhook](https://github.com/pivotal-cf/docs-build-service/blob/master/webhooks.md).
+    This is a boolean value so it should be used like: `--disable_builder_polling=true` 
+    
     **Note** Some images will be pushed again to the image registry because during installation the CA Certificate provided
     will be added to the list of the available CA on these images. To do this, the duffle command must be provided
     with the credentials for the image registry
