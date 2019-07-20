@@ -86,8 +86,8 @@ When you have the `.crt` and `.key` files place them in `/tmp/certificate.crt` a
 Create the secret in the Kubernetes cluster
 
 ```bash
-tlsCert=$(cat /tmp/certificate.crt | base64 | awk '{printf "%s", $0}'))
-tlsKey=$(cat /tmp/certificate.key | base64 | awk '{printf "%s", $0}'))
+tlsCert=$(cat /tmp/certificate.crt | base64 | awk '{printf "%s", $0}')
+tlsKey=$(cat /tmp/certificate.key | base64 | awk '{printf "%s", $0}')
 cat << EOF| kubectl create -f -
 apiVersion: v1
 kind: Secret
@@ -167,7 +167,7 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
         --set registry_username="<REGISTRY_USERNAME>" \
         --set registry_password="<REGISTRY_PASSWORD>" \
         --set uaa_url=<UAA_URL> \
-        -f /tmp/build-service/*/bundle.json
+        -f /tmp/build-service/*/bundle.json \
         -m /tmp/relocated.json
     ```
     
