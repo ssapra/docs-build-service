@@ -14,6 +14,8 @@ This topic describes how to install and configure Pivotal Build Service.
 - PKS installed
 - Kubectl installed locally (Only required if no ingress controller is already installed)
 - Ruby (This is required to create the UAA client)
+- An Ingress Controller has been installed on the cluster where Pivotal Build Service is going to be installed. The Pivotal Build Service expects an Ingress Controller and an Ingress Service to be running to configure it's own ingress. A example of an Ingress Controller Deployment can be found [here](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster)
+- Persistent Volumes have been configured on the cluster where Pivotal Build Service will be installed as it relies on Persistent Volume Claims to cache build artifacts to speed up subsequent builds. The cache size per image has been configured to 2GiBs
 
 
 ## Retrieve cluster credentials
@@ -200,6 +202,7 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     ```bash
     pb api <PIVOTAL_BUILD_SERVICE_DOMAIN>
     ```
+    In case you have a UAA that has been signed by a self-signed CA, add the `--skip-ssl-validation` flag at the end of the `pb api` command
     
     A user should be created at this point, please follow the instructions in [here](#users-create)
     
