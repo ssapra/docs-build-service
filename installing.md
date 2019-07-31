@@ -180,7 +180,9 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     - `BUILD_SERVICE_DOMAIN` is the domain name that will be used to target Pivotal Build Service.
     This domain should have been configured as the domain for the Ingress controller.
     - `PKS_CLUSTER_NAME` Name of the PKS cluster where Pivotal Build Service will be installed
-    - `DOCKER_REGISTRY` Image Registry used in the previous step to push images to
+    - `DOCKER_REGISTRY` Domain of the Image Registry used in the previous step to push images to
+    
+      **Note:** if using dockerhub the domain should be `index.docker.io`
     - `REGISTRY_USERNAME` Username to access the registry
     - `REGISTRY_PASSWORD` Password to access the registry
     - `UAA_URL` URL to access UAA
