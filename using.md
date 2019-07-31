@@ -77,6 +77,10 @@ source:
   git:
     url: https://github.com/example-org/sample-node-app
     revision: master
+build:
+  env:
+  - name: BP_JAVA_VERSION
+    value: 8.*
 image:
   tag: registry.default.com/my-team-folder/node-app-image
 ```
@@ -85,6 +89,7 @@ It is composed of the following components:
 
 1. The `team` that the image belongs to. It has to be the team you are a part of as well. You can only create images for teams you belong to.
 1. The `source` defines the git location of the code that images will be built against. The `revision` can either be a branch, tag or a commit-sha. When targeted against a branch, a build is triggered for every new commit. In case this is a private git repo, its credentials must be specified in the `repositories` section of the team configuration.
+1. The `build` defines additional configuration you would like your app to be built with.  The `env` is a list of environment variables that will be provided to the build. Each environment variable is an object with `name` and `value`.
 1. An `image registry` defines the destination registry of the builds for the image. The credentials for the target registry must be specified in the `registries` section of the team configuration. This should also match the domain of one of the registries provided in the team configuration.
 
 The value of `image.tag` will be used to refer to the image once it has been created within Pivotal Build Service. Updating this field will lead to the creation of a new image.
