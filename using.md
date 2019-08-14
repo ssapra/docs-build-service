@@ -30,42 +30,61 @@ This command prompts you for a `username` and `password` which correspond to you
 
 ### <a id='create-team'></a> Creating a `team`
 
-A `team` is an entity on Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.
+A `team` is an entity in Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.  Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
 
-**All the credentials required during image creation need to be a part of the team configuration. This includes registry credentials for the built images and repository credentials for the source code if it lies in a private repository**
+To effectively utilize a `team`, users must configure three files using the following `yaml` structure:
 
-Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
-
-You can configure a team using a file with the following `yaml` structure.
+1) A file that contains the desired name of a team.
 
 ```yaml
 name: example-team-name
-registries:
-- registry: registry.default.com
-  username: <registry username>
-  password: <registry password>
-- registry: example.artifactory.com
-  username: <artifactory username>
-  password: <artifactory password>
-repositories:
-- domain: github.com
-  username: <github-username>
-  password: <password-for-github-user>
 ```
 
-The registry credentials provided should belong to a user with `write` access on the registry.
-
-Save this file as `<example-team>.yaml` which can then be provided to Pivotal Build Service:
-
-```bash
+And then run
+```
 pb team apply -f /path/to/<example-team>.yaml
 ```
 
-If the operation is successful, the CLI will display the message: `Successfully applied team example-team-name`
-
 **Current Constraints:**
-1. Only one user per team
-1. Cannot reference UAA user groups
+* Only one user per team - the user that declares the team will be the team's only member
+* Cannot reference UAA user groups
+
+2) A file in which a registry credential is associated with a team.  Build Service will utilize this credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. 
+
+```yaml
+team: example-team-name
+registry: registry.default.com
+username: <registry username>
+password: <registry password>
+```
+And then run 
+```
+pb secrets registry apply -f path/to/<example-registry-creds>.yaml
+```
+
+**Current Constraints** 
+
+* Users can only pass one registry secret per command
+* The registry credential a given team uses can be updated by modifying the above file and running the 
+`pb secrets registry apply` command. 
+
+3) A file in which a git secrets is declared.  If a user wants Build Service to execute builds against app source code that lives in a private git repository, they must associate a git secret with the team they previously created (see step 1).
+
+```yaml
+team: example-team-name
+repository: github.com
+username: testuser
+password: ********
+```
+And then run 
+```
+pb secrets git apply -f path/to/<example-git-secret>.yaml
+```
+
+**Note**  The git secret a given team uses can be updated by modifying the above file and running the 
+`pb secrets git apply` command. 
+
+As you apply each of these files, the `pb` CLI will provide feedback indicating whether or not the commands succeeded.
 
 ### <a id='create-image'></a> Creating an `image`
 
@@ -109,8 +128,8 @@ Pivotal Build Service auto-rebuilds images when one or more of the following thi
 
 **Current Constraints:**
 
-1. Users can only specify source code that lives in a git repository
-1. Pivotal Build Service does not rebuild images based on new OS packages (like cflinuxfs3)
+* Users can only specify source code that lives in a git repository
+* Pivotal Build Service does not rebuild images based on new OS packages (like cflinuxfs3)
 
 ### <a id='monitor-builds'></a> Monitoring `builds` for an `image`
 
@@ -217,7 +236,7 @@ This should follow along with the progress of the build and terminate when the b
 
 **Current Constraints:**
 
-Pivotal Build Service stores the ten most recent successful builds and ten most recent failed builds.
+* Pivotal Build Service only stores the ten most recent successful builds and ten most recent failed builds.
 
 ### <a id='delete'></a> Deleting `teams` and `images`
 
@@ -238,4 +257,17 @@ pb team delete <team-name>
 ```
 If the operation is successful, the CLI will display the message: `Successfully deleted team <team-name>`
 
-Teams **CAN NOT** be deleted if they have images on Pivotal Build Service that belong to them. A team can be deleted only once all images owned by the team on Pivotal Build Service have been deleted.
+Deleting a team will also delete any registry credentials and git secrets associated with that team.
+
+Teams **CANNOT** be deleted if they have images on Pivotal Build Service that belong to them. A team can be deleted only once all images owned by the team on Pivotal Build Service have been deleted.
+
+Additionally, users can delete a registry credential or git secret associated with a given team by using
+
+```
+pb secrets registry delete <name-of-registry.io> -t example-team-name
+```
+and
+```
+pb secrets git delete github.com -t example-team-name
+```
+
