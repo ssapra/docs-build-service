@@ -25,6 +25,6 @@ These configurations help platform engineers and application developers enjoy th
 
 Reach out to your Pivotal account team or the Build Service team directly:
 
-* Stephen Levine - Product Manager/Senior Software Engineer (slevine@pivotal.io)
+* Stephen Levine - Product Manager & Staff Software Engineer (slevine@pivotal.io)
 * Matt Gibson - Product Manager (mgibson@pivotal.io)
 * Matt McNew - Senior Software Engineer (mmcnew@pivotal.io)
