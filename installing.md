@@ -159,6 +159,19 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p <SOME_IMAGE_REGISTRY>
     ```
 
+    ##### Optional: Setting custom Ingress controller annotations
+    If you would like to use an ingress controller other than NGINX or you would like to pass additional annotations
+    to your ingress controller, provide `duffle` with an additional JSON file during installation (ex. `duffle install -p /tmp/parameters.json` ...).
+
+    ```json
+    {
+      "ingress_annotations": {
+        "kubernetes.io/ingress.example-annotation-key": "example-annotation-value",
+        ...
+      }
+    }
+    ```
+
 1) <a href="install-pivotal-build-service"></a>Install Pivotal Build Service
     
     ```bash
@@ -186,11 +199,13 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     - `REGISTRY_USERNAME` Username to access the registry
     - `REGISTRY_PASSWORD` Password to access the registry
     - `UAA_URL` URL to access UAA
+    - `INGRESS_ANNOTATIONS
     
     Additional optional properties: 
     - `disable_builder_polling` this will prevent the build service from polling builder images for buildpack updates
     This option requires you to set up a [Builder Webhook](https://github.com/pivotal-cf/docs-build-service/blob/master/webhooks.md).
-    This is a boolean value so it should be used like: `--disable_builder_polling=true` 
+    This is a boolean value so it should be used like: `--disable_builder_polling=true`
+    - `-p <JSON paramaters file>` this will set ingress annotations (see the "Optional: Setting custom Ingress controller annotations" step above)
     
     **Note** Some images will be pushed again to the image registry because during installation the CA Certificate provided
     will be added to the list of the available CA on these images. To do this, the duffle command must be provided

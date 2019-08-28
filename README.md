@@ -15,7 +15,7 @@ These configurations help platform engineers and application developers enjoy th
 
 ## Helpful Links
 
-* For more information on isntalling Build Service, visit [Installing.md](https://github.com/pivotal-cf/docs-build-service/blob/master/installing.md)
+* For more information on installing Build Service, visit [Installing.md](https://github.com/pivotal-cf/docs-build-service/blob/master/installing.md)
 
 * For more information on using the `pb` CLI to control Build Service, visit [Using.md](https://github.com/pivotal-cf/docs-build-service/blob/master/using.md)   
  
