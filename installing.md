@@ -199,7 +199,6 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     - `REGISTRY_USERNAME` Username to access the registry
     - `REGISTRY_PASSWORD` Password to access the registry
     - `UAA_URL` URL to access UAA
-    - `INGRESS_ANNOTATIONS
     
     Additional optional properties: 
     - `disable_builder_polling` this will prevent the build service from polling builder images for buildpack updates
