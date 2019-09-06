@@ -32,17 +32,8 @@ This command prompts you for a `username` and `password` which correspond to you
 
 A `team` is an entity in Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.  Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
 
-To effectively utilize a `team`, users must configure three files using the following `yaml` structure:
-
-1) A file that contains the desired name of a team.
-
-```yaml
-name: example-team-name
 ```
-
-And then run
-```
-pb team apply -f /path/to/<example-team>.yaml
+pb team create example-team-name
 ```
 
 **Current Constraints:**
