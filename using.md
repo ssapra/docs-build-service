@@ -46,7 +46,7 @@ The team owners can add other users to a team by referencing their UAA username 
 
 Next, to effectively utilize the team they created, users must associate image registry credentials and git credentials (if the source code lives in a private git repo) with the team. 
 
-1) Associating a registry credential with a team.  Build Service will utilize these credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. 
+1) Associating a registry credential with a team.  Build Service will utilize these credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. Currently, build service has tested and recommends using Docker Hub, GCR, Harbor, or Artifactory.  Since Docker Hub and GCR are hosted services, when referencing these registries in the `registry` field, use the domain names `index.docker.io` and `gcr.io` respectively.  For Artifactory or Harbor, reference the domain that is specific to your deployment of the registry. 
 
 ```yaml
 team: example-team-name
