@@ -59,7 +59,7 @@ pb secrets registry apply -f path/to/<example-registry-creds>.yaml
 
 **Current Constraints** 
 
-* Users can only pass one registry secret per command
+* Users can only add a secret at a time
 * The registry credential that a given team uses can be updated by modifying the above file and running the `pb secrets registry apply` command. 
 
 2) Associating a git credential with a team.  If a user wants Build Service to execute builds against app source code that lives in a private git repository, they must associate a git secret with the team they previously created.
