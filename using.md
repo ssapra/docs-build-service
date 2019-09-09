@@ -32,7 +32,9 @@ This command prompts you for a `username` and `password` which correspond to you
 
 A `team` is an entity in Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.  Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
 
-First, a user can create a team and give it a name by running `pb team create <team-name>`.  By creating a team, that user is added to the team.  Team members can add other users to a team by referencing their UAA username by running `pb team user add <uaa-user@company.com> <example-team-name>`.  Users can remove team members by running `pb team user remove <uaa-user@company.com> <example-team-name>`. 
+First, a user can create a team and give it a name by running `pb team create <team-name>`.  By creating a team, that user is added to the team.  
+
+The team owners can add other users to a team by referencing their UAA username by running `pb team user add <uaa-user@company.com> <example-team-name>`. Users can remove team members by running `pb team user remove <uaa-user@company.com> <example-team-name>`. 
 
 **Current Constraints:**
 
