@@ -37,45 +37,60 @@ pb team create example-team-name
 ```
 
 **Current Constraints:**
-* Only one user per team - the user that declares the team will be the team's only member
 * Cannot reference UAA user groups
 
-2) A file in which a registry credential is associated with a team.  Build Service will utilize this credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. 
+#### <a id='add-secrets'></a> Add secrets to team
 
-```yaml
-team: example-team-name
-registry: registry.default.com
-username: <registry username>
-password: <registry password>
+1. A file in which a registry credential is associated with a team.  Build Service will utilize this credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry.
+
+    ```yaml
+    team: example-team-name
+    registry: registry.default.com
+    username: <registry username>
+    password: <registry password>
+    ```
+    And then run
+    ```
+    pb secrets registry apply -f path/to/<example-registry-creds>.yaml
+    ```
+
+    **Current Constraints**
+
+    * Users can only pass one registry secret per command
+    * The registry credential a given team uses can be updated by modifying the above file and running the 
+    `pb secrets registry apply` command.
+
+1. A file in which a git secrets is declared.  If a user wants Build Service to execute builds against app source code that lives in a private git repository, they must associate a git secret with the team they previously created (see step 1).
+
+    ```yaml
+    team: example-team-name
+    repository: github.com
+    username: testuser
+    password: ********
+    ```
+    And then run
+    ```
+    pb secrets git apply -f path/to/<example-git-secret>.yaml
+    ```
+
+    **Note**  The git secret a given team uses can be updated by modifying the above file and running the 
+    `pb secrets git apply` command.
+
+    As you apply each of these files, the `pb` CLI will provide feedback indicating whether or not the commands succeeded.
+
+
+#### <a id='add-ownwers'></a> Add Owners to team
+
+Add additional team owners, by running the command
+
 ```
-And then run 
-```
-pb secrets registry apply -f path/to/<example-registry-creds>.yaml
+pb team user add some-user@email.com --team example-team-name
 ```
 
-**Current Constraints** 
+The owners will be allowed to create new images, manage secrets and users in the team
 
-* Users can only pass one registry secret per command
-* The registry credential a given team uses can be updated by modifying the above file and running the 
-`pb secrets registry apply` command. 
-
-3) A file in which a git secrets is declared.  If a user wants Build Service to execute builds against app source code that lives in a private git repository, they must associate a git secret with the team they previously created (see step 1).
-
-```yaml
-team: example-team-name
-repository: github.com
-username: testuser
-password: ********
-```
-And then run 
-```
-pb secrets git apply -f path/to/<example-git-secret>.yaml
-```
-
-**Note**  The git secret a given team uses can be updated by modifying the above file and running the 
-`pb secrets git apply` command. 
-
-As you apply each of these files, the `pb` CLI will provide feedback indicating whether or not the commands succeeded.
+**Current Constrainst**
+* The email address need to exist in UAA
 
 ### <a id='create-image'></a> Creating an `image`
 
@@ -231,6 +246,8 @@ This should follow along with the progress of the build and terminate when the b
 
 ### <a id='delete'></a> Deleting `teams` and `images`
 
+#### <a id='delete-image'></a> Delete `image`
+
 The commands to delete a team and an image are similar to each other. To delete an image run:
 
 ```bash
@@ -243,6 +260,8 @@ This will delete all the builds that belong to the Pivotal Build Service image. 
 
 Similarly, team deletion can be performed using:
 
+#### <a id='delete-team'></a> Delete `team`
+
 ```bash
 pb team delete <team-name>
 ```
@@ -251,6 +270,9 @@ If the operation is successful, the CLI will display the message: `Successfully 
 Deleting a team will also delete any registry credentials and git secrets associated with that team.
 
 Teams **CANNOT** be deleted if they have images on Pivotal Build Service that belong to them. A team can be deleted only once all images owned by the team on Pivotal Build Service have been deleted.
+
+
+#### <a id='delete-secret'></a> Delete `secret` from a team
 
 Additionally, users can delete a registry credential or git secret associated with a given team by using
 
@@ -262,3 +284,16 @@ and
 pb secrets git delete github.com -t example-team-name
 ```
 
+#### <a id='remove-owner'></a> Remove owner from team
+
+Execute the following command
+
+```
+pb team user remove some-user@email.com --team example-team-name
+```
+
+Users can remove themselfs from a team.
+
+The teams need to have at least 1 owners associated with tehm.
+
+The user needs to be an owners of a team in order to remove other members.
