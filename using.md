@@ -40,7 +40,7 @@ The team owners can add other users to a team by referencing their UAA username 
 
 * Team structure is flat, all members of a team are also team “owners” and are allowed to create new images, manage secrets, and add/remove other users from the team
 * Cannot reference UAA user groups
-* The email address must exist in UAA
+* When adding a user the provided email address must exist in UAA
 * Each team must have at least one team member, if a particular team is no longer useful, users can delete a team by running `pb team delete <team-name>`
     * Additional details for deletion workflows are captured in a below section
 
