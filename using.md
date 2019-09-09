@@ -28,7 +28,7 @@ This command prompts you for a `username` and `password` which correspond to you
 `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI will default to pick these up and use them if they exist in the environment.
 
 
-### <a id='create-team'></a> Creating a `team` and managing memebers
+### <a id='create-team'></a> Creating a `team` and managing members
 
 A `team` is an entity in Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.  Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
 
