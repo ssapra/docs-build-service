@@ -67,7 +67,7 @@ configured. To configure this client we recommend using `uaac` tool
   uaac token client get admin -s <user-management-admin-user>
   ```
   
-  **Note:** this password can be found in you UAA credentials section from Opsman
+  **Note:** This password can be found in the UAA credentials section from Opsman.
 
 4) Install the UAA Client
 
@@ -75,69 +75,58 @@ configured. To configure this client we recommend using `uaac` tool
   uaac client add pivotal_build_service_cli --scope="openid" --secret="" --authorized_grant_types="password,refresh_token" --access_token_validity 600 --refresh_token_validity 21600
   ```
   
-  **Note:** this command need to be executed as is. The secret in this case **need** to be an empty string
-
-
+  **Note:** This command must be executed as is. The secret in this case **must** to be an empty string.
 
 ## Configure TLS certificates for Pivotal Build Service
 
-You need to get or create certificate for the Pivotal Build Service Domain that will be used in [Install Pivotal Build Service step](#install-pivotal-build-service). These certificates can be self signed or not.
+You need to get or create TLS certificates for the Pivotal Build Service Domain that will be used in the [Install Pivotal Build Service step](#install-pivotal-build-service). These certificates may be self signed.
 
-When you have the `.crt` and `.key` files place them in `/tmp/certificate.crt` and `/tmp/certificate.key`
+When you have the `.crt` and `.key` files, place them in `/tmp/certificate.crt` and `/tmp/certificate.key`
 
-Create the secret in the Kubernetes cluster
+After installation the TLS certificates may be removed.
 
-```bash
-tlsCert=$(cat /tmp/certificate.crt | base64 | awk '{printf "%s", $0}')
-tlsKey=$(cat /tmp/certificate.key | base64 | awk '{printf "%s", $0}')
-cat << EOF| kubectl create -f -
-apiVersion: v1
-kind: Secret
-metadata:
-  name: build-service-certificate
-  namespace: default
-data:
-  tls.crt: $tlsCert
-  tls.key: $tlsKey
-type: kubernetes.io/tls
-EOF
-```
-
-After this step the files can be removed.
-
-**NOTES:** For MacOS, when using `pb` cli the CA certificate should be added to the keychain and the Trust
-setting must be changed to `Always Trust` instead of `Use System Defaults`
+**NOTES (MacOS Only):** When using the `pb` cli, the CA certificate must be added to the keychain and the trust settings must be changed from `Use System Defaults` to `Always Trust`.
 
 
 ## Install Pivotal Build Service
 
-Download the following files from [Pivnet](https://network.pivotal.io/products/build-service/):
-1) Duffle executable for you operating system
-1) Pivotal Build Service Bundle
+1) Download the Duffle executable for you operating system from [Pivnet](https://network.pivotal.io/products/build-service/)
 
-    Create a credentials file that maps the location where the credentials can be found.
-    This file will be used by `duffle` during the installation
-    
-    A template for the file is next:
-    ```yaml
-    name: build-service-credentials
-    credentials:
-      - name: kube_config
-        source:
-          path: "<path to kubeconfig on local machine>"
-        destination:
-          path: "/root/.kube/config"
-      - name: ca_cert
-        source:
-          path: "<path to CA certificate for registry access>"
-        destination:
-          path: "/cnab/app/cert/ca.crt"
-    ```
-    
-    This file should be created in `/tmp/credentials.yml` this location can be changed but
-    the `duffle install` command must be updated accordingly
-    
-    **Note:** In the credentials file all the local paths need to be absolute.
+1) Download the Pivotal Build Service Bundle from [Pivnet](https://network.pivotal.io/products/build-service/)
+
+1) Create a credentials file that maps the location where the credentials can be found.
+   This file will be used by `duffle` during the installation
+
+   Here is a template for the credentials file:
+   ```yaml
+   name: build-service-credentials
+   credentials:
+     - name: kube_config
+       source:
+         path: "<path to kubeconfig on local machine>"
+       destination:
+         path: "/root/.kube/config"
+     - name: ca_cert
+       source:
+         path: "<path to CA certificate for registry access>"
+       destination:
+         path: "/cnab/app/cert/ca.crt"
+     - name: "tls_cert"
+       source:
+         path: "<path to TLS certificate>"
+       destination:
+         path: "/cnab/app/cert/tls.crt"
+     - name: "tls_key"
+       source:
+         path: "<path to TLS private key>"
+       destination:
+         path: "/cnab/app/cert/tls.key"
+   ```
+
+   This file should be created in `/tmp/credentials.yml` this location can be changed but
+   the `duffle install` command must be updated accordingly
+
+   **Note:** In the credentials file all the local paths need to be absolute.
     
 1) Import the images bundle
 
@@ -151,9 +140,7 @@ Download the following files from [Pivnet](https://network.pivotal.io/products/b
     ```bash
     docker login <SOME_IMAGE_REGISTRY>
     ```
-    **Note** The only caveat at this point is that the images need to be accessible without the need to login to
-    the image registry.
-    
+
     Push the images to the Image Registry
     ```bash
     duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p <SOME_IMAGE_REGISTRY>
