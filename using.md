@@ -265,7 +265,7 @@ This should follow along with the progress of the build and terminate when the b
 **Current Constraints:**
 
 * Pivotal Build Service only stores the ten most recent successful builds and ten most recent failed builds.
-* Users cannot retrive logs by refrencing the image digest, the must use the build number
+* Users cannot retrieve logs by referencing the image digest, they must use the build number
 
 ### <a id='delete'></a> Deleting `teams` and `images`
 
