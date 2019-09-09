@@ -144,6 +144,7 @@ Pivotal Build Service auto-rebuilds images when one or more of the following bui
 1. New buildpack versions are made available through an updated builder image
 1. New commit on a branch or tag Pivotal Build Service is tracking
 1. Updating the commit, branch, git repo, or build fields on the image's configuration file and re-applying it via `pb image apply`
+1. Uploading a new copy of local source via `pb image apply -p`
 
 **Current Constraints:**
 
