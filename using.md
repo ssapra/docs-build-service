@@ -123,7 +123,6 @@ Build Service supports builds against source code that lives in a git repository
 
 ```yaml
 team: example-team-name
-source:
 build:
   env:
   - name: BP_JAVA_VERSION
