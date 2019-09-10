@@ -1,19 +1,17 @@
-This topic describes how to get started with kpack, a collection of open source resource controllers and CRDs that contain declarative build logic.  The following documentation assumes the reader has installed kpack as well as the following pre-requirements 
+This topic describes how to get started with kpack, a collection of open source resource controllers and CRDs that contain declarative build logic.  The following documentation assumes the reader has installed kpack as well as the following pre-requirements
 
 - Kubernetes cluster
 - `kubectl` cli
 - Docker V2 Registry
 
 
-
-
-### <a id='configure-cli'></a> Creating an Image Resource
+### <a id='create-image'></a> Creating an Image Resource
 
 There are several resource types that will work together to produce an image resource.  Below, we will review how to configure and create each resource. Note that the yaml resources contain a `name` field. Users should reference these names when configuring other resource types. In order to apply a particular resource type, use `kubectl apply -f ~/path/to/resource.yml`
 
 1) Creating a builder resource
 
-Prior to using kpack to execute builds, the user must first create a "builder" resource. Builder images contain a list of buildpacks and their corresponding versions and reference to a `stack` image. kpack will utilize these inputs to execute builds.  
+Prior to using kpack to execute builds, the user must first create a `builder` resource. Builder images contain a list of buildpacks and their corresponding versions and reference to a `stack` image. kpack will utilize these inputs to execute builds.
 
 In the resource template provided below, we include a reference to the `cloudfoundry/cnb:bionic` image, which is based on Ubuntu Bionic. This builder image lives in a registry, and kpack will execute rebuilds when the image is updated with new buildpacks. You will reference the `name` of this builder resource when configuring the image resource (step 5)
 
@@ -28,7 +26,7 @@ In the resource template provided below, we include a reference to the `cloudfou
       - name: builder-secret
     ```
 
-2) Create a secret so that kpack can push image builds to your desired registry. The `name` of this credential will be referenced to create a service account (step 4).   
+1) Create a secret so that kpack can push image builds to your desired registry. The `name` of this credential will be referenced to create a service account (step 4).
 
    1. GCR example
       ```yaml
@@ -57,7 +55,7 @@ In the resource template provided below, we include a reference to the `cloudfou
           username: <username>
           password: <password>
         ```
-3) Create a secret for pull access from the desired git repository. The example below is for a github repository.  You can also specify a personal access token.  If you are building against source code that lives in a public registry, you do not need to configure a git secret.  The `name` of this credential will be referenced to create a service account (step 4).
+1) Create a secret for pull access from the desired git repository. The example below is for a github repository.  You can also specify a personal access token.  If you are building against source code that lives in a public registry, you do not need to configure a git secret.  The `name` of this credential will be referenced to create a service account (step 4).
 
     ```yaml
     apiVersion: v1
@@ -72,7 +70,7 @@ In the resource template provided below, we include a reference to the `cloudfou
       password: <password>
     ```
 
-4) Create a service account that uses the docker registry secret and the git repository secret. When configuring the image resource, reference the `name` of your registry credential and the `name` of your git credential.  
+1) Create a service account that uses the docker registry secret and the git repository secret. When configuring the image resource, reference the `name` of your registry credential and the `name` of your git credential.
 
     ```yaml
     apiVersion: v1
@@ -83,7 +81,7 @@ In the resource template provided below, we include a reference to the `cloudfou
       - name: basic-docker-user-pass
       - name: basic-git-user-pass
 
-5. Apply an image configuration to the cluster. In addition to specifying the source code url and any build time environment variable names and values your app needs, users can also exercise additional control over how kpack executes builds. Users can do this by specifying cache size, build history limit, and resources used.  
+1) Apply an image configuration to the cluster. In addition to specifying the source code url and any build time environment variable names and values your app needs, users can also exercise additional control over how kpack executes builds. Users can do this by specifying cache size, build history limit, and resources used.
 
     If you would like to build an image from a git repo:
  
@@ -146,7 +144,7 @@ In the resource template provided below, we include a reference to the `cloudfou
             memory: 512M
     ```
 
-### <a id='configure-cli'></a> Helpful commands 
+### <a id='configure-cli'></a> Helpful commands
 
 **See the builds for the image**
 
@@ -154,9 +152,9 @@ In the resource template provided below, we include a reference to the `cloudfou
     kubectl get cnbbuilds # before the first builds completes you will see a unknown (building) status
     ---------------
     NAME                          SHA   SUCCEEDED
-    sample-image-build-1-ea3e6fa9         Unknown  
+    sample-image-build-1-ea3e6fa9         Unknown
 
-    ```
+  ```
 
 After a build has completed you will be able to see the built digest
 
@@ -168,13 +166,13 @@ Use the log tailing utility in `cmd/logs`
 go build ./cmd/logs
 ```
 
-The logs tool allows you to view the logs for all builds for an image: 
+The logs tool allows you to view the logs for all builds for an image:
 
 ```bash
 ./logs -image <IMAGE-NAME>
 ```
 
-To view logs from a specific build use the build flag:  
+To view logs from a specific build use the build flag:
 
 ```bash
 ./logs -image <IMAGE-NAME> -build <BUILD-NUMBER>
@@ -188,7 +186,7 @@ Access to a Kubernetes cluster is needed in order to install the kpack controlle
 
 ```bash
 kubectl cluster-info # ensure you have access to a cluster
-./hack/apply.sh <IMAGE/NAME> # <IMAGE/NAME> is a writable and publicly accessible location 
+./hack/apply.sh <IMAGE/NAME> # <IMAGE/NAME> is a writable and publicly accessible location
 ```
 
 If generation of code is needed you should run the following commands:
@@ -199,12 +197,8 @@ If generation of code is needed you should run the following commands:
 ### Running Tests
 
 * To run the e2e tests, kpack must be installed and running on a cluster
-* The IMAGE_REGISTRY environment variable must point at a registry with local write access 
+* The IMAGE_REGISTRY environment variable must point at a registry with local write access
 
     ```bash
     IMAGE_REGISTRY=gcr.io/<some-project> go test ./...
     ```
-
- 
-
-   
