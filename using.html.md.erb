@@ -5,7 +5,7 @@ owner: Partners
 
 This topic describes how to get started with Pivotal Build Service.
 
-### <a id='configure-cli'></a> Configuring Pivotal Build Service CLI
+## <a id='configure-cli'></a> Configuring Pivotal Build Service CLI
 
 Once you have deployed Pivotal Build Service, the `pb` CLI can be used to target it with the following commands:
 ```bash
@@ -28,13 +28,13 @@ This command prompts you for a `username` and `password` which correspond to you
 `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI will default to pick these up and use them if they exist in the environment.
 
 
-### <a id='create-team'></a> Creating a `team` and managing members
+## <a id='create-team'></a> Creating a `team` and managing members
 
 A `team` is an entity in Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.  Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
 
 First, a user can create a team and give it a name by running `pb team create <team-name>`.  By creating a team, that user is added to the team.  
 
-The team owners can add other users to a team by referencing their UAA username by running `pb team user add <uaa-user@company.com> <example-team-name>`. Users can remove team members by running `pb team user remove <uaa-user@company.com> <example-team-name>`. 
+The team owners can add other users to a team by referencing their UAA username by running `pb team user add <uaa-user@company.com> <example-team-name>`. Users can remove team members by running `pb team user remove <uaa-user@company.com> <example-team-name>`.
 
 **Current Constraints:**
 
@@ -44,9 +44,9 @@ The team owners can add other users to a team by referencing their UAA username 
 * Each team must have at least one team member, if a particular team is no longer useful, users can delete a team by running `pb team delete <team-name>`
     * Additional details for deletion workflows are captured in a below section
 
-Next, to effectively utilize the team they created, users must associate image registry credentials and git credentials (if the source code lives in a private git repo) with the team. 
+Next, to effectively utilize the team they created, users must associate image registry credentials and git credentials (if the source code lives in a private git repo) with the team.
 
-1) Associating a registry credential with a team.  Build Service will utilize these credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. Currently, build service has tested and recommends using Docker Hub, GCR, Harbor, or Artifactory.  Since Docker Hub and GCR are hosted services, when referencing these registries in the `registry` field, use the domain names `index.docker.io` and `gcr.io` respectively.  For Artifactory or Harbor, reference the domain that is specific to your deployment of the registry. 
+1) Associating a registry credential with a team.  Build Service will utilize these credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. Currently, build service has tested and recommends using Docker Hub, GCR, Harbor, or Artifactory.  Since Docker Hub and GCR are hosted services, when referencing these registries in the `registry` field, use the domain names `index.docker.io` and `gcr.io` respectively.  For Artifactory or Harbor, reference the domain that is specific to your deployment of the registry.
 
 ```yaml
 team: example-team-name
@@ -54,15 +54,15 @@ registry: registry.default.com
 username: <registry username>
 password: <registry password>
 ```
-And then run 
+And then run
 ```
 pb secrets registry apply -f path/to/<example-registry-creds>.yaml
 ```
 
-**Current Constraints** 
+**Current Constraints**
 
 * Users can only add a secret at a time
-* The registry credential that a given team uses can be updated by modifying the above file and running the `pb secrets registry apply` command. 
+* The registry credential that a given team uses can be updated by modifying the above file and running the `pb secrets registry apply` command.
 
 2) Associating a git credential with a team.  If a user wants Build Service to execute builds against app source code that lives in a private git repository, they must associate a git secret with the team they previously created.
 
@@ -72,17 +72,17 @@ repository: github.com
 username: testuser
 password: ********
 ```
-And then run 
+And then run
 ```
 pb secrets git apply -f path/to/<example-git-secret>.yaml
 ```
 
-**Note**  The git secret a given team uses can be updated by modifying the above file and running the `pb secrets git apply` command. 
+**Note**  The git secret a given team uses can be updated by modifying the above file and running the `pb secrets git apply` command.
 
 As you apply the registry and git secret files, the `pb` CLI will provide feedback indicating whether or not the commands succeeded.
 
 
-### <a id='create-image'></a> Creating an `image`
+## <a id='create-image'></a> Creating an `image`
 
 An image defines the specification that Pivotal Build Service uses to create images for a user. Here is an example of an image configuration:
 
@@ -103,7 +103,7 @@ image:
 It is composed of the following components:
 
 1. The `team` that the image belongs to. It has to be the team you are a part of as well. You can only create images for teams you belong to.
-1. The `source` defines the git location of the code that images will be built against. The `revision` can either be a branch, tag or a commit-sha. When targeted against a branch, a build is triggered for every new commit. 
+1. The `source` defines the git location of the code that images will be built against. The `revision` can either be a branch, tag or a commit-sha. When targeted against a branch, a build is triggered for every new commit.
 1. The `build` defines additional configuration you would like your app to be built with.  The `env` is a list of environment variables that will be provided to the build. Each environment variable is an object with `name` and `value`.
 1. An `image registry` defines the destination registry of the builds for the image. The credentials for the target registry must be specified in the `registries` section of the team configuration. This should also match the domain of one of the registries provided in the team configuration.
 
@@ -139,7 +139,7 @@ Users would apply this image configuration and specify a path to their applicati
 pb image apply -f /path/to/<my-example-image>.yaml -p /path/to/app_directory
 ```
 
-### <a id='create-image'></a> Rebuilds
+## <a id='create-image'></a> Rebuilds
 
 Pivotal Build Service auto-rebuilds images when one or more of the following build inputs change:
 1. New buildpack versions are made available through an updated builder image
@@ -151,7 +151,7 @@ Pivotal Build Service auto-rebuilds images when one or more of the following bui
 
 * Pivotal Build Service does not rebuild images based on new OS packages (like cflinuxfs3)
 
-### <a id='monitor-builds'></a> Monitoring `builds` for an `image`
+## <a id='monitor-builds'></a> Monitoring `builds` for an `image`
 
 You can list all the builds created for an image with:
 
@@ -183,7 +183,7 @@ Build    Status    Started Time           Finished Time          Reason    Diges
     * Occurs when new buildpack versions are made available through an updated builder image
 
 **Note:** It is possible for a rebuild to occur for more than one `Reason`.  In this instance, a `+` sign is appended to the `Reason` and the primary `Reason` is displayed.  Priority for the `Reason` is ranked `CONFIG`, `COMMIT`, `BUILDER`, in descending order       
- 
+
  5. The `Digest` column contains the SHA256 of the image successfully built.  Users can reference this SHA to perform helpful Docker commands like `pull` and `inspect`
 
 **Retrieving logs of a particular build**
@@ -269,7 +269,7 @@ This should follow along with the progress of the build and terminate when the b
 * Pivotal Build Service only stores the ten most recent successful builds and ten most recent failed builds.
 * Users cannot retrieve logs by referencing the image digest, they must use the build number
 
-### <a id='delete'></a> Deleting `teams` and `images`
+## <a id='delete'></a> Deleting `teams` and `images`
 
 **Delete `image`**
 
@@ -285,7 +285,7 @@ This will delete all the builds that belong to the Pivotal Build Service image. 
 
 Similarly, team deletion can be performed using:
 
-#### <a id='delete-team'></a> Delete `team`
+### <a id='delete-team'></a> Delete `team`
 
 ```bash
 pb team delete <team-name>
@@ -297,7 +297,7 @@ Deleting a team will also delete any registry credentials and git secrets associ
 Teams **CANNOT** be deleted if they have images on Pivotal Build Service that belong to them. A team can be deleted only once all images owned by the team on Pivotal Build Service have been deleted.
 
 
-#### <a id='delete-secret'></a> Delete `secret` from a team
+### <a id='delete-secret'></a> Delete `secret` from a team
 
 Additionally, users can delete a registry credential or git secret associated with a given team by using
 
