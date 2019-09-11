@@ -78,7 +78,7 @@ build:
         memory: "256M"
 ```
 
-See the [kubernetes documentation on setting environment variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/) and [kubernetes documentation on resource limits and requests](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container) for more information.
+See the kubernetes documentation on [setting environment variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/) and [resource limits and requests](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container) for more information.
 
 ### <a id='create-image'></a> Creating an Image Resource
 
