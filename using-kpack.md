@@ -4,57 +4,116 @@ This topic describes how to get started with kpack, a collection of open source 
 - `kubectl` cli
 - Docker V2 Registry
 
+### The Image Resource
+
+The `image` resource is what Build Service utilizes to declaratively build application images. The following defines the relevant fields of the `image` resource spec in more detail:
+
+- `tag`: The image tag.
+- `builderRef`: The name of the `builder` resource the image builds will use.
+- `serviceAccount`: The Service Account name that will be used for credential lookup.
+- `source`: The source code that will be monitored/built into images. See the "Source Configuration" section below.
+- `cacheSize`: The size of the Volume Claim that will be used by the build cache.
+- `failedBuildHistoryLimit`: The maximum number of failed builds for an image that will be retained.
+- `successBuildHistoryLimit`: The maximum number of successful builds for an image that will be retained.
+- `imageTaggingStrategy`: Allow for builds to be additionally tagged with the build number. Valid options are `None` and `BuildNumber`.
+- `build`: Configuration that is passed to every image build. See "Build Configuration" section below.
+
+#### Source Configuration
+
+The `source` field is a composition of a source code location and a `subpath`. It can be configured in exactly one of the following ways:
+
+* Git
+    ```yaml
+    source:
+      git:
+        url: ""
+        revision: ""
+      subPath: ""
+    ```
+- `git`: (Source Code is a git repository)
+    - `url`: The git repository url. For now, only https repositories are supported.
+    - `revision`: The git revision to use. This value may be a commit sha, branch name, or tag.
+- `subPath`: A subdirectory within the source folder where application code resides. Can be ignored if the source code resides at the `root` level.
+
+* Blob
+    ```yaml
+    source:
+      blob:
+        url: ""
+      subPath: ""
+    ```
+- `blob`: (Source Code is a blob/jar in a blobstore)
+    - `url`: The URL of the source code blob. This blob needs to either be publicly accessible or have the access token in the URL
+- `subPath`: A subdirectory within the source folder where application code resides. Can be ignored if the source code resides at the `root` level.
+
+* Registry
+    ```yaml
+    source:
+      registry:
+        image: ""
+        imagePullSecrets:
+        - name: ""
+      subPath: ""
+    ```
+- `registry` ( Source code is an OCI image in a registry)
+    - `image`: Location of the source image
+    - `imagePullSecrets`: A list of `dockercfg` or `dockerconfigjson` secret names required if the source image is private
+- `subPath`: A subdirectory within the source folder where application code resides. Can be ignored if the source code resides at the `root` level.
+
+#### Build Configuration
+
+The `build` field on the `image` resource can be used to configure env variables required during the build process and to configure resource limits on `CPU` and `memory`.
+
+```yaml
+build:
+  env:
+    - name: "name of env variable"
+      value: "value of the env variable"
+  resources:
+      limits:
+        cpu: "0.25"
+        memory: "128M"
+      requests:
+        cpu: "0.5"
+        memory: "256M"
+```
+
+See the [kubernetes documentation on setting environment variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/) and [kubernetes documentation on resource limits and requests](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container) for more information.
 
 ### <a id='create-image'></a> Creating an Image Resource
 
 There are several resource types that will work together to produce an image resource.  Below, we will review how to configure and create each resource. Note that the yaml resources contain a `name` field. Users should reference these names when configuring other resource types. In order to apply a particular resource type, use `kubectl apply -f ~/path/to/resource.yml`
 
-1) Creating a builder resource
+1) Create a secret so that kpack can push image builds to your desired registry. The `name` of this credential will be referenced to create a service account.
 
-Prior to using kpack to execute builds, the user must first create a `builder` resource. Builder images contain a list of buildpacks and their corresponding versions and reference to a `stack` image. kpack will utilize these inputs to execute builds.
-
-In the resource template provided below, we include a reference to the `cloudfoundry/cnb:bionic` image, which is based on Ubuntu Bionic. This builder image lives in a registry, and kpack will execute rebuilds when the image is updated with new buildpacks. You will reference the `name` of this builder resource when configuring the image resource (step 5)
-
-    ```yaml
-    apiVersion: build.pivotal.io/v1alpha1
-    kind: Builder
-    metadata:
-      name: sample-builder
-    spec:
-      image: cloudfoundry/cnb:bionic
-      imagePullSecrets: # optional, if not set builder must be public
-      - name: builder-secret
-    ```
-
-1) Create a secret so that kpack can push image builds to your desired registry. The `name` of this credential will be referenced to create a service account (step 4).
-
-   1. GCR example
-      ```yaml
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: basic-docker-user-pass
-        annotations:
-          build.pivotal.io/docker: gcr.io
-      type: kubernetes.io/basic-auth
-      stringData:
-        username: <username>
-        password: <password>
-      ```
+    1. GCR example
+       ```yaml
+       apiVersion: v1
+       kind: Secret
+       metadata:
+         name: basic-auth-gcr
+         annotations:
+           build.pivotal.io/do cker: gcr.io
+       type: kubernetes.io/basic-auth
+       stringData:
+         username: <username>
+         password: <password>
+       ```
 
     1. Docker Hub example
-        ```yaml
-        apiVersion: v1
-        kind: Secret
-        metadata:
-          name: basic-docker-user-pass
-          annotations:
-            build.pivotal.io/docker: index.docker.io
-        type: kubernetes.io/basic-auth
-        stringData:
-          username: <username>
-          password: <password>
-        ```
+       ```yaml
+       apiVersion: v1
+       kind: Secret
+       metadata:
+         name: basic-auth-docker
+         annotations:
+           build.pivotal.io/docker: index.docker.io
+       type: kubernetes.io/basic-auth
+       stringData:
+         username: <username>
+         password: <password>
+       ```
+
 1) Create a secret for pull access from the desired git repository. The example below is for a github repository.  You can also specify a personal access token.  If you are building against source code that lives in a public registry, you do not need to configure a git secret.  The `name` of this credential will be referenced to create a service account (step 4).
 
     ```yaml
@@ -80,6 +139,7 @@ In the resource template provided below, we include a reference to the `cloudfou
     secrets:
       - name: basic-docker-user-pass
       - name: basic-git-user-pass
+    ```
 
 1) Apply an image configuration to the cluster. In addition to specifying the source code url and any build time environment variable names and values your app needs, users can also exercise additional control over how kpack executes builds. Users can do this by specifying cache size, build history limit, and resources used.
 
