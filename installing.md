@@ -94,12 +94,13 @@ After installation the TLS certificates may be removed.
 
 ## Install Pivotal Build Service
 
-1) Download the Duffle executable for you operating system from [Pivnet](https://network.pivotal.io/products/build-service/)
+1) ### Download the Duffle executable for you operating system from [Pivnet](https://network.pivotal.io/products/build-service/)
 
-1) Download the Pivotal Build Service Bundle from [Pivnet](https://network.pivotal.io/products/build-service/)
+1) ### Download the Pivotal Build Service Bundle from [Pivnet](https://network.pivotal.io/products/build-service/)
 
-1) Create a credentials file that maps the location where the credentials can be found.
-   This file will be used by `duffle` during the installation
+1) ### Create a credentials file
+
+   This maps the location where the credentials can be found and will be used by `duffle` during the installation
 
    Here is a template for the credentials file:
    ```yaml
@@ -142,7 +143,8 @@ After installation the TLS certificates may be removed.
 
    **Note:** In the credentials file all the local paths need to be absolute.
 
-1) Create a parameters file that specifies the parameters for the installation.
+1) ### Create a parameters file
+   That specifies the parameters for the installation.
    This file will be used by `duffle` during the installation. This file can optionally be replaced by using the `--set` flag to set parameters explicitly as covered later.
 
     Here is a template for the `parameters.json` file
@@ -189,7 +191,7 @@ After installation the TLS certificates may be removed.
    will be added to the list of the available CA on these images. To do this, the parameters file or duffle install command (in case one would like to avoid using the `parameters.json`) must be provided
    with the credentials for the image registry
 
-    ##### Optional: Setting custom Ingress controller annotations
+    #### Optional: Setting custom Ingress controller annotations
     To use an ingress controller other than NGINX or to override default annotations
     used by the ingress controller, add the annotations to the `ingress_annotations` section of the parameters JSON file.
 
@@ -202,7 +204,7 @@ After installation the TLS certificates may be removed.
     }
     ```
 
-    ##### Optional: kpack Only Installation
+    #### Optional: kpack Only Installation
     This will install the Pivotal builder, Build Service CRDs and their controllers. `kubectl` is the CLI tool required to interact with these components. When installing without the gateway, the following parameters are no longer required:
     - `domain`
     - `uaa_url`
@@ -214,7 +216,9 @@ After installation the TLS certificates may be removed.
 
     Replace the values of the `source.path` properties for these properties with `""` but do not remove them from the file. Removing them will cause the installation to fail.
 
-1) Relocate the images from the extracted bundle into an internal Image Registry
+1) ### Relocate the images
+
+    This moves images from the bundle into an internal Image Registry
 
     Login to the Image Registry where the images will be stored
     ```bash
@@ -226,7 +230,7 @@ After installation the TLS certificates may be removed.
     duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p <TARGET_IMAGE_REGISTRY>
     ```
 
-1) Install Pivotal Build Service
+1) ### Install Pivotal Build Service
 
     ```bash
     duffle install <installation-name> -c /tmp/credentials.yml  \
@@ -253,7 +257,7 @@ After installation the TLS certificates may be removed.
     It is possible to have a combination of parameters that are `--set` and passed via the `parameters.json` file by passing the `-p` flag, as long as the keys do not overlap.
     This can lead to errors during installation.
 
-1) Verify installation (for installations that did not set `no_gateway` to `true`)
+1) ### Verify installation (for installations that did not set `no_gateway` to `true`)
 
     Download the `pb` binary from [Pivnet](https://network.pivotal.io/products/build-service/)
 
