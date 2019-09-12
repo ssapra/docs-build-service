@@ -35,9 +35,9 @@ An example arfifactory webhook configuration is provided below:
 }
 ```
 
-**Note:** Make sure the configured artifactory repository is the the one used in `duffle relocate`
+<p class="note"><strong>Note</strong>: Make sure the configured artifactory repository is the the one used in <code>duffle relocate</code>.</p>
 
-### Docker Registry Notifications
+### <a id='docker-notifications'></a>Docker Registry Notifications
 
 If you are using the [docker registry](https://docs.docker.com/registry/) you can setup registry notifications with the build service.
 
@@ -54,10 +54,10 @@ You will need to add a notification endpoint to your registry configuration. An 
         threshold: 5
         backoff: 10s
 ```
-**Note:** Make sure the configured docker registry is the one used in `duffle relocate`
+<p class="note"><strong>Note</strong>: Make sure the configured docker registry is the one used in <code>duffle relocate</code>.</p>
 
 
-### Dockerhub
+### <a id='dockerhub'></a>Dockerhub
 
 If you are using the [Docker Hub](https://hub.docker.com/) you can setup webhooks with the build service.
 
@@ -71,4 +71,4 @@ kubectl get builder build-service-builder -n build-service-builds -o jsonpath='{
 
 The webhook should be configured to use the <BUILD-SERVICE-API>/v1/docker/webhook endpoint.
 
-**Warning:** Docker Hub requires the build service to use a CA-Signed Certificate.
+<p class="note warning"><strong>Warning</strong>: Docker Hub requires the build service to use a CA-Signed Certificate.</p>
