@@ -182,7 +182,7 @@ This domain should have been configured as the domain for the Ingress controller
 Additional optional properties:
 
 - `disable_builder_polling` this will prevent the build service from polling builder images for buildpack updates
-This option requires you to set up a [Builder Webhook](https://github.com/pivotal-cf/docs-build-service/blob/master/webhooks.md).
+This option requires you to set up a [Builder Webhook](./webhooks.html).
 This is a boolean value that defaults to `false`.
 - `ingress_annotations` this will set ingress annotations (see the "Optional: Setting custom Ingress controller annotations" step below). This needs to be supplied inside the `parameters.json` file and not via the `--set` flag.
 - `replica_count` this will define the number of build service instances running. It defaults to `1`.
