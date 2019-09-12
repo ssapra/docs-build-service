@@ -8,12 +8,14 @@ This topic describes how to get started with Pivotal Build Service.
 ## <a id='configure-cli'></a> Configuring Pivotal Build Service CLI
 
 Once you have deployed Pivotal Build Service, the `pb` CLI can be used to target it with the following commands:
+
 ```bash
 pb api set <BUILD-SERVICE-API>
 ```
 An example of the `<BUILD-SERVICE-API>` would be `https://build-service.example.com`. Use the `--skip-ssl-validation` flag if the Pivotal Build Service targets a UAA that has a self-signed CA cert.
 
 You can confirm the targeted Pivotal Build Service using the below command:
+
 ```bash
 pb api get
 ```
@@ -28,11 +30,11 @@ This command prompts you for a `username` and `password` which correspond to you
 `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI will default to pick these up and use them if they exist in the environment.
 
 
-## <a id='create-team'></a> Creating a `team` and managing members
+## <a id='create-team'></a> Creating a team and managing members
 
 A `team` is an entity in Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.  Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
 
-First, a user can create a team and give it a name by running `pb team create <team-name>`.  By creating a team, that user is added to the team.  
+First, a user can create a team and give it a name by running `pb team create <team-name>`.  By creating a team, that user is added to the team.
 
 The team owners can add other users to a team by referencing their UAA username by running `pb team user add <uaa-user@company.com> <example-team-name>`. Users can remove team members by running `pb team user remove <uaa-user@company.com> <example-team-name>`.
 
@@ -46,43 +48,43 @@ The team owners can add other users to a team by referencing their UAA username 
 
 Next, to effectively utilize the team they created, users must associate image registry credentials and git credentials (if the source code lives in a private git repo) with the team.
 
-1) Associating a registry credential with a team.  Build Service will utilize these credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. Currently, build service has tested and recommends using Docker Hub, GCR, Harbor, or Artifactory.  Since Docker Hub and GCR are hosted services, when referencing these registries in the `registry` field, use the domain names `index.docker.io` and `gcr.io` respectively.  For Artifactory or Harbor, reference the domain that is specific to your deployment of the registry.
+1. Associating a registry credential with a team.  Build Service will utilize these credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. Currently, build service has tested and recommends using Docker Hub, GCR, Harbor, or Artifactory.  Since Docker Hub and GCR are hosted services, when referencing these registries in the `registry` field, use the domain names `index.docker.io` and `gcr.io` respectively.  For Artifactory or Harbor, reference the domain that is specific to your deployment of the registry.
 
-```yaml
-team: example-team-name
-registry: registry.default.com
-username: <registry username>
-password: <registry password>
-```
-And then run
-```
-pb secrets registry apply -f path/to/<example-registry-creds>.yaml
-```
+    ```yaml
+    team: example-team-name
+    registry: registry.default.com
+    username: <registry username>
+    password: <registry password>
+    ```
 
-**Current Constraints**
+    And then run
+    ```
+    pb secrets registry apply -f path/to/<example-registry-creds>.yaml
+    ```
+    <br><br>**Current Constraints**
+      * Users can only add a secret at a time
+      * The registry credential that a given team uses can be updated by modifying the above file and running the `pb secrets registry apply` command.
 
-* Users can only add a secret at a time
-* The registry credential that a given team uses can be updated by modifying the above file and running the `pb secrets registry apply` command.
+2. Associating a git credential with a team.  If a user wants Build Service to execute builds against app source code that lives in a private git repository, they must associate a git secret with the team they previously created.
 
-2) Associating a git credential with a team.  If a user wants Build Service to execute builds against app source code that lives in a private git repository, they must associate a git secret with the team they previously created.
+    ```yaml
+    team: example-team-name
+    repository: github.com
+    username: testuser
+    password: ********
+    ```
 
-```yaml
-team: example-team-name
-repository: github.com
-username: testuser
-password: ********
-```
-And then run
-```
-pb secrets git apply -f path/to/<example-git-secret>.yaml
-```
+    And then run
+    ```
+    pb secrets git apply -f path/to/<example-git-secret>.yaml
+    ```
 
-**Note**  The git secret a given team uses can be updated by modifying the above file and running the `pb secrets git apply` command.
+<p class="note"><strong>Note</strong>: The git secret a given team uses can be updated by modifying the above file and running the <code>pb secrets git apply</code> command.</p>
 
 As you apply the registry and git secret files, the `pb` CLI will provide feedback indicating whether or not the commands succeeded.
 
 
-## <a id='create-image'></a> Creating an `image`
+## <a id='create-image'></a> Creating an image
 
 An image defines the specification that Pivotal Build Service uses to create images for a user. Here is an example of an image configuration:
 
@@ -139,7 +141,7 @@ Users would apply this image configuration and specify a path to their applicati
 pb image apply -f /path/to/<my-example-image>.yaml -p /path/to/app_directory
 ```
 
-## <a id='create-image'></a> Rebuilds
+## <a id='rebuild-image'></a> Rebuilds
 
 Pivotal Build Service auto-rebuilds images when one or more of the following build inputs change:
 1. New buildpack versions are made available through an updated builder image
@@ -151,7 +153,7 @@ Pivotal Build Service auto-rebuilds images when one or more of the following bui
 
 * Pivotal Build Service does not rebuild images based on new OS packages (like cflinuxfs3)
 
-## <a id='monitor-builds'></a> Monitoring `builds` for an `image`
+## <a id='monitor-builds'></a> Monitoring builds for an image
 
 You can list all the builds created for an image with:
 
@@ -162,29 +164,27 @@ pb image builds <image-tag>
 The `<image-tag>` in the above command is the value of the field `image.tag` in the image's configuration. The output of the command might look similar to what's described below:
 
 ```
-Build    Status    Started Time           Finished Time          Reason    Digest  
+Build    Status    Started Time           Finished Time          Reason    Digest
 -----    ------    ------------           -------------          ------    ------
-    1    SUCCESS   2019-09-09 21:55:27    2019-07-08 21:56:54    CONFIG    *************************************************             
+    1    SUCCESS   2019-09-09 21:55:27    2019-07-08 21:56:54    CONFIG    *************************************************
     2    SUCCESS   2019-09-09 21:56:55    2019-07-08 21:57:40    COMMIT    *************************************************
     3    FAILED    2019-09-09 21:58:55    2019-07-08 21:59:40    CONFIG+   --
     4    BUILDING  2019-09-09 21:58:55    --                     BUILDER   --
     -    PENDING   --                     --                     UNKNOWN   --
 ```
 
-1. The `Build` column describes the index of builds in the order that they were built.
-1. The `Status` column describes the status of a previous or a running/pending build image.
-1. The  `Started Time` and `Finished Time` columns described when a build was kicked off and when it was completed.
-1. The `Reason` column provides the user with information as to why an image rebuild occured. These reasons include
-* `CONFIG`
-    * Occurs when a change is made to commit, branch, git repo, or build fields on the image's configuration file and the user ran `pb image apply`
-* `COMMIT`
-    * Occurs when new source code is committed to a branch or tag build service is monitoring for changes
-* `BUILDER`
-    * Occurs when new buildpack versions are made available through an updated builder image
-
-**Note:** It is possible for a rebuild to occur for more than one `Reason`.  In this instance, a `+` sign is appended to the `Reason` and the primary `Reason` is displayed.  Priority for the `Reason` is ranked `CONFIG`, `COMMIT`, `BUILDER`, in descending order       
-
- 5. The `Digest` column contains the SHA256 of the image successfully built.  Users can reference this SHA to perform helpful Docker commands like `pull` and `inspect`
+  1. The `Build` column describes the index of builds in the order that they were built.
+  1. The `Status` column describes the status of a previous or a running/pending build image.
+  1. The  `Started Time` and `Finished Time` columns described when a build was kicked off and when it was completed.
+  1. The `Reason` column provides the user with information as to why an image rebuild occured. These reasons include
+      * `CONFIG`
+          * Occurs when a change is made to commit, branch, git repo, or build fields on the image's configuration file and the user ran `pb image apply`
+      * `COMMIT`
+          * Occurs when new source code is committed to a branch or tag build service is monitoring for changes
+      * `BUILDER`
+          * Occurs when new buildpack versions are made available through an updated builder image
+          <p class="note"><strong>Note</strong>: It is possible for a rebuild to occur for more than one <code>Reason</code>. In this instance, a <code>+</code> sign is appended to the <code>Reason</code> and the primary <code>Reason</code> is displayed. Priority for the <code>Reason</code> is ranked <code>CONFIG</code>, <code>COMMIT</code>, <code>BUILDER</code>, in descending order.</p>
+  1. The `Digest` column contains the SHA256 of the image successfully built.  Users can reference this SHA to perform helpful Docker commands like `pull` and `inspect`
 
 **Retrieving logs of a particular build**
 
@@ -269,7 +269,7 @@ This should follow along with the progress of the build and terminate when the b
 * Pivotal Build Service only stores the ten most recent successful builds and ten most recent failed builds.
 * Users cannot retrieve logs by referencing the image digest, they must use the build number
 
-## <a id='delete'></a> Deleting `teams` and `images`
+## <a id='delete'></a> Deleting teams and images
 
 **Delete `image`**
 
@@ -285,7 +285,7 @@ This will delete all the builds that belong to the Pivotal Build Service image. 
 
 Similarly, team deletion can be performed using:
 
-### <a id='delete-team'></a> Delete `team`
+### <a id='delete-team'></a> Delete team
 
 ```bash
 pb team delete <team-name>
@@ -296,8 +296,7 @@ Deleting a team will also delete any registry credentials and git secrets associ
 
 Teams **CANNOT** be deleted if they have images on Pivotal Build Service that belong to them. A team can be deleted only once all images owned by the team on Pivotal Build Service have been deleted.
 
-
-### <a id='delete-secret'></a> Delete `secret` from a team
+### <a id='delete-secret'></a> Delete secret from a team
 
 Additionally, users can delete a registry credential or git secret associated with a given team by using
 
@@ -305,6 +304,7 @@ Additionally, users can delete a registry credential or git secret associated wi
 pb secrets registry delete <name-of-registry.io> -t example-team-name
 ```
 and
+
 ```
 pb secrets git delete github.com -t example-team-name
 ```
