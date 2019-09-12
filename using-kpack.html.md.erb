@@ -9,7 +9,7 @@ This topic describes how to get started with kpack, a collection of open source 
 - `kubectl` cli
 - Docker V2 Registry
 
-### The Image Resource
+## <a id='image-resource'></a>The Image Resource
 
 The `image` resource is what Build Service utilizes to declaratively build application images. The following defines the relevant fields of the `image` resource spec in more detail:
 
@@ -23,7 +23,7 @@ The `image` resource is what Build Service utilizes to declaratively build appli
 - `imageTaggingStrategy`: Allow for builds to be additionally tagged with the build number. Valid options are `None` and `BuildNumber`.
 - `build`: Configuration that is passed to every image build. See "Build Configuration" section below.
 
-#### Source Configuration
+### Source Configuration
 
 The `source` field is a composition of a source code location and a `subpath`. It can be configured in exactly one of the following ways:
 
@@ -65,7 +65,7 @@ The `source` field is a composition of a source code location and a `subpath`. I
     - `imagePullSecrets`: A list of `dockercfg` or `dockerconfigjson` secret names required if the source image is private
 - `subPath`: A subdirectory within the source folder where application code resides. Can be ignored if the source code resides at the `root` level.
 
-#### Build Configuration
+### Build Configuration
 
 The `build` field on the `image` resource can be used to configure env variables required during the build process and to configure resource limits on `CPU` and `memory`.
 
@@ -209,7 +209,7 @@ There are several resource types that will work together to produce an image res
             memory: 512M
     ```
 
-### <a id='configure-cli'></a> Helpful commands
+## <a id='configure-cli'></a> Helpful commands
 
 **See the builds for the image**
 
