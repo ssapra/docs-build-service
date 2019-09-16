@@ -187,7 +187,7 @@ prior to the creation of any Image Resource, because they will define what build
         The major difference between the options is that `external` require a user to update the resource by applying a new
         configuration. While `polling` automatically checks every 5 minutes to see if a new version of the builder image exists
 
-### <a id='create-image'></a> Creating an Image Resource
+## <a id='create-image'></a> Creating an Image Resource
 
 There are several resource types that will work together to produce an image resource.  Below, we will review how to configure and create each resource. Note that the yaml resources contain a `name` field. Users should reference these names when configuring other resource types. In order to apply a particular resource type, use `kubectl apply -f ~/path/to/resource.yml`
 
@@ -282,8 +282,8 @@ executes builds. Users can do this by specifying cache size, build history limit
       tag: gcr.io/project-name/app
       serviceAccount: service-account
       builder:
-        kind: ClusterBuilder
         name: sample-builder
+        kind: ClusterBuilder
       cacheSize: "1.5Gi" # Optional, if not set then the caching feature is disabled
       failedBuildHistoryLimit: 5 # Optional, if not present defaults to 10
       successBuildHistoryLimit: 5 # Optional, if not present defaults to 10
@@ -316,8 +316,8 @@ executes builds. Users can do this by specifying cache size, build history limit
       tag: gcr.io/project-name/app
       serviceAccount: service-account
       builder:
-        kind: ClusterBuilder
         name: sample-builder
+        kind: ClusterBuilder
       cacheSize: "1.5Gi" # Optional, if not set then the caching feature is disabled
       failedBuildHistoryLimit: 5 # Optional, if not present defaults to 10
       successBuildHistoryLimit: 5 # Optional, if not present defaults to 10
