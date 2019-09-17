@@ -11,7 +11,7 @@ This topic describes how to install and configure Pivotal Build Service.
 
 To install Build Service, you must configure UAA, credentials, TLS certificates, and relocate images to an internal image registry. You can also define optional parameters and annotations during installation.
 
-The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation, in which all interaction with Build Service can be done through kubectl only.
+The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation, in which all interaction with Build Service can be done through the kubectl CLI only.
 
 ## <a id='prerequisites'></a> Prerequisites
 
@@ -26,11 +26,11 @@ Before you install Build Service, you must do the following:
 - Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](./https://kubernetes.io/docs/tasks/tools/install-kubectl/).
   <p class='note'><b>Note:</b> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
-- Configure PersistentVolumes on the Kubernetes cluster where you will install Build Service. Configure the cache size per image to 2 GB. Build Service requires PersistentVolumeClaims to cache build artifacts to speed up subsequent builds.
+- Configure PersistentVolumes on the Kubernetes cluster where you will install Build Service. Configure the cache size per image to 2 GB. Build Service requires PersistentVolumeClaims to cache build artifacts, which reduces the time of subsequent builds.
 
-- Download the Duffle executable for you operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
+- Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
 
-- Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/) 
+- Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
 
 ## <a id='configure'></a> Configure Build Service
 
@@ -250,7 +250,7 @@ To install Build Service:
 
 This procedure describes how to install Build Service as a kpack-only installation.
 
-<p class="note warning"><b>Note:</b> If you do a kpack-only installation, all user interactions with Build Service must be done through the kubectl CLI.</p>
+<p class="note warning"><b>Warning:</b> If you do a kpack-only installation, all user interactions with Build Service must be done through the kubectl CLI.</p>
 
 To install Build Service as kpack-only, you must install the Pivotal Builder, Build Service CRDs, and their controllers. For more information about kpack, see [kpack](https://github.com/pivotal/kpack) on Github.
 
