@@ -11,7 +11,7 @@ This topic describes how to install and configure Pivotal Build Service.
 
 To install Build Service, you must configure UAA, credentials, TLS certificates, and relocate images to an internal image registry. You can also define optional parameters and annotations during installation.
 
-The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation, in which all interaction with Build Service must be done through `kubectl` only.
+The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation, in which all interaction with Build Service can be done through kubectl only.
 
 ## <a id='prerequisites'></a> Prerequisites
 
@@ -19,25 +19,26 @@ Before you install Build Service, you must do the following:
 
 - Install Pivotal Container Service (PKS). See [Installing Enterprise PKS](https://docs.pivotal.io/pks/1-5/installing.html).
 
-- Install kubectl. Kubectl is only required if you do not have an ingress controller installed locally.
-
 - Install ruby. Ruby is required to create a UAA client.
 
-- Install an Ingress Controller on the cluster where you will install Build Service. The Build Service expects an Ingress Controller and an Ingress Service to configure its own ingress. See [How to set up an Ingress Controller for a PKS cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster).
+- Install an ingress controller on the Kubernetes cluster where you will install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. See [How to set up an Ingress Controller for a PKS cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster).
 
-- Configure Persistent Volumes on the cluster where you will install Build Service. Configure the cache size per image to 2GiBs. Build Service requires Persistent Volume Claims to cache build artifacts to speed up subsequent builds.
+- Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](./https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+  <p class='note'><b>Note:</b> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
-- Download the Duffle executable for you operating system from [Pivnet](https://network.pivotal.io/products/build-service/)
+- Configure PersistentVolumes on the Kubernetes cluster where you will install Build Service. Configure the cache size per image to 2 GB. Build Service requires PersistentVolumeClaims to cache build artifacts to speed up subsequent builds.
 
-- Download the Build Service Bundle from [Pivnet](https://network.pivotal.io/products/build-service/) 
+- Download the Duffle executable for you operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
+
+- Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/) 
 
 ## <a id='configure'></a> Configure Build Service
 
-Follow the procedures in this section to install and configure Build Service. 
+The procedures in this section describe how to configure Build Service to prepare for installation.
 
 ### <a id='retrieve-credentials'></a>Retrieve PKS Cluster Credentials
 
-This procedure retrieves the credentials that authenticate communication between `kubectl` and the PKS cluster where Build Service runs.
+This procedure retrieves the credentials that authenticate communication between kubectl and the PKS cluster where Build Service runs.
 
 To retrieve the PKS cluster credentials:
 
@@ -57,26 +58,26 @@ To retrieve the PKS cluster credentials:
 
 ### <a id='uaa-client-creation'></a> Install a UAA Client
 
-The users of Build Service are configured on and authenticated by UAA.
+UAA authenticates Build Service users.
 To allow Build Service to interact with UAA, you must install and configure a UAA client.
 
 To install a UAA client for Build Service:
 
-1. Install `uaac`:
+1. Install the `uaac` client:
 
     ```bash
     gem install cf-uaac
     ```
     <p class="note"><strong>Note</strong>: If you are not using <code>rbenv</code> or <code>rvm</code>, you may need to run <code>sudo gem install cf-uaac</code> to install <code>uaac</code>.</p>
 
-1. Target the UAA that will be used to authenticate Build Service users:
+1. Target the UAA that you will use to authenticate Build Service users:
 
     ```bash
     uaac target UAA-URL
     ```
     Where `UAA-URL` is the URL for the UAA that is used to authenticate users for Build Service.
 
-    <p class="note"><strong>Note</strong>: If you use a self-signed certificate, add the <code>--skip-ssl-validation</code> flag to the command.</p>
+    <p class="note"><strong>Note</strong>: If the UAA uses a self-signed certificate, add the <code>--skip-ssl-validation</code> flag to the command.</p>
 
 1. In Ops Manager, go to the **UAA credentials** section. Record the password for the admin user. 
 
@@ -87,18 +88,18 @@ To install a UAA client for Build Service:
     ```
     Where `ADMIN-PASSWORD` is the password for the UAA admin user. 
 
-1. Install the UAA client:
+1. Associate the UAA client with Build Service:
     <p class="note warning"><strong>Warning</strong>: Run the following command exactly as it appears below. The <code>--secret</code> property must be an empty string.</p>
 
     ```bash
     uaac client add pivotal_build_service_cli --scope="openid,scim.read" --secret="" --authorized_grant_types="password,refresh_token,client_credentials" --authorities="scim.read" --access_token_validity 600 --refresh_token_validity 21600
     ```
 
-### <a id='configure-tls'></a>Create TLS Certificate
+### <a id='configure-tls'></a>Configure TLS Certificate
 
 You must create a TLS certificate for the Build Service domain. This certificate may be self-signed. 
 
-To create TLS certificates:
+To configure a TLS certificate for Build Service:
 
 1. Create or use an existing TLS certificate for the Build Service domain.
   <p class="note"><strong>Note</strong>: If you use a self-signed certificate, add the <code>--skip-ssl-validation</code> flag.</p>
@@ -108,7 +109,7 @@ To create TLS certificates:
 
 ### <a id='create-creds-file'></a>Create a Credentials File
 
-This file maps the location where the credentials can be found and will be used by `duffle` during the installation.
+Create a credentials file to provide the location of the TLS certificate credentials to `duffle` during Build Service installation.
 
 To create a credentials file:
 

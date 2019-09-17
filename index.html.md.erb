@@ -16,17 +16,33 @@ For more information about modern container standards, see [Open Container Initi
 For more information about the open-source Cloud Native Buildpacks project, see [Cloud Native Buildpacks](http://buildpacks.io).
 
 
-## <a id='automated-image-rebuilds'></a> How Build Service Automates Image Builds
+## <a id='image-and-team'></a> Image and Team Configurations
 
 Build Service reduces operational overhead and improves security by automating builds of container images for apps in your environment. 
 
-Build Service uses the following configurations to automate builds of container images: 
-
-* **Image**: The image configuration includes several inputs that describe the app. Build Service builds container images that resolve any discrepancies between the description of the app in the image configuration and the latest version of the image. Build Service can automatically build a new image when the latest versions of app dependencies are available.
-
-* **Team**: The team configuration is a Build Service extension that uses UAA to provide user access control to image configurations.
+Build Service uses the image and team configurations to automate builds of container images. 
 
 The Build Service CLI, `pb`, allows you to define and modify the image and team configurations for Build Service.
+
+### <a id='image-config'></a> Build Service Images
+
+The image configuration file includes several inputs that describe the app. Build Service builds container images that resolve any discrepancies between the description of the app in the image configuration and the latest version of the image. 
+
+Build Service can automatically build a new image when the latest versions of app dependencies are available.
+
+### <a id='team-config'></a> Build Service Teams
+
+A `team` is a Build Service entity that uses UAA to provide user access control to image configurations. 
+
+You can use a `team` to manage authentication for Build Service images, manage the registry, and manage credentials for container images. 
+
+The following are the constraints of teams in Build Service:
+
+* All members of a team are also team `owners` and are able to create new images, manage secrets, and add or remove other users from the team.
+* Only the users that belong to a team are able to create images against the team and check the builds against an image.
+* Teams cannot reference UAA user groups.
+* To add a user to a team, the user email address must exist in UAA.
+* Each team must have at least one team member.
 
 
 ## <a id='troubleshooting'></a>Troubleshooting

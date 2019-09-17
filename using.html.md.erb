@@ -1,54 +1,116 @@
 ---
-title: Tutorial for Pivotal Build Service
+title: Using the Pivotal Build Service CLI
 owner: Build Service Team
 ---
 
-This topic describes how to get started with Pivotal Build Service.
+This topic describes how to use the Pivotal Build Service CLI, `pb`, to log in to Build Service, create and delete container images, create and delete teams, and manage builds.
 
-## <a id='configure-cli'></a> Configuring Pivotal Build Service CLI
+## <a id='configure-cli'></a> Log In to Build Service
 
-Once you have deployed Pivotal Build Service, the `pb` CLI can be used to target it with the following commands:
+After you configure and install Build Service, you can configure the Build Service CLI, `pb`, to target your Build Service installation and log in.
 
-```bash
-pb api set <BUILD-SERVICE-API>
-```
-An example of the `<BUILD-SERVICE-API>` would be `https://build-service.example.com`. Use the `--skip-ssl-validation` flag if the Pivotal Build Service targets a UAA that has a self-signed CA cert.
+For more information about installation and configuring Build Service, see [Installing and Configuring Build Service](./installing.html). 
 
-You can confirm the targeted Pivotal Build Service using the below command:
+To target your Build Service installation and log in:
 
-```bash
-pb api get
-```
+1. Target the API for your Build Service installation:
 
-Once you are targeting the intended Pivotal Build Service, you can log into it as follows:
+    ```bash
+    pb api set YOUR-BUILD-SERVICE-API
+    ```
+    Where `YOUR-BUILD-SERVICE-API` is the URL for the API for your Build Service installation. For example, `https://build-service.example.com`.
+    <p class="note"><b>Note:</b> Use the <code>--skip-ssl-validation</code> flag if your Build Service installation targets a UAA that has a self-signed CA cert.</p>
 
-```bash
-pb login
-```
+1. Confirm that you targeted the correct Build Service installation:
 
-This command prompts you for a `username` and `password` which correspond to your UAA credentials. Additionally, the username and password can be passed in via environment variables with the following names:
+    ```bash
+    pb api get
+    ```
+
+1. Log in to Build Service:
+
+    ```bash
+    pb login
+    ```
+1. When prompted, enter the `username` and `password` for UAA. 
+
+The username and password can be passed to Build Service with the following environment variables:
 `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI will default to pick these up and use them if they exist in the environment.
 
 
-## <a id='create-team'></a> Creating a team and managing members
+## <a id='manage-teams'></a> Manage Teams
 
-A `team` is an entity in Pivotal Build Service that is used to manage authentication for the images built by Pivotal Build Service and to manage registry and git credentials for the images managed by said team.  Only the users that belong to a team will be allowed to create images against said team. Additionally, they will be the only ones who can check the builds against an image.
+The following procedures describe how to manage teams and users with the `pb` CLI.
 
-First, a user can create a team and give it a name by running `pb team create <team-name>`.  By creating a team, that user is added to the team.
+### <a id='create-team'></a> Create a Team
 
-The team owners can add other users to a team by referencing their UAA username by running `pb team user add <uaa-user@company.com> <example-team-name>`. Users can remove team members by running `pb team user remove <uaa-user@company.com> <example-team-name>`.
+A `team` is a Build Service entity that uses UAA to provide user access control to image configurations. For more information, see [Build Service Teams](./installing.html/#team-config).
 
-**Current Constraints:**
+To create a new team: 
 
-* Team structure is flat, all members of a team are also team “owners” and are allowed to create new images, manage secrets, and add/remove other users from the team
-* Cannot reference UAA user groups
-* When adding a user the provided email address must exist in UAA
-* Each team must have at least one team member, if a particular team is no longer useful, users can delete a team by running `pb team delete <team-name>`
-    * Additional details for deletion workflows are captured in a below section
+1. Log in to Build Service:
+
+    ```bash
+    pb login
+    ```
+
+1. Create a new team:
+
+    ```
+    pb team create TEAM-NAME
+    ```
+    Where `TEAM-NAME` is a unique name for the team.  
+
+
+### <a id='manage-team-members'></a> Add and Remove Team Members
+
+All members of a team can add and remove team members. 
+
+To add members to a team:
+
+1. Log in to Build Service:
+
+    ```bash
+    pb login
+    ```
+
+1. Add a user to a team:
+    ```
+    pb team user add UAA-USER-EMAIL TEAM-NAME
+    ```
+    Where:
+    * `UAA-USER-EMAIL`: Is the email address for the user.
+    <p class="note"><b>Note:</b> The user email address must be in UAA to add the user to a team.</p>
+    * `TEAM-NAME` is the name of the team where the user is added.
+
+To remove members of a team:
+
+1. Log in to Build Service:
+
+    ```bash
+    pb login
+    ```
+
+1. Remove a user from a team:
+
+    ```
+    pb team user remove UAA-USER-EMAIL TEAM-NAME
+    ```
+    Where:
+    * `UAA-USER-EMAIL`: Is the email address for the user.
+    * `TEAM-NAME` is the name of the team from which the user is removed.
+
+### <a id='add-image'></a> Associate Image Registry with a Team    
 
 Next, to effectively utilize the team they created, users must associate image registry credentials and git credentials (if the source code lives in a private git repo) with the team.
 
-1. Associating a registry credential with a team.  Build Service will utilize these credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. Currently, build service has tested and recommends using Docker Hub, GCR, Harbor, or Artifactory.  Since Docker Hub and GCR are hosted services, when referencing these registries in the `registry` field, use the domain names `index.docker.io` and `gcr.io` respectively.  For Artifactory or Harbor, reference the domain that is specific to your deployment of the registry.
+Build Service will utilize these credentials to deliver container image builds to the user's specified registry.  The registry credential provided should belong to a user with `write` access on the registry. Currently, build service has tested and recommends using Docker Hub, GCR, Harbor, or Artifactory.  
+
+Since Docker Hub and GCR are hosted services, when referencing these registries in the `registry` field, use the domain names `index.docker.io` and `gcr.io` respectively.  For Artifactory or Harbor, reference the domain that is specific to your deployment of the registry.
+
+To associate an image registry credentials with a team:
+
+1. Add image registry credentials to the team:
 
     ```yaml
     team: example-team-name
@@ -65,23 +127,55 @@ Next, to effectively utilize the team they created, users must associate image r
       * Users can only add a secret at a time
       * The registry credential that a given team uses can be updated by modifying the above file and running the `pb secrets registry apply` command.
 
-2. Associating a git credential with a team.  If a user wants Build Service to execute builds against app source code that lives in a private git repository, they must associate a git secret with the team they previously created.
+### <a id='add-git-credentials'></a> Manage Git Credentials for a Team
 
-    ```yaml
-    team: example-team-name
-    repository: github.com
-    username: testuser
-    password: ********
-    ```
-
-    And then run
-    ```
-    pb secrets git apply -f path/to/<example-git-secret>.yaml
-    ```
+To allow Build Service to execute builds against app source code in a private Git repository, add the Git username and password to the team that manages the source code in Build Service.
 
 <p class="note"><strong>Note</strong>: The git secret a given team uses can be updated by modifying the above file and running the <code>pb secrets git apply</code> command.</p>
 
 As you apply the registry and git secret files, the `pb` CLI will provide feedback indicating whether or not the commands succeeded.
+
+#### Add Git Credentials to a Team
+
+To add git credentials to a team:
+
+1. Create a YAML file with the `git` credentials:
+
+    ```yaml
+    team: TEAM-NAME
+    repository: github.com
+    username: GIT-USERNAME
+    password: GIT-PASSWORD
+    ```
+1. Apply the git credentials to the team:
+    
+    ```
+    pb secrets git apply -f PATH-TO-GIT-CREDENTIALS-YAML-FILE
+    ```
+
+#### Delete Git Credentials From a Team
+
+1. 
+
+    ```
+    pb secrets registry delete <name-of-registry.io> -t example-team-name
+    ```
+1. 
+
+    ```
+    pb secrets git delete github.com -t example-team-name
+    ```
+
+### <a id='delete-team'></a> Delete a Team
+
+```bash
+pb team delete <team-name>
+```
+If the operation is successful, the CLI will display the message: `Successfully deleted team <team-name>`
+
+Deleting a team will also delete any registry credentials and git secrets associated with that team.
+
+Teams **CANNOT** be deleted if they have images on Pivotal Build Service that belong to them. A team can be deleted only once all images owned by the team on Pivotal Build Service have been deleted.
 
 
 ## <a id='create-image'></a> Creating an image
@@ -285,26 +379,4 @@ This will delete all the builds that belong to the Pivotal Build Service image. 
 
 Similarly, team deletion can be performed using:
 
-### <a id='delete-team'></a> Delete team
 
-```bash
-pb team delete <team-name>
-```
-If the operation is successful, the CLI will display the message: `Successfully deleted team <team-name>`
-
-Deleting a team will also delete any registry credentials and git secrets associated with that team.
-
-Teams **CANNOT** be deleted if they have images on Pivotal Build Service that belong to them. A team can be deleted only once all images owned by the team on Pivotal Build Service have been deleted.
-
-### <a id='delete-secret'></a> Delete secret from a team
-
-Additionally, users can delete a registry credential or git secret associated with a given team by using
-
-```
-pb secrets registry delete <name-of-registry.io> -t example-team-name
-```
-and
-
-```
-pb secrets git delete github.com -t example-team-name
-```
