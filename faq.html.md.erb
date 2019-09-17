@@ -1,0 +1,24 @@
+---
+title: FAQs
+owner: Build Service Team
+---
+
+## <a href="question-github-repository"></a>Q: How can I configure an image to pull from a private GitHub repository?
+
+Create a file with the following yaml replacing `[generated-token]` with a token generated using [this procedure](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line)
+```yaml
+team: team-name
+repository: https://github.com
+username: [generated-token]
+password: 'x-oauth-basic'
+```
+
+Create the secret using the command `pb secrets git apply -f filename.yaml`
+
+## Q: Can I use ClusterBuilder with a private builder image?
+
+No, private images are only supported for Builder types.
+
+## Q: My GitHub repository is public and my first build started but when I update my repo new builds are not started
+
+If a secret was configured for GitHub make sure it was configured as described in [this question](#question-github-repository).
