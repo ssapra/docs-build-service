@@ -5,31 +5,30 @@ owner: Build Service Team
 
 <strong><%= modified_date %></strong>
 
-Build Service is a tool that transforms source code into container images by utilizing the OSS [Cloud Native Buildpacks project](http://buildpacks.io) to execute reproducible builds that adhere to [modern container standards](
-https://github.com/opencontainers/image-spec/blob/master/spec.md).  Additionally, Build Service employs declarative logic to automate image re-builds to reduce devops toil and security vulnerability.
+This topic provides an overview of Pivotal Build Service. 
 
-Understanding the differences between declarative and imperative programming models as they relate to producing container images from source code is key to deriving the most value possible from Build Service.  Pivotal Application Service, based on Cloud Foundry, currently follows an imperative model.  The user instructs the platform to perform various tasks through the `cf push` model.  Similarly, the [Cloud Native Buildpacks project](http://buildpacks.io), follows an imperative model.  Users perform commands like `build` and `rebase` using the `pack` CLI to trigger one-time execution of these commands.
+## <a id='overview'></a> Overview
 
-The `pb` (Pivotal Build) CLI doesn’t have commands like `push`, `build`, or `rebase`.  Instead, users utilize `pb` to declare and modify two configurations.
+Build Service uses the open-source Cloud Native Buildpacks project to change app source code into container images. This allows Build Service to execute reproducible builds that align with modern container standards. You can use Build Service to securely use containerized software development at scale.
 
-1) The “Image” config:  Users describe their app through several inputs, and build service will deliver new images that resolve discrepancies between how the app is described and the latest version of the image. When the user requests the latest version of an application dependency, and that dependency becomes available, a new image is automatically built.
+For more information about modern container standards, see [Open Container Initiative](https://github.com/opencontainers/image-spec/blob/master/spec.md) in Github.
 
-2) The “Team” config:   An extension to build service that provides access control to image configs using UAA.
+For more information about the open-source Cloud Native Buildpacks project, see [Cloud Native Buildpacks](http://buildpacks.io).
 
-These configurations help platform engineers and application developers enjoy the benefits of containerized software development at enterprise scale more easily and securely.
 
-## <a id='links'></a>Helpful Links
+## <a id='automated-image-rebuilds'></a> How Build Service Automates Image Builds
 
-* For more information about installing Build Service, see [Installing and Configuring Pivotal Build Service](./installing.html).
+Build Service reduces operational overhead and improves security by automating builds of container images for apps in your environment. 
 
-* For more information about using the `pb` CLI to control Build Service, see [Tutorial for Pivotal Build Service](./using.html).
+Build Service uses the following configurations to automate builds of container images: 
 
-* For information about setting up an optional builder image webhook, see [Setting up Builder Webhooks](./webhooks.html).
+* **Image**: The image configuration includes several inputs that describe the app. Build Service builds container images that resolve any discrepancies between the description of the app in the image configuration and the latest version of the image. Build Service can automatically build a new image when the latest versions of app dependencies are available.
+
+* **Team**: The team configuration is a Build Service extension that uses UAA to provide user access control to image configurations.
+
+The Build Service CLI, `pb`, allows you to define and modify the image and team configurations for Build Service.
+
 
 ## <a id='troubleshooting'></a>Troubleshooting
 
-Reach out to your Pivotal account team or the Build Service team directly:
-
-* Stephen Levine - Product Manager & Staff Software Engineer (slevine@pivotal.io)
-* Matt Gibson - Product Manager (mgibson@pivotal.io)
-* Matt McNew - Senior Software Engineer (mmcnew@pivotal.io)
+For troubleshooting Build Service, contact the Build Service team. 
