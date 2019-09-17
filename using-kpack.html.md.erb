@@ -94,26 +94,6 @@ The `source` field is a composition of a source code location and a `subpath`. I
     - `imagePullSecrets`: A list of `dockercfg` or `dockerconfigjson` secret names required if the source image is private
 - `subPath`: A subdirectory within the source folder where application code resides. Can be ignored if the source code resides at the `root` level.
 
-### <a id='builder-config'></a>Builder Configuration
-
-kpack supports two different types of Builder, namespace scoped and cluster scoped.
-
-* Namespaced Builder
-    In order to use a namespaced builder it should be created in the same namespace as the image we want to build
-    ```yaml
-    builder:
-      kind: Builder
-      name: sample-builder
-    ```
-
-* Cluster Builder
-    This builder is more generic and can be used by images in any namespace
-    ```yaml
-    builder:
-      kind: ClusterBuilder
-      name: sample-builder
-    ```
-
 ### <a id='build-config'></a>Build Configuration
 
 The `build` field on the `image` resource can be used to configure env variables required during the build process and to configure resource limits on `CPU` and `memory`.
