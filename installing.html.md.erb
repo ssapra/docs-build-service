@@ -23,7 +23,7 @@ Before you install Build Service, you must do the following:
 
 - Install an ingress controller on the Kubernetes cluster where you will install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. See [How to set up an Ingress Controller for a PKS cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster).
 
-- Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](./https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+- Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
   <p class='note'><b>Note:</b> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
 - Configure PersistentVolumes on the Kubernetes cluster where you will install Build Service. Configure the cache size per image to 2 GB. Build Service requires PersistentVolumeClaims to cache build artifacts, which reduces the time of subsequent builds.
@@ -97,7 +97,7 @@ To install a UAA client for Build Service:
 
 ### <a id='configure-tls'></a>Configure TLS Certificate
 
-You must create a TLS certificate for the Build Service domain. This certificate may be self-signed. 
+You must create a TLS certificate for the Build Service domain or use an existing certificate. This certificate may be self-signed. 
 
 To configure a TLS certificate for Build Service:
 
@@ -161,10 +161,9 @@ To define custom parameters and annotations for Build Service:
 1. Add any of the following optional properties to the `/tmp/parameters.json` file:
     - `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling Builder images for buildpack updates. By default, this property is `false`.
     If you set `disable_builder_polling` to true, you must configure a Builder Webhook. See [Setting up Builder Webhooks](./webhooks.html).
-    - `ingress_annotations`: Configures ingress annotations. See [(Optional) Create Custom Ingress Controller Annotations](#custom-annotations).
-        <p class="note"><b>Note:</b> The value for this property must be supplied in the `parameters.json` file and not through the <code>--set</code> flag.</p> 
+    - `ingress_annotations`: Configures ingress annotations.
     - `replica_count`: Defines the number of Build Service instances running. By default, `replica_count` is `1`.
-    - `no_gateway`: Installs the Pivotal Builder and kpack. the Build Service CRDs and controllers. This is a boolean value that defaults to `false`.
+    - `no_gateway`: Installs the Pivotal Builder and kpack, the Build Service CRDs, and controllers. This is a boolean value that defaults to `false`.
     <p class="note warning"><b>Warning:</b> If you set <code>no_gateway</code> to true, you can interact with Build Service through <code>kubectl</code> only. See <a href="#kpack-only">(Optional) Install Build Service as a kpack-Only Installation</a>.</p>
 
         The following example `parameters.json` file shows the correct format for the `ingress_annotations` property:
@@ -199,7 +198,7 @@ To move the images from the Build Service bundle to an internal image registry:
 
 ## <a id='install'></a> Install Build Service
 
-The following procedures describes how to use `duffle` to define the required Build Service parameters and install build service. 
+The following procedures describe how to use `duffle` to define the required Build Service parameters and install build service. 
 
 You can do a standard Build Service installation or install Build Service as a kpack-only installation. Do one of the following:
 
@@ -252,7 +251,7 @@ This procedure describes how to install Build Service as a kpack-only installati
 
 <p class="note warning"><b>Warning:</b> If you do a kpack-only installation, all user interactions with Build Service must be done through the kubectl CLI.</p>
 
-To install Build Service as kpack-only, you must install the Pivotal Builder, Build Service CRDs, and their controllers. For more information about kpack, see [kpack](https://github.com/pivotal/kpack) on Github.
+For more information about kpack, see [kpack](https://github.com/pivotal/kpack) on Github.
 
 To install Build Service as a kpack-only installation: 
 
@@ -260,7 +259,7 @@ To install Build Service as a kpack-only installation:
     - `tls_cert`
     - `tls_key`
 
-1. Create a `parameters.json` file and set the `no_gateway` property in the file to `true`. See [(Optional) Define Custom Parameters and Annotations](#create-params-file).
+1. Create a `parameters.json` file and set the `no_gateway` property in the file to `true`. This installs the Pivotal Builder, Build Service CRDs, and their controllers. See [(Optional) Define Custom Parameters and Annotations](#create-params-file).
 
 1. Use `duffle` to define the required Build Service files:
 
@@ -337,7 +336,7 @@ To verify Build Service installation:
 
     <p class="note"><b>Note:</b> If the UAA for Build Service uses a self-signed CA certificate, add the `--skip-ssl-validation` flag at the end of the command.</p>
 
-1. Log in to Build Service with the user that you created as part of [Create a UAA User for Build Service](#users-create).
+1. Log in to Build Service with the user that you created as part of [Create a UAA User for Build Service](#users-create):
 
     ```bash
     pb login
