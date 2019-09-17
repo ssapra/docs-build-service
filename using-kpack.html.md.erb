@@ -11,12 +11,12 @@ This topic describes how to get started with kpack, a collection of open source 
 
 ## <a id='image-resource'></a>The Image Resource
 
-The `image` resource is what Build Service utilizes to declaratively build application images. The following defines the relevant fields of the `image` resource spec in more detail:
+The `image` resource is what kpack utilizes to declaratively build application images. The following defines the relevant fields of the `image` resource spec in more detail:
 
 - `tag`: The image tag.
-- `builderRef`: The name of the `builder` resource the image builds will use.
+- `builder`: Builder type and name used to build the image. See the [Builder Configuration](#builder-config) section below.
 - `serviceAccount`: The Service Account name that will be used for credential lookup.
-- `source`: The source code that will be monitored/built into images. See the "Source Configuration" section below.
+- `source`: The source code that will be monitored/built into images. See the [Source Configuration](#source-config) section below.
 - `cacheSize`: The size of the Volume Claim that will be used by the build cache.
 - `failedBuildHistoryLimit`: The maximum number of failed builds for an image that will be retained.
 - `successBuildHistoryLimit`: The maximum number of successful builds for an image that will be retained.
@@ -68,6 +68,26 @@ The `source` field is a composition of a source code location and a `subpath`. I
     - `imagePullSecrets`: A list of `dockercfg` or `dockerconfigjson` secret names required if the source image is private
 - `subPath`: A subdirectory within the source folder where application code resides. Can be ignored if the source code resides at the `root` level.
 
+### <a id='builder-config'></a>Builder Configuration
+
+kpack supports two different types of Builder, namespace scoped and cluster scoped.
+
+* Namespaced Builder
+    In order to use a namespaced builder it should be created in the same namespace as the image we want to build
+    ```yaml
+    builder:
+      kind: Builder
+      name: sample-builder
+    ```
+
+* Cluster Builder
+    This builder is more generic and can be used by images in any namespace
+    ```yaml
+    builder:
+      kind: ClusterBuilder
+      name: sample-builder
+    ```
+
 ### <a id='build-config'></a>Build Configuration
 
 The `build` field on the `image` resource can be used to configure env variables required during the build process and to configure resource limits on `CPU` and `memory`.
@@ -88,6 +108,59 @@ build:
 
 See the kubernetes documentation on [setting environment variables](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/) and [resource limits and requests](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container) for more information.
 
+### <a id='create-builder'></a> Creating a Builder Resource
+
+There are two different Builder resources that are supported by kpack. These Builder resources need to be created
+prior to the creation of any Image Resource, because they will define what builder will be used to create these images.
+
+* Namespaced Builder
+    As the name indicates this is a Builder that exists inside a namespace and cannot be shared between namespaces.
+    This property allow the user to push the image of the builder to a Private Registry by giving the option to set
+    ImagePullSecret.
+    Next you can find an example on how to create this resource
+
+    ```yaml
+    apiVersion: build.pivotal.io/v1alpha1
+    kind: Builder
+    metadata:
+      name: sample-builder
+      namespace: some-namespace
+    spec:
+      image: cloudfoundry/cnb:bionic
+      updatePolicy: polling
+      # imagePullSecrets: # Use these secrets if credentials are needed to pull the builder
+      # - name: builder-secret
+    ```
+    - `name`: The name of the builder that will be used to reference by the image.
+    - `namespace`: Namespace where the builder builder will be created
+    - `image`: Builder image tag.
+    - `updatePolicy`: Update policy of the builder. Valid options are `polling` and `external`
+    The major difference between the options is that `external` require a user to update the resource by applying a new
+    configuration. While `polling` automatically checks every 5 minutes to see if a new version of the builder image exists
+    - `imagePullSecrets`: This is an optional parameter that should only be used if the builder image is in a
+    private builder. [To create this secret please reference this link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#registry-secret-existing-credentials)
+
+* Cluster Builder
+    This type of Builder can be used by used inside any namespace. A caveat of having a cluster builder is that
+    the image need to exist in a publicly accessible registry.
+        Next you can find an example on how to create this resource
+
+        ```yaml
+        apiVersion: build.pivotal.io/v1alpha1
+        kind: ClusterBuilder
+        metadata:
+          name: sample-cluster-builder
+        spec:
+          image: cloudfoundry/cnb:bionic
+          updatePolicy: polling
+        ```
+        - `name`: The name of the builder that will be used to reference by the image.
+        - `namespace`: Namespace where the builder builder will be created
+        - `image`: Builder image tag.
+        - `updatePolicy`: Update policy of the builder. Valid options are `polling` and `external`
+        The major difference between the options is that `external` require a user to update the resource by applying a new
+        configuration. While `polling` automatically checks every 5 minutes to see if a new version of the builder image exists
+
 ### <a id='create-image'></a> Creating an Image Resource
 
 There are several resource types that will work together to produce an image resource.  Below, we will review how to configure and create each resource. Note that the yaml resources contain a `name` field. Users should reference these names when configuring other resource types. In order to apply a particular resource type, use `kubectl apply -f ~/path/to/resource.yml`
@@ -102,7 +175,7 @@ There are several resource types that will work together to produce an image res
     metadata:
      name: basic-auth-gcr
      annotations:
-       build.pivotal.io/do cker: gcr.io
+       build.pivotal.io/docker: gcr.io
     type: kubernetes.io/basic-auth
     stringData:
      username: <username>
@@ -124,7 +197,9 @@ There are several resource types that will work together to produce an image res
      password: <password>
     ```
 
-1. Create a secret for pull access from the desired git repository. The example below is for a github repository.  You can also specify a personal access token.  If you are building against source code that lives in a public registry, you do not need to configure a git secret.  The `name` of this credential will be referenced to create a service account (step 4).
+1. Create a secret for pull access from the desired git repository. The example below is for a github repository.
+You can also specify a personal access token. If you are building against source code that lives in a public registry,
+you do not need to configure a git secret.  The `name` of this credential will be referenced to create a service account (step 4).
 
     ```yaml
     apiVersion: v1
@@ -139,7 +214,8 @@ There are several resource types that will work together to produce an image res
       password: <password>
     ```
 
-1. Create a service account that uses the docker registry secret and the git repository secret. When configuring the image resource, reference the `name` of your registry credential and the `name` of your git credential.
+1. Create a service account that uses the docker registry secret and the git repository secret.
+When configuring the image resource, reference the `name` of your registry credential and the `name` of your git credential.
 
     ```yaml
     apiVersion: v1
@@ -151,7 +227,9 @@ There are several resource types that will work together to produce an image res
       - name: basic-git-user-pass
     ```
 
-1. Apply an image configuration to the cluster. In addition to specifying the source code url and any build time environment variable names and values your app needs, users can also exercise additional control over how kpack executes builds. Users can do this by specifying cache size, build history limit, and resources used.<br><br>
+1. Apply an image configuration to the cluster. In addition to specifying the source code url and any build time
+environment variable names and values your app needs, users can also exercise additional control over how kpack
+executes builds. Users can do this by specifying cache size, build history limit, and resources used.
 
     If you would like to build an image from a git repo:
 
@@ -163,7 +241,9 @@ There are several resource types that will work together to produce an image res
     spec:
       tag: gcr.io/project-name/app
       serviceAccount: service-account
-      builderRef: sample-builder
+      builder:
+        kind: ClusterBuilder
+        name: sample-builder
       cacheSize: "1.5Gi" # Optional, if not set then the caching feature is disabled
       failedBuildHistoryLimit: 5 # Optional, if not present defaults to 10
       successBuildHistoryLimit: 5 # Optional, if not present defaults to 10
@@ -194,7 +274,9 @@ There are several resource types that will work together to produce an image res
     spec:
       tag: gcr.io/project-name/app
       serviceAccount: service-account
-      builderRef: sample-builder
+      builder:
+        kind: ClusterBuilder
+        name: sample-builder
       cacheSize: "1.5Gi" # Optional, if not set then the caching feature is disabled
       failedBuildHistoryLimit: 5 # Optional, if not present defaults to 10
       successBuildHistoryLimit: 5 # Optional, if not present defaults to 10
