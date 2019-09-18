@@ -22,3 +22,28 @@ No, private images are only supported for Builder types.
 ## Q: My GitHub repository is public and my first build started but when I update my repo new builds are not started
 
 If a secret was configured for GitHub make sure it was configured as described in [this question](#question-github-repository).
+
+## Q: Why do some builds fail with `Error: failed to access run image: connect to repo store`?
+
+If the image is configured for the same registy that the Build Service was relocated to during installation, then the
+credentials configured for the image require read access to the relocated images.
+
+## Q: Applying images with local source code fails with the error message: `ERROR: uploading source: save image: ... http2: server sent GOAWAY and closed the connection`?
+
+Make sure to configure your ingress so that the max field size is at least 8k and the max header size is at least 32k.
+
+If you are you using Nginx as your ingress controller then you must apply a config map to update the following settings:
+```
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nginx-configuration
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+data:
+  http2-max-field-size: "8k"
+  http2-max-header-size: "32k"
+```
+
