@@ -14,7 +14,7 @@ This topic describes how to get started with kpack, a collection of open source 
 The `image` resource is what kpack utilizes to declaratively build application images. The following defines the relevant fields of the `image` resource spec in more detail:
 
 - `tag`: The image tag.
-- `builder`: Builder type and name used to build the image. See the [Builder Configuration](#builder-config) section below.
+- `builder`: Configuration of the `builder` resource the image builds will use. See the "Builder Configuration" section below.
 - `serviceAccount`: The Service Account name that will be used for credential lookup.
 - `source`: The source code that will be monitored/built into images. See the [Source Configuration](#source-config) section below.
 - `cacheSize`: The size of the Volume Claim that will be used by the build cache.
@@ -22,6 +22,32 @@ The `image` resource is what kpack utilizes to declaratively build application i
 - `successBuildHistoryLimit`: The maximum number of successful builds for an image that will be retained.
 - `imageTaggingStrategy`: Allow for builds to be additionally tagged with the build number. Valid options are `None` and `BuildNumber`.
 - `build`: Configuration that is passed to every image build. See "Build Configuration" section below.
+
+### <a id='builder-config'></a>Builder Configuration
+
+The `builder` field describes the builder that will build the OCI images for a provided image configuration. It can be defined in exactly one of the following ways:
+
+* Cluster Builder
+
+    ```yaml
+    builder:
+        name: cluster-builder-name
+        kind: ClusterBuilder
+    ```
+- `name`: The name of the ClusterBuilder resource in kubernetes.
+- `kind`: The type as defined in kubernetes. This will always be ClusterBuilder.
+
+* Namespaced Builder
+
+    ```yaml
+    builder:
+        name: builder-name
+        kind: Builder
+    ```
+- `name`: The name of the Builder resource in kubernetes.
+- `kind`: The type as defined in kubernetes. This will always be Builder.
+
+**NOTE:** This image can only reference builders defined in the same namespace. This is not true for ClusterBuilders because they are not namespace scoped.
 
 ### <a id='source-config'></a>Source Configuration
 
@@ -67,26 +93,6 @@ The `source` field is a composition of a source code location and a `subpath`. I
     - `image`: Location of the source image
     - `imagePullSecrets`: A list of `dockercfg` or `dockerconfigjson` secret names required if the source image is private
 - `subPath`: A subdirectory within the source folder where application code resides. Can be ignored if the source code resides at the `root` level.
-
-### <a id='builder-config'></a>Builder Configuration
-
-kpack supports two different types of Builder, namespace scoped and cluster scoped.
-
-* Namespaced Builder
-    In order to use a namespaced builder it should be created in the same namespace as the image we want to build
-    ```yaml
-    builder:
-      kind: Builder
-      name: sample-builder
-    ```
-
-* Cluster Builder
-    This builder is more generic and can be used by images in any namespace
-    ```yaml
-    builder:
-      kind: ClusterBuilder
-      name: sample-builder
-    ```
 
 ### <a id='build-config'></a>Build Configuration
 
@@ -161,9 +167,18 @@ prior to the creation of any Image Resource, because they will define what build
         The major difference between the options is that `external` require a user to update the resource by applying a new
         configuration. While `polling` automatically checks every 5 minutes to see if a new version of the builder image exists
 
-### <a id='create-image'></a> Creating an Image Resource
+## <a id='create-image'></a> Creating an Image Resource
 
 There are several resource types that will work together to produce an image resource.  Below, we will review how to configure and create each resource. Note that the yaml resources contain a `name` field. Users should reference these names when configuring other resource types. In order to apply a particular resource type, use `kubectl apply -f ~/path/to/resource.yml`
+
+1. Create a namespace. This defines the partition inside which all of the builds will run.
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: build-namespace
+```
 
 1. Create a secret so that kpack can push image builds to your desired registry. The `name` of this credential will be referenced to create a service account.
 
@@ -174,6 +189,7 @@ There are several resource types that will work together to produce an image res
     kind: Secret
     metadata:
      name: basic-auth-gcr
+     namespace: build-namespace
      annotations:
        build.pivotal.io/docker: gcr.io
     type: kubernetes.io/basic-auth
@@ -189,6 +205,7 @@ There are several resource types that will work together to produce an image res
     kind: Secret
     metadata:
      name: basic-auth-docker
+     namespace: build-namespace
      annotations:
        build.pivotal.io/docker: index.docker.io
     type: kubernetes.io/basic-auth
@@ -206,6 +223,7 @@ you do not need to configure a git secret.  The `name` of this credential will b
     kind: Secret
     metadata:
       name: basic-git-user-pass
+      namespace: build-namespace
       annotations:
         build.pivotal.io/git: https://github.com
     type: kubernetes.io/basic-auth
@@ -222,6 +240,7 @@ When configuring the image resource, reference the `name` of your registry crede
     kind: ServiceAccount
     metadata:
       name: service-account
+      namespace: build-namespace
     secrets:
       - name: basic-docker-user-pass
       - name: basic-git-user-pass
@@ -238,12 +257,13 @@ executes builds. Users can do this by specifying cache size, build history limit
     kind: Image
     metadata:
       name: sample-image
+      namespace: build-namespace
     spec:
       tag: gcr.io/project-name/app
       serviceAccount: service-account
       builder:
-        kind: ClusterBuilder
         name: sample-builder
+        kind: ClusterBuilder
       cacheSize: "1.5Gi" # Optional, if not set then the caching feature is disabled
       failedBuildHistoryLimit: 5 # Optional, if not present defaults to 10
       successBuildHistoryLimit: 5 # Optional, if not present defaults to 10
@@ -271,12 +291,13 @@ executes builds. Users can do this by specifying cache size, build history limit
     kind: Image
     metadata:
       name: sample-image
+      namespace: build-namespace
     spec:
       tag: gcr.io/project-name/app
       serviceAccount: service-account
       builder:
-        kind: ClusterBuilder
         name: sample-builder
+        kind: ClusterBuilder
       cacheSize: "1.5Gi" # Optional, if not set then the caching feature is disabled
       failedBuildHistoryLimit: 5 # Optional, if not present defaults to 10
       successBuildHistoryLimit: 5 # Optional, if not present defaults to 10
@@ -294,63 +315,4 @@ executes builds. Users can do this by specifying cache size, build history limit
           requests:
             cpu: 50m
             memory: 512M
-    ```
-
-## <a id='configure-cli'></a> Helpful commands
-
-**See the builds for the image**
-
-```bash
-kubectl get cnbbuilds # before the first builds completes you will see a unknown (building) status
----------------
-NAME                          SHA   SUCCEEDED
-sample-image-build-1-ea3e6fa9         Unknown
-```
-
-After a build has completed you will be able to see the built digest
-
-**Tailing Logs from Builds**
-
-Use the log tailing utility in `cmd/logs`
-
-```bash
-go build ./cmd/logs
-```
-
-The logs tool allows you to view the logs for all builds for an image:
-
-```bash
-./logs -image <IMAGE-NAME>
-```
-
-To view logs from a specific build use the build flag:
-
-```bash
-./logs -image <IMAGE-NAME> -build <BUILD-NUMBER>
-```
-
-
-
-## <a id='local-dev-install'></a>Local Development Install
-
-Access to a Kubernetes cluster is needed in order to install the kpack controllers.
-
-```bash
-kubectl cluster-info # ensure you have access to a cluster
-./hack/apply.sh <IMAGE/NAME> # <IMAGE/NAME> is a writable and publicly accessible location
-```
-
-If generation of code is needed you should run the following commands:
-
-```bash
-./hack/update-codegen.sh
-```
-
-### <a id='run-tests'></a>Running Tests
-
-* To run the e2e tests, kpack must be installed and running on a cluster
-* The IMAGE_REGISTRY environment variable must point at a registry with local write access
-
-    ```bash
-    IMAGE_REGISTRY=gcr.io/<some-project> go test ./...
     ```
