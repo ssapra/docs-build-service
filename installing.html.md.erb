@@ -164,17 +164,20 @@ To define custom parameters and annotations for Build Service:
     - `ingress_annotations`: Configures ingress annotations.
     - `replica_count`: Defines the number of Build Service instances running. By default, `replica_count` is `1`.
     - `no_gateway`: Installs the Pivotal Builder and kpack, the Build Service CRDs, and controllers. This is a boolean value that defaults to `false`.
-    <p class="note warning"><b>Warning:</b> If you set <code>no_gateway</code> to true, you can interact with Build Service through <code>kubectl</code> only. See <a href="#kpack-only">(Optional) Install Build Service as a kpack-Only Installation</a>.</p>
+    - `http_proxy`: The http proxy to be used for network traffic.
+    - `https_proxy`: The https proxy to be used for network traffic.
+    - `no_proxy`: A comma separated list of host names that should not use a proxy.
 
-        The following example `parameters.json` file shows the correct format for the `ingress_annotations` property:
+    <p class="note warning"><b>Warning:</b> If you set <code>no_gateway</code> to true, you can only interact with Build Service through <code>kubectl</code>. See <a href="#kpack-only">(Optional) Install Build Service as a kpack-Only Installation</a>.</p>
     
-        ```json
-        {
-          "ingress_annotations": {
-            "kubernetes.io/ingress.YOUR-ANNOTATION-KEY": "YOUR-ANNOTATION-VALUE"
-          }
-        }
-        ```  
+    <b>Sample parameters.json</b>
+    ```json
+    {
+      "ingress_annotations": {
+        "kubernetes.io/ingress.YOUR-ANNOTATION-KEY": "YOUR-ANNOTATION-VALUE"
+      }
+    }
+    ```
 
 
 ### <a id='relocate-images'></a> Move Images to an Image Registry
