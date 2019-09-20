@@ -33,9 +33,9 @@ To target your Build Service installation and log in:
     pb login
     ```
 1. When prompted, enter the `username` and `password` for UAA. 
-
-The username and password can be passed to Build Service with the following environment variables:
-`BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI will default to pick these up and use them if they exist in the environment.
+    <br><br>
+    The username and password can be passed to Build Service with the following environment variables:
+    `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI will default to pick these up and use them if they exist in the environment.
 
 
 ## <a id='manage-teams'></a> Manage Teams
@@ -77,9 +77,11 @@ To add members to a team:
     ```
 
 1. Add a user to a team:
+
     ```
     pb team user add UAA-USER-EMAIL TEAM-NAME
     ```
+
     Where:
     * `UAA-USER-EMAIL`: Is the email address for the user.
     <p class="note"><b>Note:</b> The user email address must be in UAA to add the user to a team.</p>
@@ -218,27 +220,11 @@ To delete a team:
 
 The following procedures describe how to create and manage images in Build Service. 
 
-### <a id='create-image'></a> Create an Image
+### <a id='create-image'></a> Image Configurations
 
-An image defines the specification that Pivotal Build Service uses to create images for a user. 
+An image configuration defines the specification that Build Service uses to create images. 
 
-The following `example-image.yaml` file is an example of an image configuration in Build Service:
-
-```yaml
-team: example-team-name
-source:
-  git:
-    url: https://github.com/example-org/sample-java-app
-    revision: master
-build:
-  env:
-  - name: BP_JAVA_VERSION
-    value: 8.*
-image:
-  tag: registry.default.com/my-team-folder/java-app-image
-```
-
-The image configuration includes the following components:
+To create an image, you must create an image configuration YAML that includes the following properties:
 
 * `team`: The team in Build Service that owns the image. You can only create images for teams of which you are a member. 
 
@@ -248,9 +234,11 @@ The image configuration includes the following components:
 
 * `image registry`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the team configuration. The value for `image_registry` must match the domain of one of the registries that you provided in the team configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
 
+For more information about creating and applying image configurations for apps with source code in Github or source code saved locally, see [Apply Image Configurations](#apply-image).
+
 ### <a id='apply-image'></a> Apply Image Configurations
 
-Build Service supports builds against source code that are saved in a Git repository or on your local machine. You can specify only one location for source code. 
+Build Service supports builds against apps with source code that is saved in a Git repository or saved on your local machine. You can specify only one location for app source code. 
 
 The procedures in this section describe how to apply image configurations in Build Service that have source code saved in a Git repository or source code saved locally. 
 
@@ -258,13 +246,33 @@ The procedures in this section describe how to apply image configurations in Bui
 
 To apply an image configuration to Build Service:
 
-1. Create an image configuration YAML file. 
+1. Create an image configuration YAML file. For example:
 
-1. Run the following command:
+    ```yaml
+    team: TEAM-NAME
+    source:
+      git:
+        url: https://github.com/PATH-TO-EXAMPLE-APP
+        revision: master
+    build:
+      env:
+      - name: BP_JAVA_VERSION
+        value: 8.*
+    image:
+      tag: registry.default.com/PATH-TO-EXAMPLE-APP-IMAGE
+    ```
+
+    Where:
+      * `TEAM-NAME` is the name of the team that owns the new image.
+      * `PATH-TO-EXAMPLE-APP` is the path to an app on Github.
+      * `PATH-TO-EXAMPLE-APP-IMAGE` is the local path to the image registry.
+
+1. Apply the image configuration:
 
     ```bash
-    pb image apply -f /path/to/YOUR-IMAGE-CONFIGURATION.yaml
+    pb image apply -f PATH-TO-IMAGE-CONFIGURATION
     ```
+    Where `PATH-TO-IMAGE-CONFIGURATION` is the local path where you saved the image configuration YAML file.
 
 #### Apply an Image With Local Source Code
 
@@ -324,7 +332,7 @@ pb image builds IMAGE-TAG
 ```
 Where `IMAGE-TAG` is the value of the field `image.tag` in the image configuration YAML file.
 
-The following is an example of the output for the command:
+The following is an example of the output for this command:
 
 ```
 Build    Status    Started Time           Finished Time          Reason    Digest
@@ -336,15 +344,17 @@ Build    Status    Started Time           Finished Time          Reason    Diges
     -    PENDING   --                     --                     UNKNOWN   --
 ```
 
-  * The `Build` column describes the index of builds in the order that they were built.
-  * The `Status` column describes the status of a previous or a running/pending build image.
-  * The  `Started Time` and `Finished Time` columns described when a build was kicked off and when it was completed.
-  * The `Reason` column provides the user with information as to why an image rebuild occured. These reasons include
-      * `CONFIG`: Occurs when a change is made to commit, branch, git repo, or build fields on the image's configuration file and the user ran `pb image apply`
-      * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes
-      * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image
-          <p class="note"><strong>Note</strong>: It is possible for a rebuild to occur for more than one <code>Reason</code>. In this instance, a <code>+</code> sign is appended to the <code>Reason</code> and the primary <code>Reason</code> is displayed. Priority for the <code>Reason</code> is ranked <code>CONFIG</code>, <code>COMMIT</code>, <code>BUILDER</code>, in descending order.</p>
-  * The `Digest` column contains the SHA256 of the image successfully built.  Users can reference this SHA to perform helpful Docker commands like `pull` and `inspect`
+The following describes the fields in the example output:
+
+* `Build`: Describes the index of builds in the order that they were built.
+* `Status`: Describes the status of a previous or pending build image.
+* `Started Time` and `Finished Time`: Describe when a build started and finished.
+* `Reason`: Describes why an image rebuild occured. These reasons include:
+    * `CONFIG`: Occurs when a change is made to commit, branch, git repo, or build fields on the image's configuration file and the user ran `pb image apply`
+    * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes
+    * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image
+        <p class="note"><strong>Note</strong>: It is possible for a rebuild to occur for more than one <code>Reason</code>. When there are multiple reasons for rebuild, the <code>pb</code> CLI output shows the primary reason and appends a <code>+</code> sign to the <code>Reason</code> field. The following is the priority rank for the <code>Reason</code>:<code>CONFIG</code>, <code>COMMIT</code>, <code>BUILDER</code>, in descending order.</p>
+* `Digest`: Contains the `SHA256` of the successfully built image.  You can reference this SHA to perform Docker commands like `pull` and `inspect`.
 
 ### View Logs For a Build
 
