@@ -232,7 +232,7 @@ To create an image, you must create an image configuration YAML that includes th
 
 * `build`: Defines additional configuration for your app. The `env` is a list of environment variables that are provided to the build. Each environment variable is an object with a `name` and a `value`.
 
-* `image registry`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the team configuration. The value for `image_registry` must match the domain of one of the registries that you provided in the team configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
+* `image_registry`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the team configuration. The value for `image_registry` must match the domain of one of the registries that you provided in the team configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
 
 For more information about creating and applying image configurations for apps with source code in Github or source code saved locally, see [Apply Image Configurations](#apply-image).
 
