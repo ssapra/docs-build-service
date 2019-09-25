@@ -9,24 +9,33 @@ This topic provides an overview of Pivotal Build Service (Alpha).
 
 ## <a id='overview'></a> Overview
 
-Build Service uses the open-source Cloud Native Buildpacks project to change app source code into container images. This allows Build Service to execute reproducible builds that align with modern container standards. You can use Build Service to securely use containerized software development at scale.
+Pivotal Build Service uses the open-source Cloud Native Buildpacks project to turn app source code into container images.
+Build Service executes reproducible builds that align with modern container standards,
+and triggers builds automatically when container dependencies change.
+You can use Build Service to develop containerized software securely and at scale.
+
+For more information about the Cloud Native Buildpacks project, see [Cloud Native Buildpacks](http://buildpacks.io).
 
 For more information about modern container standards, see [Open Container Initiative](https://github.com/opencontainers/image-spec/blob/master/spec.md) in Github.
-
-For more information about the open-source Cloud Native Buildpacks project, see [Cloud Native Buildpacks](http://buildpacks.io).
 
 
 ## <a id='image-and-team'></a> Image and Team Configurations
 
 Build Service reduces operational overhead and improves security by automating builds of container images for apps in your environment. 
 
-Build Service uses the image and team configurations to automate builds of container images. 
-
-The Build Service CLI, `pb`, allows you to define and modify the image and team configurations for Build Service.
+To organize container image builds, Build Service defines `image` and `team` entities, as described below.
+To define and modify configurations for `image` and `team` entities, you can use the Build Service CLI, `pb`.
 
 ### <a id='image-config'></a> Build Service Images
 
-The image configuration includes several inputs that describe the app. Build Service builds container images that resolve any discrepancies between the description of the app in the image configuration and the latest version of the image. 
+Build Service `image` configurations include:
+
+- The registry location of a built container image
+- Source code for the image
+- The team that owns the image
+- Other configuration values, as described in [Image Configurations](./using.html#create-image)
+
+Build Service builds container images that resolve any discrepancies between the description of the app in the image configuration and the latest version of the image. 
 
 Build Service can automatically build a new image when the latest versions of app dependencies are available.
 
@@ -34,9 +43,11 @@ For more information about managing images in Build Service, see [Manage Images]
 
 ### <a id='team-config'></a> Build Service Teams
 
-A `team` is a Build Service entity that uses UAA to provide user access control to image configurations. 
+Build Service `team` configurations include:
 
-You can use a `team` to manage authentication for Build Service images, manage the registry, and manage credentials for container images. 
+- The development team that owns container images, as managed by a [UAA server](https://docs.cloudfoundry.org/concepts/architecture/uaa.html)
+- Container registries for the team's images, and the registry credentials to access them
+- A `builder` file that defines the languages, buildpack versions, plugins, and other build configurations that the team uses
 
 The following are the constraints of teams in Build Service:
 
