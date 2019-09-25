@@ -7,11 +7,15 @@ owner: Build Service Team
 
 This topic provides an overview of Pivotal Build Service (Alpha).
 
+<div class="note">To request early access to this Pivotal Build Service alpha release, please <a href="https://pivotal.io/contact">contact us here</a>.</div>
+
+<div class="note warning">This release of Pivotal Build Service is not intended for use in a production environment. Features are subject to change without notice in future releases.</div>
+
 ## <a id='overview'></a> Overview
 
 Pivotal Build Service uses the open-source Cloud Native Buildpacks project to turn app source code into container images.
 Build Service executes reproducible builds that align with modern container standards,
-and triggers builds automatically when container dependencies change.
+and triggers builds when container dependencies change.
 You can use Build Service to develop containerized software securely and at scale.
 
 For more information about the Cloud Native Buildpacks project, see [Cloud Native Buildpacks](http://buildpacks.io).
@@ -28,16 +32,16 @@ To define and modify configurations for `image` and `team` entities, you can use
 
 ### <a id='image-config'></a> Build Service Images
 
-Build Service `image` configurations include:
+Build Service `image` configurations are defined by `.yml` files that include:
 
 - The registry location of a built container image
 - Source code for the image
 - The team that owns the image
 - Other configuration values, as described in [Image Configurations](./using.html#create-image)
 
-Build Service builds container images that resolve any discrepancies between the description of the app in the image configuration and the latest version of the image. 
-
-Build Service can automatically build a new image when the latest versions of app dependencies are available.
+If you change a field in an image configuration file, for example by updating a buildpack version or source branch in git,
+and run `pb image apply` with the file,
+Build Service rebuilds the container image based on its new configuration.
 
 For more information about managing images in Build Service, see [Manage Images](./using.html#manage-images).
 
@@ -53,8 +57,8 @@ Build Service teams have the following constraints:
 
 * All members of a team are also team `owners` and are able to create new images, manage secrets, and add or remove other users from the team.
 * Only the users that belong to a team are able to create images against the team and check the builds against an image.
-* Teams cannot reference UAA user groups.
 * To add a user to a team, the user email address must exist in UAA.
+* You cannot use a previously existing UAA user group as a Build Service team.  You need to add users individually with `pb team` commands.
 * Each team must have at least one team member.
 
 For more information about creating and managing teams in Build Service, see [Manage Teams](./using.html#manage-teams).
