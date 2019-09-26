@@ -28,7 +28,7 @@ The `image` resource is what kpack utilizes to declaratively build app images. T
 - `builder`: Configuration of the `builder` resource the image builds use. For more information, see [Builder Configuration](#builder-config).
 - `serviceAccount`: The service account name that is used for credential lookup.
 - `source`: The source code that is monitored and built into images. For more information, see [Source Configuration](#source-config).
-- `cacheSize`: The size of the Volume Claim that the build cache uses.
+- `cacheSize`: The size of the volume claim that the build cache uses.
 - `failedBuildHistoryLimit`: The maximum number of failed builds for an image that is retained.
 - `successBuildHistoryLimit`: The maximum number of successful builds for an image that is retained.
 - `imageTaggingStrategy`: Allow for builds to be additionally tagged with the build number. Valid options are `None` and `BuildNumber`.
@@ -41,28 +41,26 @@ The `builder` field describes the builder that builds the OCI images for a provi
 * Cluster builder
 
     ```
-    yaml
     builder:
         name: CLUSTER-BUILDER-NAME
         kind: ClusterBuilder
     ```
     Where:
-    * `name` The name of the ClusterBuilder resource in Kubernetes.
-    * `kind` is the type as defined in Kubernetes. This value is always ClusterBuilder.
+    * `CLUSTER-BUILDER-NAME` is the name of the ClusterBuilder resource in Kubernetes.
+    * `ClusterBuilder` is the type as defined in Kubernetes. This value is always `ClusterBuilder`.
 
 * Namespaced builder
 
     ```
-    yaml
     builder:
         name: BUILDER-NAME
         kind: Builder
     ```
     Where:
-    * `name` is the name of the Builder resource in Kubernetes.
-    * `kind` is the type as defined in Kubernetes. This value is always Builder.
+    * `BUILDER-NAME` is the name of the Builder resource in Kubernetes.
+    * `Builder` is the type as defined in Kubernetes. This value is always `Builder`.
 
-<p class='note'><strong>Note:</strong> This image can only reference builders defined in the same namespace. This is not true for ClusterBuilders because they are not namespace-scoped.</p>
+<p class='note'><strong>Note:</strong> This image can only reference builders defined in the same namespace. This is not true for cluster builders because they are not namespace-scoped.</p>
 
 ### <a id='source-config'></a> Source Configuration
 
@@ -71,7 +69,6 @@ The `source` field is a composition of a source code location and a `subpath`. I
 * Git
 
     ```
-    yaml
     source:
       git: GIT-REPOSITORY
         url: GIT-REPOSITORY-URL
@@ -87,21 +84,19 @@ The `source` field is a composition of a source code location and a `subpath`. I
 * Blob
 
     ```
-    yaml
     source:
       blob: BLOB
         url: BLOB-URL
       subPath: SUBDIRECTORY
     ```
     Where:
-    * BLOB is the blob in a blobstore that contains the source code.
-    * BLOB-URL is the URL of the source code blob. Either this blob must be publicly accessible, the access token must be contained in the URL.
-    * SUBDIRECTORY is the subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
+    * `BLOB` is the blob in a blobstore that contains the source code.
+    * `BLOB-URL` is the URL of the source code blob. Either this blob must be publicly accessible, or the access token must be contained in the URL.
+    * `SUBDIRECTORY` is the subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
 
 * Registry
 
     ```
-    yaml
     source:
       registry: OCI-IMAGE
         image: IMAGE-LOCATION
@@ -110,233 +105,284 @@ The `source` field is a composition of a source code location and a `subpath`. I
       subPath: SUBDIRECTORY
     ```
     Where:
-    * OCI-IMAGE is the OCI image in a registry that contains the source code.
-    * IMAGE-LOCATION is the location of the source image.
-    * SECRET-NAME-LIST is a list of `dockercfg` or `dockerconfigjson` secret names. This is required if the source image is private.
-    * SUBDIRECTORY is a subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
+    * `OCI-IMAGE` is the OCI image in a registry that contains the source code.
+    * `IMAGE-LOCATION` is the location of the source image.
+    * `SECRET-NAME-LIST` is a list of `dockercfg` or `dockerconfigjson` secret names. This is required if the source image is private.
+    * `SUBDIRECTORY` is a subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
 
 ### <a id='build-config'></a> Build Configuration
 
 The `build` field on the `image` resource can be used to configure environment variables required during the build process and to configure resource limits on `CPU` and `memory`.
 
 ```
-yaml
 build:
   env:
     - name: ENV-VAR-NAME
       value: ENV-VAR-VALUE
   resources:
       limits:
-        cpu: "0.25"
-        memory: "128M"
+        cpu: CPU-LIMIT
+        memory: MEMORY-LIMIT
       requests:
-        cpu: "0.5"
-        memory: "256M"
+        cpu: CPU-REQUEST
+        memory: MEMORY-REQUEST
 ```
 Where:
-* ENV-VAR-NAME is the name of the environment variable.
-* ENV-VAR-VALUE is the value of the environment variable.
-* CPU
+* `ENV-VAR-NAME` is the name of the environment variable.
+* `ENV-VAR-VALUE` is the value of the environment variable.
+* `CPU-LIMIT` is the amount of CPU the build is allowed to use.
+* `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
+* `CPU-REQUEST` is the maximum CPU capacity of the build.
+* `MEMORY-REQUEST` is the maximum memory capacity of the build.
 
 For more information about setting environment variables, see [Define Environment Variables for a Container](https://kubernetes.io/docs/tasks/inject-data-application/define-environment-variable-container/) and the [Resource requests and limits of Pod and Container](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container) section of the _Managing Compute Resources for Containers_ topic in the Kubernetes documentation.
 
 ### <a id='create-builder'></a> Creating a Builder Resource
 
-There are two different Builder resources that kpack supports. You must create these Builder resources before you create any Image Resource, because they define which Builder is used to create these images.
+There are two types of builder resources that kpack supports. You must create these builder resources before you create any image resource, because they define which builder is used to create these images.
 
-* Namespaced Builder: This is a Builder that exists inside a namespace and cannot be shared between namespaces. This property allows you to push the image of the Builder to a private registry by giving the option to set `ImagePullSecret`. See the following example:
+* **Namespaced builder**: This is a builder that exists inside a namespace and cannot be shared between namespaces. This property allows you to push the image of the builder to a private registry by giving the option to set `ImagePullSecret`. See the following example:
 
     ```
-    yaml
     apiVersion: build.pivotal.io/v1alpha1
     kind: Builder
     metadata:
-      name: sample-builder
-      namespace: some-namespace
+      name: BUILDER-NAME
+      namespace: NAMESPACE
     spec:
-      image: cloudfoundry/cnb:bionic
-      updatePolicy: polling
-      # imagePullSecrets: # Use these secrets if credentials are needed to pull the builder
-      # - name: builder-secret
+      image: BUILDER-IMAGE-TAG
+      updatePolicy: UPDATE-POLICY
+      imagePullSecrets:
+      - name: BUILDER-SECRET
     ```
     Where:
-    - `name`: The name of the builder that will be used to reference by the image.
-    - `namespace`: Namespace where the builder builder will be created
-    - `image`: Builder image tag.
-    - `updatePolicy`: Update policy of the builder. Valid options are `polling` and `external`
-    The major difference between the options is that `external` require a user to update the resource by applying a new
-    configuration. While `polling` automatically checks every 5 minutes to see if a new version of the builder image exists
-    - `imagePullSecrets`: This is an optional parameter that should only be used if the builder image is in a
-    private builder. [To create this secret please reference this link](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#registry-secret-existing-credentials)
+    - `BUILDER-NAME` is the name of the builder that the image references.
+    - `NAMESPACE` is the namespace where the builder is created.
+    - `BUILDER-IMAGE-TAG` is the builder image tag.
+    - `UPDATE-POLICY` is the update policy of the builder. Valid options are `polling` and `external`. `external` requires you to update the resource by applying a new configuration, whereas `polling` automatically checks every five minutes to see if a new version of the builder image exists.
+    - `BUILDER-SECRET` is an optional parameter that you should use only if the builder image is in a
+    private builder that require credentials to access. To create this secret, see the [Create a Secret based on existing Docker credentials](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#registry-secret-existing-credentials) section of the _Pull an Image from a Private Registry_ topic in the Kubernetes documentation.
 
-* Cluster Builder
-    This type of Builder can be used by used inside any namespace. A caveat of having a cluster builder is that
-    the image need to exist in a publicly accessible registry.
-        Next you can find an example on how to create this resource
+* **Cluster builder**: This type of builder can be used inside any namespace. The image must exist in a publicly accessible registry. See the following example:
 
-        ```yaml
+        ```
         apiVersion: build.pivotal.io/v1alpha1
         kind: ClusterBuilder
         metadata:
-          name: sample-cluster-builder
+          name: CLUSTER-BUILDER-NAME
         spec:
-          image: cloudfoundry/cnb:bionic
-          updatePolicy: polling
+          image: BUILDER-IMAGE-TAG
+          updatePolicy: UPDATE-POLICY
         ```
-        - `name`: The name of the builder that will be used to reference by the image.
-        - `namespace`: Namespace where the builder builder will be created
-        - `image`: Builder image tag.
-        - `updatePolicy`: Update policy of the builder. Valid options are `polling` and `external`
-        The major difference between the options is that `external` require a user to update the resource by applying a new
-        configuration. While `polling` automatically checks every 5 minutes to see if a new version of the builder image exists
+        Where:
+        - `CLUSTER-BUILDER-NAME` is the name of the builder that the image references.
+        - `BUILDER-IMAGE-TAG` is the builder image tag.
+        - `UPDATE-POLICY` is the update policy of the builder. Valid options are `polling` and `external`. `external` requires you to update the resource by applying a new configuration, whereas `polling` automatically checks every five minutes to see if a new version of the builder image exists.
 
+For more information about builders, see [Builders](https://github.com/pivotal/kpack/blob/master/docs/builders.md) in the kpack repository on GitHub.
 
 ## <a id='create-image'></a> Creating an Image Resource
 
-There are several resource types that will work together to produce an image resource.  Below, we will review how to configure and create each resource. Note that the yaml resources contain a `name` field. Users should reference these names when configuring other resource types. In order to apply a particular resource type, use `kubectl apply -f ~/path/to/resource.yml`
+There are several resource types that work together to produce an image resource. This section describes how to configure and create each resource.
 
-1. Create a namespace. This defines the partition inside which all of the builds will run.
+The YAML resources below each contain a `name` field. You should reference these names when configuring other resource types. To apply a particular resource type, run the command `kubectl apply -f ~/path/to/resource.yml`.
 
-```yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-    name: build-namespace
-```
+To configure and create a resource:
 
-1. Create a secret so that kpack can push image builds to your desired registry. The `name` of this credential will be referenced to create a service account.
+1. Create a namespace. This defines the partition inside which all of the builds run.
 
-    1. GCR example
+    ```
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+        name: NAMESPACE
+    ```
+    Where:
+    * `NAMESPACE` is the name you give the namespace.
 
-    ```yaml
+1. Create a secret so kpack can push image builds to your desired registry. The `name` of this credential is referenced to create a service account.
+
+    1. For GCR:
+
+    ```
     apiVersion: v1
     kind: Secret
     metadata:
-     name: basic-auth-gcr
-     namespace: build-namespace
+     name: GCR-BUILD-NAME
+     namespace: NAMESPACE
      annotations:
        build.pivotal.io/docker: gcr.io
     type: kubernetes.io/basic-auth
     stringData:
-     username: <username>
-     password: <password>
+     username: USERNAME
+     password: PASSWORD
     ```
+    Where:
+    * `GCR-BUILD-NAME` is the build name.
+    * `NAMESPACE` is your namespace.
+    * `USERNAME` is the username you define for the build.
+    * `PASSWORD` is the password you define for the build.
 
-    1. Docker Hub example
+    1. For Docker Hub:
 
-    ```yaml
+    ```
     apiVersion: v1
     kind: Secret
     metadata:
-     name: basic-auth-docker
-     namespace: build-namespace
+     name: DOCKER-BUILD-NAME
+     namespace: NAMESPACE
      annotations:
        build.pivotal.io/docker: index.docker.io
     type: kubernetes.io/basic-auth
     stringData:
-     username: <username>
-     password: <password>
+     username: USERNAME
+     password: PASSWORD
     ```
+    Where:
+    * `DOCKER-BUILD-NAME` is the build name.
+    * `NAMESPACE` is your namespace.
+    * `USERNAME` is the username you define for the build.
+    * `PASSWORD` is the password you define for the build.<br>
+    For more information about Docker registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
 
-1. Create a secret for pull access from the desired git repository. The example below is for a github repository.
-You can also specify a personal access token. If you are building against source code that lives in a public registry,
-you do not need to configure a git secret.  The `name` of this credential will be referenced to create a service account (step 4).
+1. Create a secret to give the build pull access from the desired Git repository. The example below is for a GitHub repository. You can also specify a personal access token. If you are building against source code that lives in a public registry, you do not need to configure a Git secret.
 
-    ```yaml
+    ```
     apiVersion: v1
     kind: Secret
     metadata:
-      name: basic-git-user-pass
-      namespace: build-namespace
+      name: GIT-BUILD-NAME
+      namespace: NAMESPACE
       annotations:
         build.pivotal.io/git: https://github.com
     type: kubernetes.io/basic-auth
     stringData:
-      username: <username>
-      password: <password>
+      username: USERNAME
+      password: PASSWORD
     ```
+    Where:
+    * `GIT-BUILD-NAME` is the build name.
+    * `NAMESPACE` is your namespace.
+    * `USERNAME` is the username you define for the build.
+    * `PASSWORD` is the password you define for the build.<br>
+    For more information about Git registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
 
-1. Create a service account that uses the docker registry secret and the git repository secret.
-When configuring the image resource, reference the `name` of your registry credential and the `name` of your git credential.
+1. Create a service account that uses the Docker registry secret and the Git registry secret. When configuring the image resource, include the `name` of your Docker registry secret and the `name` of your Git repository secret.
 
-    ```yaml
+    ```
     apiVersion: v1
     kind: ServiceAccount
     metadata:
-      name: service-account
-      namespace: build-namespace
+      name: SERVICE-ACCOUNT
+      namespace: NAMESPACE
     secrets:
-      - name: basic-docker-user-pass
-      - name: basic-git-user-pass
+      - name: DOCKER-BUILD-NAME
+      - name: GIT-BUILD-NAME
     ```
+    Where:
+    * `SERVICE-ACCOUNT` is the name of the service account.
+    * `NAMESPACE` is your namespace.
+    * `DOCKER-BUILD-NAME` is the name of your Docker registry secret.
+    * `GIT-BUILD-NAME` is the name of your Git repository secret.
 
-1. Apply an image configuration to the cluster. In addition to specifying the source code url and any build time
-environment variable names and values your app needs, users can also exercise additional control over how kpack
-executes builds. Users can do this by specifying cache size, build history limit, and resources used.
+1. Apply an image configuration to the cluster. In addition to specifying the source code URL and any build time environment variable names and values your app needs, you can also exercise additional control over how kpack executes builds. You can do this by specifying cache size, build history limit, and resources used.
 
-    If you would like to build an image from a git repo:
+    * To build an image from a Git repository:
 
-    ```yaml
-    apiVersion: build.pivotal.io/v1alpha1
-    kind: Image
-    metadata:
-      name: sample-image
-      namespace: build-namespace
-    spec:
-      tag: gcr.io/project-name/app
-      serviceAccount: service-account
-      builder:
-        name: sample-builder
-        kind: ClusterBuilder
-      cacheSize: "1.5Gi" # Optional, if not set then the caching feature is disabled
-      failedBuildHistoryLimit: 5 # Optional, if not present defaults to 10
-      successBuildHistoryLimit: 5 # Optional, if not present defaults to 10
-      source:
-        git:
-          url: https://github.com/buildpack/sample-java-app.git
-          revision: master
-      build: # Optional
-        env:
-          - name: BP_JAVA_VERSION
-            value: 8.*
-        resources:
-          limits:
-            cpu: 100m
-            memory: 1G
-          requests:
-            cpu: 50m
-            memory: 512M
-    ```
+      ```
+      apiVersion: build.pivotal.io/v1alpha1
+      kind: Image
+      metadata:
+        name: IMAGE
+        namespace: NAMESPACE
+      spec:
+        tag: gcr.io/PROJECT-NAME/app
+        serviceAccount: SERVICE-ACCOUNT
+        builder:
+          name: BUILDER-NAME
+          kind: ClusterBuilder
+        cacheSize: "CACHE-SIZE"
+        failedBuildHistoryLimit: FAILED-BUILD-HISTORY-LIMIT
+        successBuildHistoryLimit: SUCCESSFUL-BUILD-HISTORY-LIMIT
+        source:
+          git:
+            url: GIT-REPOSITORY-URL
+            revision: GIT-REVISION
+        build:
+          env:
+            - name: ENV-VAR-NAME
+              value: ENV-VAR-VALUE
+          resources:
+            limits:
+              cpu: CPU-LIMIT
+              memory: MEMORY-LIMIT
+            requests:
+              cpu: CPU-REQUEST
+              memory: MEMORY-REQUEST
+        ```
+        Where:
+        * `IMAGE` is the name of your image.
+        * `NAMESPACE` is your namespace.
+        * `PROJECT-NAME` is the name of your project.
+        * `SERVICE-ACCOUNT` is the name of the service account.
+        * `BUILDER-NAME` is the name of the builder that the image references.
+        * `CACHE-SIZE` is the size of the volume claim that the build cache uses. If you do not specify a size, the caching feature is disabled.
+        * `FAILED-BUILD-HISTORY-LIMIT` is the maximum number of failed builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+        * `SUCCESSFUL-BUILD-HISTORY-LIMIT` is the maximum number of successful builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+        * `GIT-REPOSITORY-URL` is the Git repository URL. Currently, only HTTPS repositories are supported.
+        * `GIT-REVISION` is the Git revision you want to use. This value may be a commit SHA, branch name, or tag.
+        * `ENV-VAR-NAME` is the name of the environment variable.
+        * `ENV-VAR-VALUE` is the value of the environment variable.
+        * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
+        * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
+        * `CPU-REQUEST` is the maximum CPU capacity of the build.
+        * `MEMORY-REQUEST` is the maximum memory capacity of the build.
 
-    If you would like to build an image from an hosted zip or jar:
+    * If you would like to build an image from a hosted ZIP or JAR:
 
-    ```yaml
-    apiVersion: build.pivotal.io/v1alpha1
-    kind: Image
-    metadata:
-      name: sample-image
-      namespace: build-namespace
-    spec:
-      tag: gcr.io/project-name/app
-      serviceAccount: service-account
-      builder:
-        name: sample-builder
-        kind: ClusterBuilder
-      cacheSize: "1.5Gi" # Optional, if not set then the caching feature is disabled
-      failedBuildHistoryLimit: 5 # Optional, if not present defaults to 10
-      successBuildHistoryLimit: 5 # Optional, if not present defaults to 10
-      source:
-        blob:
-          url: https://storage.googleapis.com/build-service/sample-apps/spring-petclinic-2.1.0.BUILD-SNAPSHOT.jar
-      build: # Optional
-        env:
-          - name: BP_JAVA_VERSION
-            value: 8.*
-        resources:
-          limits:
-            cpu: 100m
-            memory: 1G
-          requests:
-            cpu: 50m
-            memory: 512M
-    ```
+        ```
+        apiVersion: build.pivotal.io/v1alpha1
+        kind: Image
+        metadata:
+          name: IMAGE
+          namespace: NAMESPACE
+        spec:
+          tag: gcr.io/PROJECT-NAME/app
+          serviceAccount: SERVICE-ACCOUNT
+          builder:
+            name: BUILDER-NAME
+            kind: ClusterBuilder
+          cacheSize: "CACHE-SIZE"
+          failedBuildHistoryLimit: FAILED-BUILD-HISTORY-LIMIT
+          successBuildHistoryLimit: SUCCESSFUL-BUILD-HISTORY-LIMIT
+          source:
+            blob:
+              url: BLOB-URL
+          build:
+            env:
+              - name: ENV-VAR-NAME
+                value: ENV-VAR-VALUE
+            resources:
+              limits:
+                cpu: CPU-LIMIT
+                memory: MEMORY-LIMIT
+              requests:
+                cpu: CPU-REQUEST
+                memory: MEMORY-REQUEST
+        ```
+        Where:
+        * `IMAGE` is the name of your image.
+        * `NAMESPACE` is your namespace.
+        * `PROJECT-NAME` is the name of your project.
+        * `SERVICE-ACCOUNT` is the name of your service account.
+        * `BUILDER-NAME` is the name of the builder that the image references.
+        * `CACHE-SIZE` is the size of the volume claim that the build cache uses. If you do not specify a size, the caching feature is disabled.
+        * `FAILED-BUILD-HISTORY-LIMIT` is the maximum number of failed builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+        * `SUCCESSFUL-BUILD-HISTORY-LIMIT` is the maximum number of successful builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+        * `BLOB-URL` is the URL of the source code blob ZIP or JAR. Either this blob must be publicly accessible, or the access token must be contained in the URL.
+        * `ENV-VAR-NAME` is the name of the environment variable.
+        * `ENV-VAR-VALUE` is the value of the environment variable.
+        * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
+        * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
+        * `CPU-REQUEST` is the maximum CPU capacity of the build.
+        * `MEMORY-REQUEST` is the maximum memory capacity of the build.
