@@ -243,7 +243,7 @@ To configure and create a resource:
       ```
 
       Where:
-      
+
       * `DOCKER-BUILD-NAME` is the build name.
       * `NAMESPACE` is your namespace.
       * `USERNAME` is the username you define for the build.
@@ -294,57 +294,6 @@ To configure and create a resource:
 
     * To build an image from a Git repository:
 
-      ```
-      apiVersion: build.pivotal.io/v1alpha1
-      kind: Image
-      metadata:
-        name: IMAGE
-        namespace: NAMESPACE
-      spec:
-        tag: gcr.io/PROJECT-NAME/app
-        serviceAccount: SERVICE-ACCOUNT
-        builder:
-          name: BUILDER-NAME
-          kind: ClusterBuilder
-        cacheSize: "CACHE-SIZE"
-        failedBuildHistoryLimit: FAILED-BUILD-HISTORY-LIMIT
-        successBuildHistoryLimit: SUCCESSFUL-BUILD-HISTORY-LIMIT
-        source:
-          git:
-            url: GIT-REPOSITORY-URL
-            revision: GIT-REVISION
-        build:
-          env:
-            - name: ENV-VAR-NAME
-              value: ENV-VAR-VALUE
-          resources:
-            limits:
-              cpu: CPU-LIMIT
-              memory: MEMORY-LIMIT
-            requests:
-              cpu: CPU-REQUEST
-            memory: MEMORY-REQUEST
-        ```
-        Where:
-        * `IMAGE` is the name of your image.
-        * `NAMESPACE` is your namespace.
-        * `PROJECT-NAME` is the name of your project.
-        * `SERVICE-ACCOUNT` is the name of the service account.
-        * `BUILDER-NAME` is the name of the builder that the image references.
-        * `CACHE-SIZE` is the size of the volume claim that the build cache uses. If you do not specify a size, the caching feature is disabled.
-        * `FAILED-BUILD-HISTORY-LIMIT` is the maximum number of failed builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
-        * `SUCCESSFUL-BUILD-HISTORY-LIMIT` is the maximum number of successful builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
-        * `GIT-REPOSITORY-URL` is the Git repository URL. Currently, only HTTPS repositories are supported.
-        * `GIT-REVISION` is the Git revision you want to use. This value may be a commit SHA, branch name, or tag.
-        * `ENV-VAR-NAME` is the name of the environment variable.
-        * `ENV-VAR-VALUE` is the value of the environment variable.
-        * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
-        * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
-        * `CPU-REQUEST` is the maximum CPU capacity of the build.
-        * `MEMORY-REQUEST` is the maximum memory capacity of the build.
-
-    * If you would like to build an image from a hosted ZIP or JAR:
-
         ```
         apiVersion: build.pivotal.io/v1alpha1
         kind: Image
@@ -361,8 +310,9 @@ To configure and create a resource:
           failedBuildHistoryLimit: FAILED-BUILD-HISTORY-LIMIT
           successBuildHistoryLimit: SUCCESSFUL-BUILD-HISTORY-LIMIT
           source:
-            blob:
-              url: BLOB-URL
+            git:
+              url: GIT-REPOSITORY-URL
+              revision: GIT-REVISION
           build:
             env:
               - name: ENV-VAR-NAME
@@ -373,21 +323,71 @@ To configure and create a resource:
                 memory: MEMORY-LIMIT
               requests:
                 cpu: CPU-REQUEST
-                memory: MEMORY-REQUEST
-        ```
-        Where:
-        * `IMAGE` is the name of your image.
-        * `NAMESPACE` is your namespace.
-        * `PROJECT-NAME` is the name of your project.
-        * `SERVICE-ACCOUNT` is the name of your service account.
-        * `BUILDER-NAME` is the name of the builder that the image references.
-        * `CACHE-SIZE` is the size of the volume claim that the build cache uses. If you do not specify a size, the caching feature is disabled.
-        * `FAILED-BUILD-HISTORY-LIMIT` is the maximum number of failed builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
-        * `SUCCESSFUL-BUILD-HISTORY-LIMIT` is the maximum number of successful builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
-        * `BLOB-URL` is the URL of the source code blob ZIP or JAR. Either this blob must be publicly accessible, or the access token must be contained in the URL.
-        * `ENV-VAR-NAME` is the name of the environment variable.
-        * `ENV-VAR-VALUE` is the value of the environment variable.
-        * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
-        * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
-        * `CPU-REQUEST` is the maximum CPU capacity of the build.
-        * `MEMORY-REQUEST` is the maximum memory capacity of the build.
+              memory: MEMORY-REQUEST
+          ```
+          Where:
+          * `IMAGE` is the name of your image.
+          * `NAMESPACE` is your namespace.
+          * `PROJECT-NAME` is the name of your project.
+          * `SERVICE-ACCOUNT` is the name of the service account.
+          * `BUILDER-NAME` is the name of the builder that the image references.
+          * `CACHE-SIZE` is the size of the volume claim that the build cache uses. If you do not specify a size, the caching feature is disabled.
+          * `FAILED-BUILD-HISTORY-LIMIT` is the maximum number of failed builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+          * `SUCCESSFUL-BUILD-HISTORY-LIMIT` is the maximum number of successful builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+          * `GIT-REPOSITORY-URL` is the Git repository URL. Currently, only HTTPS repositories are supported.
+          * `GIT-REVISION` is the Git revision you want to use. This value may be a commit SHA, branch name, or tag.
+          * `ENV-VAR-NAME` is the name of the environment variable.
+          * `ENV-VAR-VALUE` is the value of the environment variable.
+          * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
+          * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
+          * `CPU-REQUEST` is the maximum CPU capacity of the build.
+          * `MEMORY-REQUEST` is the maximum memory capacity of the build.
+
+    * If you would like to build an image from a hosted ZIP or JAR:
+
+          ```
+          apiVersion: build.pivotal.io/v1alpha1
+          kind: Image
+          metadata:
+            name: IMAGE
+            namespace: NAMESPACE
+          spec:
+            tag: gcr.io/PROJECT-NAME/app
+            serviceAccount: SERVICE-ACCOUNT
+            builder:
+              name: BUILDER-NAME
+              kind: ClusterBuilder
+            cacheSize: "CACHE-SIZE"
+            failedBuildHistoryLimit: FAILED-BUILD-HISTORY-LIMIT
+            successBuildHistoryLimit: SUCCESSFUL-BUILD-HISTORY-LIMIT
+            source:
+              blob:
+                url: BLOB-URL
+            build:
+              env:
+                - name: ENV-VAR-NAME
+                  value: ENV-VAR-VALUE
+              resources:
+                limits:
+                  cpu: CPU-LIMIT
+                  memory: MEMORY-LIMIT
+                requests:
+                  cpu: CPU-REQUEST
+                  memory: MEMORY-REQUEST
+          ```
+          Where:
+          * `IMAGE` is the name of your image.
+          * `NAMESPACE` is your namespace.
+          * `PROJECT-NAME` is the name of your project.
+          * `SERVICE-ACCOUNT` is the name of your service account.
+          * `BUILDER-NAME` is the name of the builder that the image references.
+          * `CACHE-SIZE` is the size of the volume claim that the build cache uses. If you do not specify a size, the caching feature is disabled.
+          * `FAILED-BUILD-HISTORY-LIMIT` is the maximum number of failed builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+          * `SUCCESSFUL-BUILD-HISTORY-LIMIT` is the maximum number of successful builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+          * `BLOB-URL` is the URL of the source code blob ZIP or JAR. Either this blob must be publicly accessible, or the access token must be contained in the URL.
+          * `ENV-VAR-NAME` is the name of the environment variable.
+          * `ENV-VAR-VALUE` is the value of the environment variable.
+          * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
+          * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
+          * `CPU-REQUEST` is the maximum CPU capacity of the build.
+          * `MEMORY-REQUEST` is the maximum memory capacity of the build.
