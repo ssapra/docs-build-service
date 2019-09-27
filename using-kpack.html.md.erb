@@ -128,6 +128,7 @@ build:
         memory: MEMORY-REQUEST
 ```
 Where:
+
 * `ENV-VAR-NAME` is the name of the environment variable.
 * `ENV-VAR-VALUE` is the value of the environment variable.
 * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
@@ -156,28 +157,28 @@ There are two types of builder resources that kpack supports. You must create th
       - name: BUILDER-SECRET
     ```
     Where:
-    - `BUILDER-NAME` is the name of the builder that the image references.
-    - `NAMESPACE` is the namespace where the builder is created.
-    - `BUILDER-IMAGE-TAG` is the builder image tag.
-    - `UPDATE-POLICY` is the update policy of the builder. Valid options are `polling` and `external`. `external` requires you to update the resource by applying a new configuration, whereas `polling` automatically checks every five minutes to see if a new version of the builder image exists.
-    - `BUILDER-SECRET` is an optional parameter that you should use only if the builder image is in a
+    * `BUILDER-NAME` is the name of the builder that the image references.
+    * `NAMESPACE` is the namespace where the builder is created.
+    * `BUILDER-IMAGE-TAG` is the builder image tag.
+    * `UPDATE-POLICY` is the update policy of the builder. Valid options are `polling` and `external`. `external` requires you to update the resource by applying a new configuration, whereas `polling` automatically checks every five minutes to see if a new version of the builder image exists.
+    * `BUILDER-SECRET` is an optional parameter that you should use only if the builder image is in a
     private builder that require credentials to access. To create this secret, see the [Create a Secret based on existing Docker credentials](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#registry-secret-existing-credentials) section of the _Pull an Image from a Private Registry_ topic in the Kubernetes documentation.
 
 * **Cluster builder**: This type of builder can be used inside any namespace. The image must exist in a publicly accessible registry. See the following example:
 
-        ```
-        apiVersion: build.pivotal.io/v1alpha1
-        kind: ClusterBuilder
-        metadata:
-          name: CLUSTER-BUILDER-NAME
-        spec:
-          image: BUILDER-IMAGE-TAG
-          updatePolicy: UPDATE-POLICY
-        ```
-        Where:
-        - `CLUSTER-BUILDER-NAME` is the name of the builder that the image references.
-        - `BUILDER-IMAGE-TAG` is the builder image tag.
-        - `UPDATE-POLICY` is the update policy of the builder. Valid options are `polling` and `external`. `external` requires you to update the resource by applying a new configuration, whereas `polling` automatically checks every five minutes to see if a new version of the builder image exists.
+      ```
+      apiVersion: build.pivotal.io/v1alpha1
+      kind: ClusterBuilder
+      metadata:
+        name: CLUSTER-BUILDER-NAME
+      spec:
+        image: BUILDER-IMAGE-TAG
+        updatePolicy: UPDATE-POLICY
+      ```
+      Where:
+      * `CLUSTER-BUILDER-NAME` is the name of the builder that the image references.
+      * `BUILDER-IMAGE-TAG` is the builder image tag.
+      * `UPDATE-POLICY` is the update policy of the builder. Valid options are `polling` and `external`. `external` requires you to update the resource by applying a new configuration, whereas `polling` automatically checks every five minutes to see if a new version of the builder image exists.
 
 For more information about builders, see [Builders](https://github.com/pivotal/kpack/blob/master/docs/builders.md) in the kpack repository on GitHub.
 
@@ -204,46 +205,50 @@ To configure and create a resource:
 
     1. For GCR:
 
-    ```
-    apiVersion: v1
-    kind: Secret
-    metadata:
-     name: GCR-BUILD-NAME
-     namespace: NAMESPACE
-     annotations:
-       build.pivotal.io/docker: gcr.io
-    type: kubernetes.io/basic-auth
-    stringData:
-     username: USERNAME
-     password: PASSWORD
-    ```
-    Where:
-    * `GCR-BUILD-NAME` is the build name.
-    * `NAMESPACE` is your namespace.
-    * `USERNAME` is the username you define for the build.
-    * `PASSWORD` is the password you define for the build.
+      ```
+      apiVersion: v1
+      kind: Secret
+      metadata:
+       name: GCR-BUILD-NAME
+       namespace: NAMESPACE
+       annotations:
+         build.pivotal.io/docker: gcr.io
+      type: kubernetes.io/basic-auth
+      stringData:
+       username: USERNAME
+       password: PASSWORD
+      ```
+    
+      Where:
+
+      * `GCR-BUILD-NAME` is the build name.
+      * `NAMESPACE` is your namespace.
+      * `USERNAME` is the username you define for the build.
+      * `PASSWORD` is the password you define for the build.
 
     1. For Docker Hub:
 
-    ```
-    apiVersion: v1
-    kind: Secret
-    metadata:
-     name: DOCKER-BUILD-NAME
-     namespace: NAMESPACE
-     annotations:
-       build.pivotal.io/docker: index.docker.io
-    type: kubernetes.io/basic-auth
-    stringData:
-     username: USERNAME
-     password: PASSWORD
-    ```
-    Where:
-    * `DOCKER-BUILD-NAME` is the build name.
-    * `NAMESPACE` is your namespace.
-    * `USERNAME` is the username you define for the build.
-    * `PASSWORD` is the password you define for the build.<br>
-    For more information about Docker registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
+      ```
+      apiVersion: v1
+      kind: Secret
+      metadata:
+       name: DOCKER-BUILD-NAME
+       namespace: NAMESPACE
+       annotations:
+         build.pivotal.io/docker: index.docker.io
+      type: kubernetes.io/basic-auth
+      stringData:
+       username: USERNAME
+       password: PASSWORD
+      ```
+
+      Where:
+      
+      * `DOCKER-BUILD-NAME` is the build name.
+      * `NAMESPACE` is your namespace.
+      * `USERNAME` is the username you define for the build.
+      * `PASSWORD` is the password you define for the build.<br>
+      For more information about Docker registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
 
 1. Create a secret to give the build pull access from the desired Git repository. The example below is for a GitHub repository. You can also specify a personal access token. If you are building against source code that lives in a public registry, you do not need to configure a Git secret.
 
@@ -318,7 +323,7 @@ To configure and create a resource:
               memory: MEMORY-LIMIT
             requests:
               cpu: CPU-REQUEST
-              memory: MEMORY-REQUEST
+            memory: MEMORY-REQUEST
         ```
         Where:
         * `IMAGE` is the name of your image.
