@@ -3,7 +3,9 @@ title: Tutorial for kpack
 owner: Build Service Team
 ---
 
-This topic describes how to get started with kpack, a collection of open source resource controllers and CRDs that contain declarative build logic.
+This topic describes how to get started with kpack, a collection of open source resource controllers and custom resources that contain declarative build logic. The kpack integration allows you to have more granular control over how Build Service builds app images.
+
+The kpack integration can be used with Build Service, with other services, or on its own to build app images.
 
 
 ## <a id='prerequistites'></a> Prerequisites
@@ -325,7 +327,9 @@ To configure and create a resource:
                 cpu: CPU-REQUEST
               memory: MEMORY-REQUEST
           ```
+          
           Where:
+
           * `IMAGE` is the name of your image.
           * `NAMESPACE` is your namespace.
           * `PROJECT-NAME` is the name of your project.
@@ -375,7 +379,9 @@ To configure and create a resource:
                   cpu: CPU-REQUEST
                   memory: MEMORY-REQUEST
           ```
+          
           Where:
+
           * `IMAGE` is the name of your image.
           * `NAMESPACE` is your namespace.
           * `PROJECT-NAME` is the name of your project.
