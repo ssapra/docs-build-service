@@ -258,8 +258,8 @@ To apply an image configuration to Build Service:
         revision: master
     build:
       env:
-      - name: BP_JAVA_VERSION
-        value: 8.*
+      - name: BP_BUILD_ARGUMENTS
+        value: some_value
     image:
       tag: registry.default.com/PATH-TO-EXAMPLE-APP-IMAGE
     ```
@@ -286,8 +286,8 @@ To apply an image configuration that uses local source code:
     team: YOUR-TEAM-NAME
     build:
       env:
-      - name: BP_JAVA_VERSION
-        value: 8.*
+      - name: BP_BUILD_ARGUMENTS
+        value: some_value
     image:
       tag: registry.default.com/PATH-TO-EXAMPLE-APP
     ```
