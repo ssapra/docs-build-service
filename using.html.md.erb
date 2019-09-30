@@ -5,6 +5,7 @@ owner: Build Service Team
 
 This topic describes how to use the Pivotal Build Service CLI, `pb`, to log in to Build Service and manage images, teams, and builds.
 
+
 ## <a id='configure-cli'></a> Log In to Build Service
 
 After you configure and install Build Service, you can configure the Build Service CLI, `pb`, to target your Build Service installation.
@@ -35,7 +36,7 @@ To target your Build Service installation and log in:
 1. When prompted, enter the `username` and `password` for UAA. 
     <br><br>
     The username and password can be passed to Build Service with the following environment variables:
-    `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI will default to pick these up and use them if they exist in the environment.
+    `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI defaults to picking these up and using them if they exist in the environment.
 
 
 ## <a id='manage-teams'></a> Manage Teams
@@ -60,7 +61,6 @@ To create a new team:
     pb team create TEAM-NAME
     ```
     Where `TEAM-NAME` is a unique name for the team.  
-
 
 ### <a id='manage-team-members'></a> Add and Remove Team Members
 
@@ -106,14 +106,13 @@ To remove members of a team:
     * `UAA-USER-EMAIL`: Is the email address for the user.
     * `TEAM-NAME` is the name of the team from which the user is removed.
 
-
 ### <a id='add-image'></a> Associate an Image Registry with a Team    
 
 To use a team in Build Service, you must associate the credentials for an image registry with the team. If the source code for the image is saved in a Git repository, you must also associate the Git credentials with the team.
 
 Build Service uses these credentials to deliver container image builds to the specified registry. 
 
-<p class="note"><b>Note:</b> The registry credentials must belong to a user with <code>write</code> access on the registry.</p> 
+<p class="note"><strong>Note:</strong> The registry credentials must belong to a user with <code>write</code> access on the registry.</p> 
 
 Build Service recommends the following image registries:
 
@@ -132,7 +131,7 @@ To associate an image registry credentials with a team:
     username: REGISTRY-USERNAME
     password: REGISTRY-PASSWORD
     ```
-    <p class="note"><b>Note:</b> You can add only one password for an image registry in the credentials YAML file.</p>
+    <p class="note"><strong>Note:</strong> You can add only one password for an image registry in the credentials YAML file.</p>
     Where:
     * `YOUR-TEAM-NAME` is the name of the team that owns the image.
     * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
@@ -149,29 +148,29 @@ To associate an image registry credentials with a team:
     ```
     Where `PATH-TO-REGISTRY-CREDENTIALS-YAML` is the local path to the YAML file that you created in the previous step.
 
-    <p class="note"><b>Note:</b> To update the registry credentials for a team, modify the registry credentials YAML file and run the <code>pb secrets registry apply</code> command.</p>
+    <p class="note"><strong>Note:</strong> To update the registry credentials for a team, modify the registry credentials YAML file and run the <code>pb secrets registry apply</code> command.</p>
 
 ### <a id='add-git-credentials'></a> Manage Git Credentials for a Team
 
 To allow Build Service to execute builds against app source code in a private Git repository, add the Git username and password to the team that manages the source code in Build Service.
 
-<p class="note"><strong>Note</strong>: The git secret a given team uses can be updated by modifying the above file and running the <code>pb secrets git apply</code> command.</p>
+<p class="note"><strong>Note</strong>: The Git secret a given team uses can be updated by modifying the above file and running the <code>pb secrets git apply</code> command.</p>
 
-As you apply the registry and git secret files, the `pb` CLI will provide feedback indicating whether or not the commands succeeded.
+As you apply the registry and Git secret files, the `pb` CLI provides feedback indicating whether or not the commands succeeded.
 
 #### Add Git Credentials to a Team
 
-To add git credentials to a team:
+To add Git credentials to a team:
 
 1. Create a YAML file with the `git` credentials:
 
-    ```yaml
+    ```
     team: TEAM-NAME
     repository: github.com
     username: GIT-USERNAME
     password: GIT-PASSWORD
     ```
-1. Apply the git credentials to the team:
+1. Apply the Git credentials to the team:
     
     ```
     pb secrets git apply -f PATH-TO-GIT-CREDENTIALS-YAML-FILE
@@ -198,7 +197,7 @@ To delete Git credentials from a team:
 
 This procedure describes how to delete a team using the `pb` CLI.
 
-<p class="note warning"><b>Warning:</b> If you delete a team, all registry credentials and Git secrets associated with that team are also deleted.</p>
+<p class="note warning"><strong>Warning:</strong> If you delete a team, all registry credentials and Git secrets associated with that team are also deleted.</p>
 
 To delete a team:
 
@@ -236,7 +235,7 @@ To create an image, you must create an image configuration YAML that includes th
 
 * `image_registry`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the team configuration. The value for `image_registry` must match the domain of one of the registries that you provided in the team configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
 
-For more information about creating and applying image configurations for apps with source code in Github or source code saved locally, see [Apply Image Configurations](#apply-image).
+For more information about creating and applying image configurations for apps with source code in GitHub or source code saved locally, see [Apply Image Configurations](#apply-image).
 
 ### <a id='apply-image'></a> Apply Image Configurations
 
@@ -250,7 +249,7 @@ To apply an image configuration to Build Service:
 
 1. Create an image configuration YAML file. For example:
 
-    ```yaml
+    ```
     team: TEAM-NAME
     source:
       git:
@@ -266,7 +265,7 @@ To apply an image configuration to Build Service:
 
     Where:
       * `TEAM-NAME` is the name of the team that owns the new image.
-      * `PATH-TO-EXAMPLE-APP` is the path to an app on Github.
+      * `PATH-TO-EXAMPLE-APP` is the path to an app on GitHub.
       * `PATH-TO-EXAMPLE-APP-IMAGE` is the local path to the image registry.
 
 1. Apply the image configuration:
@@ -282,7 +281,7 @@ To apply an image configuration that uses local source code:
 
 1. Create an image configuration file that has no Git properties. For example:
 
-    ```yaml
+    ```
     team: YOUR-TEAM-NAME
     build:
       env:
@@ -292,12 +291,12 @@ To apply an image configuration that uses local source code:
       tag: registry.default.com/PATH-TO-EXAMPLE-APP
     ```
     Where:
-    * `YOUR-TEAM-NAME` is the name of the team that will own the new image.
+    * `YOUR-TEAM-NAME` is the name of the team that owns the new image.
     * `PATH-TO-EXAMPLE-APP` is the local path to an app.
 
 1. Apply the image configuration:
 
-    ```bash
+    ```
     pb image apply -f /PATH-TO-IMAGE-CONFIGURATION/YOUR-IMAGE-CONFIGURATION.yaml -p /PATH-TO-APP-DIRECTORY
     ```
     Where:
@@ -311,8 +310,8 @@ Pivotal Build Service auto-rebuilds images when one or more of the following bui
 
 * New buildpack versions are made available through an updated builder image
 * New commit on a branch or tag Pivotal Build Service is tracking
-* Updating the commit, branch, Git repo, or build fields on the image's configuration file and re-applying it via `pb image apply`
-* Uploading a new copy of local source via `pb image apply -p`
+* Updating the commit, branch, Git repository, or build fields on the image's configuration file and re-applying it by running `pb image apply`
+* Uploading a new copy of local source by running `pb image apply -p`
 
 Pivotal Build Service does not rebuild images based on new OS packages. For example, `cflinuxfs3`.
 
@@ -320,16 +319,15 @@ Pivotal Build Service does not rebuild images based on new OS packages. For exam
 
 The procedures in this section describe how to view information and logs for image builds.
 
-Pivotal Build Service stores the ten most recent successful builds and the ten most recent failed builds.
+Build Service stores the ten most recent successful builds and the ten most recent failed builds.
 
 To view logs for a build, you must provide the build number. You cannot view logs for a build by referencing the image digest.
-
 
 #### View All Builds for an Image
 
 To list all the builds created for an image:
 
-```bash
+```
 pb image builds IMAGE-TAG 
 ```
 Where `IMAGE-TAG` is the value of the field `image.tag` in the image configuration YAML file.
@@ -352,17 +350,17 @@ The following describes the fields in the example output:
 * `Status`: Describes the status of a previous or pending build image.
 * `Started Time` and `Finished Time`: Describe when a build started and finished.
 * `Reason`: Describes why an image rebuild occured. These reasons include:
-    * `CONFIG`: Occurs when a change is made to commit, branch, git repo, or build fields on the image's configuration file and the user ran `pb image apply`
-    * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes
-    * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image
-        <p class="note"><strong>Note</strong>: It is possible for a rebuild to occur for more than one <code>Reason</code>. When there are multiple reasons for rebuild, the <code>pb</code> CLI output shows the primary reason and appends a <code>+</code> sign to the <code>Reason</code> field. The following is the priority rank for the <code>Reason</code>:<code>CONFIG</code>, <code>COMMIT</code>, <code>BUILDER</code>, in descending order.</p>
-* `Digest`: Contains the `SHA256` of the successfully built image.  You can reference this SHA to perform Docker commands like `pull` and `inspect`.
+    * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and the user ran `pb image apply`.
+    * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes.
+    * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image.
+        <p class="note"><strong>Note:</strong> It is possible for a rebuild to occur for more than one <code>Reason</code>. When there are multiple reasons for rebuild, the <code>pb</code> CLI output shows the primary reason and appends a <code>+</code> sign to the <code>Reason</code> field. The following is the priority rank for the <code>Reason</code>:<code>CONFIG</code>, <code>COMMIT</code>, <code>BUILDER</code>, in descending order.</p>
+* `Digest`: Contains the `SHA256` of the successfully built image. You can reference this SHA to perform Docker commands like `pull` and `inspect`.
 
 ### View Logs For a Build
 
 To view logs for a build:
 
-```bash
+```
 pb image logs IMAGE-TAG -b BUILD-NUMBER
 ```
 Where:
@@ -439,7 +437,7 @@ You can stream logs that show the progress of a build. The logs terminate when t
 
 To view logs for a running build:
 
-```bash
+```
 pb image logs IMAGE-TAG -b BUILD-NUMBER -f
 ```
 Where:
@@ -451,13 +449,13 @@ Where:
 
 This procedure describes how to delete a Build Service image. 
 
-<p class="note warning"><b>Warning:</b> Deleting an image also deletes all the builds that the image owns. It does not delete the images generated by those builds. </p>
+<p class="note warning"><strong>Warning:</strong> Deleting an image also deletes all the builds that the image owns. It does not delete the images generated by those builds.</p>
 
 To delete an image:
 
 1. Run the following command:
 
-    ```bash
+    ```
     pb image delete IMAGE-TAG
     ```
     Where `IMAGE-TAG` is the value of the field `image.tag` in the image configuration YAML file.
@@ -465,4 +463,3 @@ To delete an image:
 1. View the following success message:
 
     `Successfully deleted image IMAGE-TAG`
-
