@@ -5,12 +5,14 @@ owner: Build Service Team
 
 This topic describes how to get started with kpack, a collection of open source resource controllers and custom resources that contain declarative build logic. The kpack integration allows you to have more granular control over how Build Service builds app images.
 
-The kpack integration can be used with Build Service, with other services, or on its own to build app images.
+The kpack integration can be used with Build Service, with other services, or on its own to build app images. For more information on kpack-only installations, see the [Install Build Service as a kpack-Only Installation](installing.html#kpack-only) section of the _Installing and Configuring Build Service_ topic.
 
 
 ## <a id='prerequistites'></a> Prerequisites
 
-This documentation assumes you have kpack installed, as well as the following:
+This documentation assumes you have the following:
+
+* An installation of kpack. To install kpack, see [Installing kpack](https://github.com/pivotal/kpack/blob/master/docs/install.md) on GitHub.
 
 * A Kubernetes cluster. To create a Kubernetes cluster, see [Using Minikube to Create a Cluster
 ](https://kubernetes.io/docs/tutorials/kubernetes-basics/create-cluster/cluster-intro/) in the Kubernetes documentation.
@@ -19,6 +21,8 @@ This documentation assumes you have kpack installed, as well as the following:
 
 * A Docker v2 registry. To create and run a Docker registry, see [Docker Registry](https://docs.docker.com/registry/) in the Docker documentation.
 
+* An installation of the kpack log utility. To install and use the kpack log utility, see [kpack logs](https://github.com/pivotal/kpack/blob/master/docs/logs.md) on GitHub.
+
 
 ## <a id='image-resource'></a> The Image Resource
 
@@ -26,15 +30,15 @@ A declarative build system is a system to which you declare the desired result o
 
 The `image` resource is what kpack utilizes to declaratively build app images. The following defines the relevant fields of the `image` resource spec in more detail:
 
-- `tag`: The image tag.
-- `builder`: Configuration of the `builder` resource the image builds use. For more information, see [Builder Configuration](#builder-config).
-- `serviceAccount`: The service account name that is used for credential lookup.
-- `source`: The source code that is monitored and built into images. For more information, see [Source Configuration](#source-config).
-- `cacheSize`: The size of the volume claim that the build cache uses.
-- `failedBuildHistoryLimit`: The maximum number of failed builds for an image that is retained.
-- `successBuildHistoryLimit`: The maximum number of successful builds for an image that is retained.
-- `imageTaggingStrategy`: Allow for builds to be additionally tagged with the build number. Valid options are `None` and `BuildNumber`.
-- `build`: Configuration that is passed to every image build. For more information, see [Build Configuration](#build-config).
+* `tag`: The image tag.
+* `builder`: Configuration of the `builder` resource the image builds use. For more information, see [Builder Configuration](#builder-config).
+* `serviceAccount`: The service account name that is used for credential lookup.
+* `source`: The source code that is monitored and built into images. For more information, see [Source Configuration](#source-config).
+* `cacheSize`: The size of the volume claim that the build cache uses.
+* `failedBuildHistoryLimit`: The maximum number of failed builds for an image that is retained.
+* `successBuildHistoryLimit`: The maximum number of successful builds for an image that is retained.
+* `imageTaggingStrategy`: Allow for builds to be additionally tagged with the build number. Valid options are `None` and `BuildNumber`.
+* `build`: Configuration that is passed to every image build. For more information, see [Build Configuration](#build-config).
 
 ### <a id='builder-config'></a> Builder Configuration
 
@@ -205,52 +209,48 @@ To configure and create a resource:
 
 1. Create a secret so kpack can push image builds to your desired registry. The `name` of this credential is referenced to create a service account.
 
-    1. For GCR:
+    * For GCR:
 
-      ```
-      apiVersion: v1
-      kind: Secret
-      metadata:
-       name: GCR-BUILD-NAME
-       namespace: NAMESPACE
-       annotations:
-         build.pivotal.io/docker: gcr.io
-      type: kubernetes.io/basic-auth
-      stringData:
-       username: USERNAME
-       password: PASSWORD
-      ```
-    
-      Where:
+        ```
+        apiVersion: v1
+        kind: Secret
+        metadata:
+         name: GCR-BUILD-NAME
+         namespace: NAMESPACE
+         annotations:
+           build.pivotal.io/docker: gcr.io
+        type: kubernetes.io/basic-auth
+        stringData:
+         username: USERNAME
+         password: PASSWORD
+        ```
+        Where:
+        * `GCR-BUILD-NAME` is the build name.
+        * `NAMESPACE` is your namespace.
+        * `USERNAME` is the username you define for the build.
+        * `PASSWORD` is the password you define for the build.
 
-      * `GCR-BUILD-NAME` is the build name.
-      * `NAMESPACE` is your namespace.
-      * `USERNAME` is the username you define for the build.
-      * `PASSWORD` is the password you define for the build.
+    * For Docker Hub:
 
-    1. For Docker Hub:
-
-      ```
-      apiVersion: v1
-      kind: Secret
-      metadata:
-       name: DOCKER-BUILD-NAME
-       namespace: NAMESPACE
-       annotations:
-         build.pivotal.io/docker: index.docker.io
-      type: kubernetes.io/basic-auth
-      stringData:
-       username: USERNAME
-       password: PASSWORD
-      ```
-
-      Where:
-
-      * `DOCKER-BUILD-NAME` is the build name.
-      * `NAMESPACE` is your namespace.
-      * `USERNAME` is the username you define for the build.
-      * `PASSWORD` is the password you define for the build.<br>
-      For more information about Docker registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
+        ```
+        apiVersion: v1
+        kind: Secret
+        metadata:
+         name: DOCKER-BUILD-NAME
+         namespace: NAMESPACE
+         annotations:
+           build.pivotal.io/docker: index.docker.io
+        type: kubernetes.io/basic-auth
+        stringData:
+         username: USERNAME
+         password: PASSWORD
+        ```
+        Where:
+        * `DOCKER-BUILD-NAME` is the build name.
+        * `NAMESPACE` is your namespace.
+        * `USERNAME` is the username you define for the build.
+        * `PASSWORD` is the password you define for the build.<br>
+        For more information about Docker registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
 
 1. Create a secret to give the build pull access from the desired Git repository. The example below is for a GitHub repository. You can also specify a personal access token. If you are building against source code that lives in a public registry, you do not need to configure a Git secret.
 
@@ -294,7 +294,7 @@ To configure and create a resource:
 
 1. Apply an image configuration to the cluster. In addition to specifying the source code URL and any build time environment variable names and values your app needs, you can also exercise additional control over how kpack executes builds. You can do this by specifying cache size, build history limit, and resources used.
 
-    * To build an image from a Git repository:
+    1. To build an image from a Git repository:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
@@ -326,62 +326,58 @@ To configure and create a resource:
               requests:
                 cpu: CPU-REQUEST
               memory: MEMORY-REQUEST
+        ```
+        Where:
+        * `IMAGE` is the name of your image.
+        * `NAMESPACE` is your namespace.
+        * `PROJECT-NAME` is the name of your project.
+        * `SERVICE-ACCOUNT` is the name of the service account.
+        * `BUILDER-NAME` is the name of the builder that the image references.
+        * `CACHE-SIZE` is the size of the volume claim that the build cache uses. If you do not specify a size, the caching feature is disabled.
+        * `FAILED-BUILD-HISTORY-LIMIT` is the maximum number of failed builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+        * `SUCCESSFUL-BUILD-HISTORY-LIMIT` is the maximum number of successful builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
+        * `GIT-REPOSITORY-URL` is the Git repository URL. Currently, only HTTPS repositories are supported.
+        * `GIT-REVISION` is the Git revision you want to use. This value may be a commit SHA, branch name, or tag.
+        * `ENV-VAR-NAME` is the name of the environment variable.
+        * `ENV-VAR-VALUE` is the value of the environment variable.
+        * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
+        * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
+        * `CPU-REQUEST` is the maximum CPU capacity of the build.
+        * `MEMORY-REQUEST` is the maximum memory capacity of the build.
+
+    1. If you would like to build an image from a hosted ZIP or JAR:
+
+        ```
+        apiVersion: build.pivotal.io/v1alpha1
+        kind: Image
+        metadata:
+          name: IMAGE
+          namespace: NAMESPACE
+        spec:
+          tag: gcr.io/PROJECT-NAME/app
+          serviceAccount: SERVICE-ACCOUNT
+          builder:
+            name: BUILDER-NAME
+            kind: ClusterBuilder
+          cacheSize: "CACHE-SIZE"
+          failedBuildHistoryLimit: FAILED-BUILD-HISTORY-LIMIT
+          successBuildHistoryLimit: SUCCESSFUL-BUILD-HISTORY-LIMIT
+          source:
+            blob:
+              url: BLOB-URL
+          build:
+            env:
+              - name: ENV-VAR-NAME
+                value: ENV-VAR-VALUE
+            resources:
+              limits:
+                cpu: CPU-LIMIT
+                memory: MEMORY-LIMIT
+              requests:
+                cpu: CPU-REQUEST
+                memory: MEMORY-REQUEST
           ```
-          
           Where:
-
-          * `IMAGE` is the name of your image.
-          * `NAMESPACE` is your namespace.
-          * `PROJECT-NAME` is the name of your project.
-          * `SERVICE-ACCOUNT` is the name of the service account.
-          * `BUILDER-NAME` is the name of the builder that the image references.
-          * `CACHE-SIZE` is the size of the volume claim that the build cache uses. If you do not specify a size, the caching feature is disabled.
-          * `FAILED-BUILD-HISTORY-LIMIT` is the maximum number of failed builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
-          * `SUCCESSFUL-BUILD-HISTORY-LIMIT` is the maximum number of successful builds for an image that is retained. If you do not specify a limit, the default limit of `10` is used.
-          * `GIT-REPOSITORY-URL` is the Git repository URL. Currently, only HTTPS repositories are supported.
-          * `GIT-REVISION` is the Git revision you want to use. This value may be a commit SHA, branch name, or tag.
-          * `ENV-VAR-NAME` is the name of the environment variable.
-          * `ENV-VAR-VALUE` is the value of the environment variable.
-          * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
-          * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
-          * `CPU-REQUEST` is the maximum CPU capacity of the build.
-          * `MEMORY-REQUEST` is the maximum memory capacity of the build.
-
-    * If you would like to build an image from a hosted ZIP or JAR:
-
-          ```
-          apiVersion: build.pivotal.io/v1alpha1
-          kind: Image
-          metadata:
-            name: IMAGE
-            namespace: NAMESPACE
-          spec:
-            tag: gcr.io/PROJECT-NAME/app
-            serviceAccount: SERVICE-ACCOUNT
-            builder:
-              name: BUILDER-NAME
-              kind: ClusterBuilder
-            cacheSize: "CACHE-SIZE"
-            failedBuildHistoryLimit: FAILED-BUILD-HISTORY-LIMIT
-            successBuildHistoryLimit: SUCCESSFUL-BUILD-HISTORY-LIMIT
-            source:
-              blob:
-                url: BLOB-URL
-            build:
-              env:
-                - name: ENV-VAR-NAME
-                  value: ENV-VAR-VALUE
-              resources:
-                limits:
-                  cpu: CPU-LIMIT
-                  memory: MEMORY-LIMIT
-                requests:
-                  cpu: CPU-REQUEST
-                  memory: MEMORY-REQUEST
-          ```
-          
-          Where:
-
           * `IMAGE` is the name of your image.
           * `NAMESPACE` is your namespace.
           * `PROJECT-NAME` is the name of your project.
