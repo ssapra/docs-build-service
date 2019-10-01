@@ -31,13 +31,21 @@ A declarative build system is a system to which you declare the desired result o
 The `image` resource is what kpack utilizes to declaratively build app images. The following defines the relevant fields of the `image` resource spec in more detail:
 
 * `tag`: The image tag.
+
 * `builder`: Configuration of the `builder` resource the image builds use. For more information, see [Builder Configuration](#builder-config).
+
 * `serviceAccount`: The service account name that is used for credential lookup.
+
 * `source`: The source code that is monitored and built into images. For more information, see [Source Configuration](#source-config).
+
 * `cacheSize`: The size of the volume claim that the build cache uses.
+
 * `failedBuildHistoryLimit`: The maximum number of failed builds for an image that is retained.
+
 * `successBuildHistoryLimit`: The maximum number of successful builds for an image that is retained.
+
 * `imageTaggingStrategy`: Allow for builds to be additionally tagged with the build number. Valid options are `None` and `BuildNumber`.
+
 * `build`: Configuration that is passed to every image build. For more information, see [Build Configuration](#build-config).
 
 ### <a id='builder-config'></a> Builder Configuration
@@ -210,7 +218,7 @@ To configure and create a resource:
 1. Create a secret so kpack can push image builds to your desired registry. The `name` of this credential is referenced to create a service account.
     <p class='note'><strong>Note:</strong> The secret must be annotated with the registry prefix for its corresponding registry. For Docker Hub, this should be <code>index.docker.io</code>. For GCR, this should be <code>gcr.io</code>.</p>
 
-    * For GCR:
+    1. For GCR:
 
         ```
         apiVersion: v1
@@ -231,7 +239,7 @@ To configure and create a resource:
         * `USERNAME` is the username you define for the build.
         * `PASSWORD` is the password you define for the build.
 
-    * For Docker Hub:
+    1. For Docker Hub:
 
         ```
         apiVersion: v1
@@ -307,7 +315,7 @@ To configure and create a resource:
 
 1. Apply an image configuration to the cluster. In addition to specifying the source code URL and any build time environment variable names and values your app needs, you can also exercise additional control over how kpack executes builds. You can do this by specifying cache size, build history limit, and resources used.
 
-    * To build an image from a Git repository:
+    1. To build an image from a Git repository:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
@@ -358,7 +366,7 @@ To configure and create a resource:
         * `CPU-REQUEST` is the maximum CPU capacity of the build.
         * `MEMORY-REQUEST` is the maximum memory capacity of the build.
 
-    * If you would like to build an image from a hosted ZIP or JAR:
+    1. If you would like to build an image from a hosted ZIP or JAR:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
