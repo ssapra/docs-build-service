@@ -192,7 +192,7 @@ For more information about builders, see [Builders](https://github.com/pivotal/k
 
 There are several resource types that work together to produce an image resource. This section describes how to configure and create each resource.
 
-The YAML resources below each contain a `name` field. You should reference these names when configuring other resource types. To apply a particular resource type, run the command `kubectl apply -f ~/path/to/resource.yml`.
+The YAML resources below each contain a `name` field. You should reference these names when configuring other resource types. To apply a particular resource type, run the command `kubectl apply -f RESOURCE-PATH.yml`.
 
 To configure and create a resource:
 
@@ -208,6 +208,7 @@ To configure and create a resource:
     * `NAMESPACE` is the name you give the namespace.
 
 1. Create a secret so kpack can push image builds to your desired registry. The `name` of this credential is referenced to create a service account.
+    <p class='note'><strong>Note:</strong> The secret must be annotated with the registry prefix for its corresponding registry. For Docker Hub, this should be <code>index.docker.io</code>. For GCR, this should be <code>gcr.io</code>.</p>
 
     * For GCR:
 
@@ -274,6 +275,11 @@ To configure and create a resource:
     * `PASSWORD` is the password you define for the build.<br>
     For more information about Git registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
 
+1. Apply each of these credentials to your Kubernetes cluster by running:
+    ```
+    kubectl apply -f SECRET-FILE.yaml
+    ```
+
 1. Create a service account that uses the Docker registry secret and the Git registry secret. When configuring the image resource, include the `name` of your Docker registry secret and the `name` of your Git repository secret.
 
     ```
@@ -292,9 +298,16 @@ To configure and create a resource:
     * `DOCKER-BUILD-NAME` is the name of your Docker registry secret.
     * `GIT-BUILD-NAME` is the name of your Git repository secret.
 
+1. Apply this service account to your Kubernetes cluster by running:
+    ```
+    kubectl apply -f SERVICE-ACCOUNT.yaml
+    ```
+
+1. Go to the [sample-java-app](https://github.com/buildpack/sample-java-app) repository on GitHub and fork it to your GitHub account. You can use this fork to build an app with kpack and watch it update when pushes are made to your fork.
+
 1. Apply an image configuration to the cluster. In addition to specifying the source code URL and any build time environment variable names and values your app needs, you can also exercise additional control over how kpack executes builds. You can do this by specifying cache size, build history limit, and resources used.
 
-    1. To build an image from a Git repository:
+    * To build an image from a Git repository:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
@@ -345,7 +358,7 @@ To configure and create a resource:
         * `CPU-REQUEST` is the maximum CPU capacity of the build.
         * `MEMORY-REQUEST` is the maximum memory capacity of the build.
 
-    1. If you would like to build an image from a hosted ZIP or JAR:
+    * If you would like to build an image from a hosted ZIP or JAR:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
@@ -393,3 +406,43 @@ To configure and create a resource:
           * `MEMORY-LIMIT` is the amount of memory the build is allowed to use.
           * `CPU-REQUEST` is the maximum CPU capacity of the build.
           * `MEMORY-REQUEST` is the maximum memory capacity of the build.
+
+1. Apply the image to your Kubernetes cluster by running:
+    ```
+    kubectl apply -f IMAGE.yaml
+    ```
+
+1. Check the status of the image by running:
+    ```
+    kubectl get images
+    ```
+    You should see that the image has an unknown `READY` status as it builds:
+    ```
+    NAME                  LATESTIMAGE   READY
+    tutorial-image                      Unknown
+    ```
+
+1. You can tail the logs for the image that is currently building by running:
+    ```
+    logs -image tutorial-image
+    ```
+    <p class='note'><strong>Note:</strong> The log utility does not exit when the build finishes. You must exit it manually.</p>
+
+1. Once the image finishes building, get the image by running:
+    ```
+    kubectl get image tutorial-image
+    ```
+    You should see the following output:
+    ```
+    NAMESPACE   NAME             LATESTIMAGE                          READY
+    test        tutorial-image   gcr.io/PROJECT-NAME/app@SHA-NUMBER   True
+    ```
+
+1. You can now use the latest image locally in a Kubernetes deployment. To run the latest image locally, run:
+    ```
+    docker run -p 8080:8080 LATEST-IMAGE
+    ```
+
+1. When you push any update to the forked sample app repository you configured, kpack should recognize the update and automatically rebuild your image. Run `kubectl get builds` to see the new builds.
+
+1. When `cloudfoundry/cnb:bionic` is updated, kpack detects if it contains buildpack updates to any of the buildpacks used by the tutorial image. If there is a buildpack update, kpack automatically creates a new build to rebuild your image.
