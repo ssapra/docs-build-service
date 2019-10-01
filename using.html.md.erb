@@ -16,21 +16,21 @@ To target your Build Service installation and log in:
 
 1. Target the API for your Build Service installation:
 
-    ```bash
+    ```
     pb api set YOUR-BUILD-SERVICE-API
     ```
     Where `YOUR-BUILD-SERVICE-API` is the URL for the API for your Build Service installation. For example, `https://build-service.example.com`.
-    <p class="note"><b>Note:</b> Use the <code>--skip-ssl-validation</code> flag if your Build Service installation targets a UAA that has a self-signed CA cert.</p>
+    <p class="note"><strong>Note:</strong> Use the <code>--skip-ssl-validation</code> flag if your Build Service installation targets a UAA that has a self-signed CA cert.</p>
 
 1. Confirm that you targeted the correct Build Service installation:
 
-    ```bash
+    ```
     pb api get
     ```
 
 1. Log in to Build Service:
 
-    ```bash
+    ```
     pb login
     ```
 1. When prompted, enter the `username` and `password` for UAA. 
@@ -51,7 +51,7 @@ To create a new team:
 
 1. Log in to Build Service:
 
-    ```bash
+    ```
     pb login
     ```
 
@@ -72,7 +72,7 @@ To add members to a team:
 
 1. Log in to Build Service:
 
-    ```bash
+    ```
     pb login
     ```
 
@@ -83,8 +83,8 @@ To add members to a team:
     ```
 
     Where:
-    * `UAA-USER-EMAIL`: Is the email address for the user.
-    <p class="note"><b>Note:</b> The user email address must be in UAA to add the user to a team.</p>
+    * `UAA-USER-EMAIL` is the email address for the user.
+    <p class="note"><strong>Note:</strong> The user email address must be in UAA to add the user to a team.</p>
     * `TEAM-NAME` is the name of the team where the user is added.
 
 #### Remove Members of a Team
@@ -93,7 +93,7 @@ To remove members of a team:
 
 1. Log in to Build Service:
 
-    ```bash
+    ```
     pb login
     ```
 
@@ -125,7 +125,7 @@ To associate an image registry credentials with a team:
 
 1. Create a YAML file to add image registry credentials to the team:
 
-    ```yaml
+    ```
     team: YOUR-TEAM-NAME
     registry: REGISTRY-DOMAIN
     username: REGISTRY-USERNAME
@@ -205,14 +205,16 @@ To delete a team:
 
 1. Run the following command:
 
-    ```bash
+    ```
     pb team delete TEAM-NAME
     ```
     Where `TEAM-NAME` is the name of the team to delete.
 
 1. View the following success message in the CLI output:
 
-    `Successfully deleted team TEAM-NAME`
+    ```
+    Successfully deleted team TEAM-NAME
+    ```
 
 
 ## <a id='manage-images'></a> Manage Images
@@ -270,7 +272,7 @@ To apply an image configuration to Build Service:
 
 1. Apply the image configuration:
 
-    ```bash
+    ```
     pb image apply -f PATH-TO-IMAGE-CONFIGURATION
     ```
     Where `PATH-TO-IMAGE-CONFIGURATION` is the local path where you saved the image configuration YAML file.
@@ -306,14 +308,17 @@ To apply an image configuration that uses local source code:
 
 ### <a id='rebuild-image'></a> Image Rebuilds
 
-Pivotal Build Service auto-rebuilds images when one or more of the following build inputs change:
+Build Service auto-rebuilds images when one or more of the following build inputs change:
 
-* New buildpack versions are made available through an updated builder image
-* New commit on a branch or tag Pivotal Build Service is tracking
-* Updating the commit, branch, Git repository, or build fields on the image's configuration file and re-applying it by running `pb image apply`
-* Uploading a new copy of local source by running `pb image apply -p`
+* New buildpack versions are made available through an updated builder image. The Build Service Bundle on Pivotal Network includes the latest buildpacks in its builder images.
 
-Pivotal Build Service does not rebuild images based on new OS packages. For example, `cflinuxfs3`.
+* There is a new commit on a branch or tag Build Service is tracking.
+
+* You update the commit, branch, Git repository, or build fields on the image's configuration file and re-apply it by running `pb image apply`.
+
+* You upload a new copy of local source by running `pb image apply -p`.
+
+Pivotal Build Service does not rebuild images based on new OS packages, such as `cflinuxfs3`.
 
 ### <a id='monitor-builds'></a> Monitor Builds for an Image
 
