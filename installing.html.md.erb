@@ -39,7 +39,7 @@ Before you install Build Service, you must do the following:
 
 The procedures in this section describe how to configure Build Service to prepare for installation.
 
-### <a id='retrieve-credentials'></a>Retrieve PKS Cluster Credentials
+### <a id='retrieve-credentials'></a> Retrieve PKS Cluster Credentials
 
 This procedure retrieves the credentials that authenticate communication between kubectl and the PKS cluster where Build Service runs.
 
@@ -47,14 +47,14 @@ To retrieve the PKS cluster credentials:
 
 1. Run the following command:
 
-    ```bash
+    ```
     pks get-credentials CLUSTER-NAME
     ```
     Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service will run.
 
-1. Target the PKS cluster:
+1. Target the PKS cluster by running:
 
-    ```bash
+    ```
     kubectl config use-context CLUSTER-NAME
     ```
     Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service will run.
@@ -65,14 +65,14 @@ UAA authenticates Build Service users. To allow Build Service to interact with U
 
 To install a UAA client for Build Service:
 
-1. Install the `uaac` client:
+1. Install the `uaac` client by running:
 
     ```
     gem install cf-uaac
     ```
     <p class="note"><strong>Note</strong>: If you are not using <code>rbenv</code> or <code>rvm</code>, you may need to run <code>sudo gem install cf-uaac</code> to install <code>uaac</code>.</p>
 
-1. Target the UAA that you will use to authenticate Build Service users:
+1. Target the UAA that you will use to authenticate Build Service users by running:
 
     ```
     uaac target UAA-URL
@@ -83,7 +83,7 @@ To install a UAA client for Build Service:
 
 1. In Ops Manager, go to the **UAA credentials** section. Record the password for the admin user. 
 
-1. Login as the admin user with the password you recorded in the previous step:
+1. Login as the admin user with the password you recorded in the previous step by running:
 
     ```
     uaac token client get admin -s ADMIN-PASSWORD
@@ -117,11 +117,11 @@ Create a credentials file to provide the location of the TLS certificate credent
 
 To create a credentials file:
 
-1. Navigate to the `/tmp` folder and create a file named `credentials.yml` 
+1. Navigate to the `/tmp` folder and create a file named `credentials.yml`.
 
 1. Add the properties shown in the following example file to the `credentials.yml` file:
 
-    ```yaml
+    ```
     name: build-service-credentials
     credentials:
      - name: kube_config
@@ -163,7 +163,7 @@ To define custom parameters and annotations for Build Service:
 
 1. Add any of the following optional properties to the `/tmp/parameters.json` file:
     - `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling Builder images for buildpack updates. By default, this property is `false`.
-    If you set `disable_builder_polling` to true, you must configure a Builder Webhook. See [Setting up Builder Webhooks](./webhooks.html).
+    If you set `disable_builder_polling` to true, you must configure a Builder Webhook. For more information, see [Setting up Builder Webhooks](./webhooks.html).
     - `ingress_annotations`: Configures ingress annotations.
     - `replica_count`: Defines the number of Build Service instances running. By default, `replica_count` is `1`.
     - `no_gateway`: Installs the Pivotal Builder and kpack, the Build Service CRDs, and controllers. This is a boolean value that defaults to `false`.
@@ -171,7 +171,7 @@ To define custom parameters and annotations for Build Service:
     - `https_proxy`: The https proxy to be used for network traffic.
     - `no_proxy`: A comma separated list of host names that should not use a proxy.
 
-    <p class="note warning"><strong>Warning:</strong> If you set <code>no_gateway</code> to true, you can only interact with Build Service through <code>kubectl</code>. For more information, see <a href="#kpack-only">(Optional) Install Build Service as a kpack-Only Installation</a>.</p>
+    <p class="note warning"><strong>Warning:</strong> If you set <code>no_gateway</code> to <code>true</code>, you can only interact with Build Service through <code>kubectl</code>. For more information, see <a href="#kpack-only">(Optional) Install Build Service as a kpack-Only Installation</a>.</p>
     
     **Sample parameters.json**
     ```
@@ -188,14 +188,14 @@ This procedure relocates images from the Build Service bundle that you downloade
 
 To move the images from the Build Service bundle to an internal image registry:
 
-1. Log in to the image registry where the images will be stored:
+1. Log in to the image registry where the images will be stored by running:
 
     ```
     docker login YOUR-IMAGE-REGISTRY
     ```
     Where `YOUR-IMAGE-REGISTRY` is the name of the image registry where you will push the images. 
 
-1. Push the images to the image registry:
+1. Push the images to the image registry by running:
 
     ```
     duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p YOUR-IMAGE-REGISTRY
@@ -228,7 +228,7 @@ To install Build Service:
     ```
     Where `INSTALLATION-NAME` is the unique name for the Build Service installation. You can use this name after installation to upgrade Build Service.
 
-1. Use `duffle` to install Build Service and define the required Build Service parameters:
+1. Use `duffle` to install Build Service and define the required Build Service parameters by running:
 
     ```
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
@@ -246,12 +246,12 @@ To install Build Service:
     - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service will be installed.
     - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
       <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>.
-      Do not include subpaths in the registry. <code>gcr.io</code>, <code>acr.io</code> are examples of valid fields for the registry.</p>
+      Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
     - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
     - `REGISTRY-PASSWORD` is the password to access the registry.  
     - `UAA-URL` is the URL to access UAA.
 
-### <a id='kpack-only'></a>Install Build Service as a kpack-Only Installation 
+### <a id='kpack-only'></a> Install Build Service as a kpack-Only Installation 
 
 This procedure describes how to install Build Service as a kpack-only installation.
 
@@ -265,11 +265,11 @@ To install Build Service as a kpack-only installation:
     - `tls_cert`
     - `tls_key`
 
-1. Create a `parameters.json` file and set the `no_gateway` property in the file to `true`. This installs the Pivotal Builder, Build Service CRDs, and their controllers. See [(Optional) Define Custom Parameters and Annotations](#create-params-file).
+1. Create a `parameters.json` file and set the `no_gateway` property in the file to `true`. This installs the Pivotal Builder, Build Service CRDs, and their controllers. For more information, see [(Optional) Define Custom Parameters and Annotations](#create-params-file).
 
-1. Use `duffle` to define the required Build Service files:
+1. Use `duffle` to define the required Build Service files by running:
 
-    ```bash
+    ```
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
         -p /tmp/parameters.json \
         -f /tmp/build-service-${version}.tgz \
@@ -277,9 +277,9 @@ To install Build Service as a kpack-only installation:
     ```
     Where `INSTALLATION-NAME` is the unique name for the Build Service installation. You can use this name after installation to upgrade Build Service.
 
-1. Use `duffle` to define the required Build Service parameters and install Build Service:
+1. Use `duffle` to define the required Build Service parameters and install Build Service by running:
 
-    ```bash
+    ```
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
         --set domain="" \
         --set kubernetes_env=PKS-CLUSTER-NAME \
@@ -293,7 +293,7 @@ To install Build Service as a kpack-only installation:
     Where:
     - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service will be installed.
     - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
-      <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code>, <code>acr.io</code> are examples of valid fields for the registry.</p>
+      <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
     - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
     - `REGISTRY-PASSWORD` is the password to access the registry.  
 
@@ -306,14 +306,14 @@ To create a UAA user for Build Service:
 
 1. Install `uaac`. See [Install a UAA Client](#uaa-client-creation).
 
-1. Target the UAA that you will use to authenticate Build Service users:
+1. Target the UAA that you will use to authenticate Build Service users by running:
 
     ```
     uaac target UAA-URL --skip-ssl-validation
     ```
     Where `UAA-URL` is the URL of the UAA that authenticates Build Service users. 
 
-1. Create a user:
+1. Create a user by running:
 
     ```
     uaac user add USER-USERNAME -p USER-PASSWORD --emails USER-EMAIL
@@ -328,13 +328,13 @@ To create a UAA user for Build Service:
 
 Verify Build Service installation by logging in to Build Service with the UAA user credentials you created. 
 
-<p class="note"><strong>Note:</strong> This procedure does not apply to kpack-only Build Service installations where the <code>no_gateway</code> parameter in the `parameters.json` file is set to <code>true</code>. This procedure applies only to standard Build Service installations.</p>
+<p class="note"><strong>Note:</strong> This procedure does not apply to kpack-only Build Service installations where the <code>no_gateway</code> parameter in the <code>parameters.json</code> file is set to <code>true</code>. This procedure applies only to standard Build Service installations.</p>
 
 To verify Build Service installation:
 
 1. Download the `pb` binary from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
 
-1. Target the Build Service installation:
+1. Target the Build Service installation by running:
 
     ```
     pb api set BUILD_SERVICE_DOMAIN
@@ -343,7 +343,7 @@ To verify Build Service installation:
 
     <p class="note"><strong>Note:</strong> If the UAA for Build Service uses a self-signed CA certificate, add the `--skip-ssl-validation` flag at the end of the command.</p>
 
-1. Log in to Build Service with the user that you created as part of [Create a UAA User for Build Service](#users-create):
+1. Log in to Build Service with the user that you created as part of [Create a UAA User for Build Service](#users-create) by running:
 
     ```
     pb login
