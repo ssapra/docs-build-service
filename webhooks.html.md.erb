@@ -7,13 +7,15 @@ owner: Build Service Team
 
 This topic describes how to set up builder webhooks for Pivotal Build Service. 
 
-By default, Build Service polls its image registry to know when buildpacks have been udpated for a builder image. This allows the Build Service to rebuild your images when updated buildpacks are available. 
+## <a id='overview'></a> Overview
+
+By default, Build Service polls its image registry to know when buildpacks have been updated for a builder image. This allows the Build Service to rebuild your images when updated buildpacks are available. 
 
 You may want to use webhooks instead of relying on the default polling behavior. Using webhooks avoids the polling delay when a builder image has been updated with new buildpacks.
 
 ## <a id='supported-image-registries'></a> Supported Image Registries
 
-You can set up builder webhooks for any of image registries in this section. 
+You can set up builder webhooks for any of the image registries in this section. 
 
 ### <a id='artifactory'></a> Artifactory
 
