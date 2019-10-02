@@ -219,7 +219,7 @@ To delete a team:
 
 ## <a id='manage-images'></a> Manage Images
 
-The following procedures describe how to create and manage images in Build Service. 
+The following procedures describe how to create and manage images in Build Service.
 
 ### <a id='create-image'></a> Image Configurations
 
@@ -308,15 +308,21 @@ To apply an image configuration that uses local source code:
 
 ### <a id='rebuild-image'></a> Image Rebuilds
 
-Build Service auto-rebuilds images when one or more of the following build inputs change:
+Rebuilds happen in two ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`. An automatic rebuild occurs when build inputs within the image configuration change, without you editing the image configuration itself.
 
-* New buildpack versions are made available through an updated builder image. The Build Service Bundle on Pivotal Network includes the latest buildpacks in its builder images.
-
-* There is a new commit on a branch or tag Build Service is tracking.
+You can initiate an imperative rebuild in the following ways:
 
 * You update the commit, branch, Git repository, or build fields on the image's configuration file and re-apply it by running `pb image apply`.
 
-* You upload a new copy of local source by running `pb image apply -p`.
+* You upload a new copy of the local source code by running `pb image apply -p`.
+
+For more information, see [Apply Image Configurations](#apply-image).
+
+Build Service auto-rebuilds images when one or more of the following build inputs change:
+
+* New buildpack versions are made available through an updated builder image. The Build Service Bundle on Pivotal Network includes the latest buildpacks in its builder images. When you update Build Service, it copies the new buildpacks over to your container registry.
+
+* There is a new commit on a branch or tag Build Service is tracking.
 
 Pivotal Build Service does not rebuild images based on new OS packages, such as `cflinuxfs3`.
 
