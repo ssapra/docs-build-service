@@ -8,13 +8,13 @@ This topic describes how to use the Pivotal Build Service CLI, `pb`, to log in t
 
 ## <a id='configure-cli'></a> Log In to Build Service
 
-After you configure and install Build Service, you can configure the Build Service CLI, `pb`, to target your Build Service installation.
+After you configure and install Build Service, you can use the Build Service CLI, `pb`, to target and log in to your Build Service installation.
 
 For more information about installation and configuring Build Service, see [Installing and Configuring Build Service](./installing.html). 
 
 To target your Build Service installation and log in:
 
-1. Target the API for your Build Service installation:
+1. Target the API for your Build Service installation by running:
 
     ```
     pb api set YOUR-BUILD-SERVICE-API
@@ -22,40 +22,33 @@ To target your Build Service installation and log in:
     Where `YOUR-BUILD-SERVICE-API` is the URL for the API for your Build Service installation. For example, `https://build-service.example.com`.
     <p class="note"><strong>Note:</strong> Use the <code>--skip-ssl-validation</code> flag if your Build Service installation targets a UAA that has a self-signed CA cert.</p>
 
-1. Confirm that you targeted the correct Build Service installation:
+1. Confirm that you targeted the correct Build Service installation by running:
 
     ```
     pb api get
     ```
 
-1. Log in to Build Service:
+1. Log in to Build Service by running:
 
     ```
     pb login
     ```
 1. When prompted, enter the `username` and `password` for UAA. 
     <br><br>
-    The username and password can be passed to Build Service with the following environment variables:
-    `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI defaults to picking these up and using them if they exist in the environment.
+    You can also pass your username and password to Build Service by specifying the environment variables `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI defaults to picking these up and using them if they exist in the environment.
 
 
 ## <a id='manage-teams'></a> Manage Teams
 
 The following procedures describe how to manage teams and team members with the `pb` CLI.
 
-A `team` is a Build Service entity that uses UAA to provide user access control to image configurations. For more information, see [Build Service Teams](./index.html#team-config).
+A `team` is a Build Service entity that uses UAA to provide user access control to images, image configurations, and image builders. For more information, see [Build Service Teams](./index.html#team-config).
 
 ### <a id='create-team'></a> Create a Team
 
-To create a new team: 
+To create a new team:
 
-1. Log in to Build Service:
-
-    ```
-    pb login
-    ```
-
-1. Create a new team:
+1. Run:
 
     ```
     pb team create TEAM-NAME
@@ -70,13 +63,7 @@ All members of a team can add and remove team members.
 
 To add members to a team:
 
-1. Log in to Build Service:
-
-    ```
-    pb login
-    ```
-
-1. Add a user to a team:
+1. Run:
 
     ```
     pb team user add UAA-USER-EMAIL -t TEAM-NAME
@@ -91,13 +78,7 @@ To add members to a team:
 
 To remove members of a team:
 
-1. Log in to Build Service:
-
-    ```
-    pb login
-    ```
-
-1. Remove a user from a team:
+1. Run:
 
     ```
     pb team user remove UAA-USER-EMAIL -t TEAM-NAME
@@ -106,25 +87,26 @@ To remove members of a team:
     * `UAA-USER-EMAIL`: Is the email address for the user.
     * `TEAM-NAME` is the name of the team from which the user is removed.
 
-### <a id='add-image'></a> Associate an Image Registry with a Team    
+### <a id='manage-image-registries'></a> Manage Image Registries for a Team
 
-To use a team in Build Service, you must associate the credentials for an image registry with the team. If the source code for the image is saved in a 
-repository, you must also associate the Git credentials with the team.
+For a team to use an image registry in Build Service, you must associate an image registry and the image registry credentials with the team. If the source code for the image is saved in a repository, you must also associate the Git credentials with the team.
 
 Build Service uses these credentials to deliver container image builds to the specified registry. 
 
 <p class="note"><strong>Note:</strong> The registry credentials must belong to a user with <code>write</code> access on the registry.</p> 
 
-Build Service recommends the following image registries:
+Build Service supports the following image registries:
 
 * Docker Hub   
 * GCR
 * Harbor
 * Artifactory
 
-To associate a image registry credentials with a team:
+#### <a id='add-image'></a> Associate an Image Registry with a Team
 
-1. Create a YAML file to add image registry credentials to the team:
+To associate an image registry and image registry credentials with a team:
+
+1. Create a YAML file with the image registry location and credentials. Enter the following variables:
 
     ```
     team: YOUR-TEAM-NAME
@@ -132,77 +114,103 @@ To associate a image registry credentials with a team:
     username: REGISTRY-USERNAME
     password: REGISTRY-PASSWORD
     ```
-    <p class="note"><strong>Note:</strong> You can add only one password for an image registry in the credentials YAML file.</p>
     Where:
     * `YOUR-TEAM-NAME` is the name of the team that owns the image.
     * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
-      * **Docker Hub**: Enter the domain name `index.docker.io`.  
-      * **GCR**: Enter the domain name `gcr.io`.
+      * **Docker Hub**: Enter `index.docker.io`.  
+      * **GCR**: Enter `gcr.io`.
       * **Harbor**: Enter the domain that is specific to your deployment of the registry.
       * **Artifactory**: Enter the domain that is specific to your deployment of the registry
-    * `REGISTRY-USERNAME` and `REGISTRY-PASSWORD` are the username and password of the image registry, respectively. 
+    * `REGISTRY-USERNAME` and `REGISTRY-PASSWORD` are the username and password of the image registry, respectively. You can include only one password for an image registry in the credentials YAML file.
 
-1. Apply to image registry credentials file:
+1. Apply the image registry YAML file by running:
 
     ```
     pb secrets registry apply -f PATH-TO-REGISTRY-CREDENTIALS-YAML
     ```
     Where `PATH-TO-REGISTRY-CREDENTIALS-YAML` is the local path to the YAML file that you created in the previous step.
 
-    <p class="note"><strong>Note:</strong> To update the registry credentials for a team, modify the registry credentials YAML file and run the <code>pb secrets registry apply</code> command.</p>
+#### <a id='change-registry-association'></a> Change Image Registry Association and Credentials
 
-### <a id='add-git-credentials'></a> Manage Git Credentials for a Team
+To update the registry association and credentials for a team:
 
-To allow Build Service to execute builds against app source code in a private Git repository, add the Git username and password to the team that manages the source code in Build Service.
+1. Modify the variables in your image registry YAML file.
+    * To change the team the registry is associated with, modify `team`.
+    * To change the registry associated with the team, modify `registry`.
+    * To change the credentials for the registry, modify `username` and `password`.
 
-<p class="note"><strong>Note</strong>: The Git secret a given team uses can be updated by modifying the above file and running the <code>pb secrets git apply</code> command.</p>
+1. Apply the image registry file by running:
+
+    ```
+    pb secrets registry apply -f PATH-TO-REGISTRY-CREDENTIALS-YAML
+    ```
+    Where `PATH-TO-REGISTRY-CREDENTIALS-YAML` is the local path to the YAML file that you created in the previous step.
+
+### <a id='manage-git-repos'></a> Manage Git Repositories for a Team
+
+To allow Build Service to execute builds against app source code in a private Git repository, you must add the Git username and password to the team that manages the source code.
 
 As you apply the registry and Git secret files, the `pb` CLI provides feedback indicating whether or not the commands succeeded.
 
-#### Add Git Credentials to a Team
+#### <a id='add-git-credentials'></a> Associate a Git Repository with a Team
 
-To add Git credentials to a team:
+To associate a Git repository and Git repository credentials with a team:
 
-**Note**
+<p class='note'><strong>Note:</strong> In Build Service v0.0.3, if you apply a Git credential that contains a GitHub password, Build Services build against the source code in a public Git repository. The first build succeeds, but subsequent rebuilds do not trigger due to a polling issue. To avoid this, Pivotal recommend you utilize an access token. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
 
-There is a known issue in 0.0.3 in which if a user:
-
-* Applies a Git credential that contains a github password
-* Builds against source code in a public git repo
-* First build will succeed but subsequent rebuilds will not trigger due to a polling issue
-
-To avoid this issue, we recommend users utilize an access token https://github.com/settings/tokens
-
-1. Create a YAML file with the `git` credentials:
+1. Create a YAML file with the Git repository location and credentials. Enter the following variables:
 
     ```
-    team: TEAM-NAME
-    repository: github.com
+    team: YOUR-TEAM-NAME
+    repository: GIT-REPOSITORY
     username: GIT-USERNAME
     password: GIT-PASSWORD/TOKEN
     ```
-1. Apply the Git credentials to the team:
+    Where:
+    * `YOUR-TEAM-NAME` is the name of the team that owns the image.
+    * `GIT-REPOSITORY` is the URL of the GitHub repository.
+    * `GIT-USERNAME` is the Git username used to access the GitHub repository.
+    * `GIT-PASSWORD/TOKEN` is the password or access token used to access the GitHub repository.
+
+1. Apply the Git repository file to the team by running:
     
     ```
-    pb secrets git apply -f PATH-TO-GIT-CREDENTIALS-YAML-FILE
+    pb secrets git apply -f PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE
     ```
+    Where `PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE` is the local path to the YAML file that you created in the previous step.
 
-#### Delete Git Credentials From a Team
+##### Delete Git Credentials From a Team
 
 To delete Git credentials from a team:
 
-1. Delete the registry secrets from the team:
+1. Delete the registry secrets from the team by running:
 
     ```
     pb secrets registry delete REGISTRY-DOMAIN -t TEAM-NAME
     ```
     Where `TEAM-NAME` is the name of the team.
 
-1. Delete the Git credentials from the team:
+1. Delete the Git credentials from the team by running:
 
     ```
     pb secrets git delete github.com -t TEAM-NAME
     ```
+
+#### <a id='change-repo-association'></a> Change Git Repository Association and Credentials
+
+To update the Git repository and credentials for a team:
+
+1. Modify the variables in your Git repository YAML file.
+    * To change the team the Git repository is associated with, modify `team`.
+    * To change the Git repository associated with the team, modify `repository`.
+    * To change the credentials for the Git repository, modify `username` and `password`.
+
+1. Apply the image registry file by running:
+
+    ```
+    pb secrets registry apply -f PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE
+    ```
+    Where `PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE` is the local path to the YAML file that you created in the previous step.
 
 ### <a id='delete-team'></a> Delete a Team
 
@@ -214,7 +222,7 @@ To delete a team:
 
 1. Delete any images on Build Service owned by the team. You cannot delete a team if the team owns any images on Build Service.
 
-1. Run the following command:
+1. Run:
 
     ```
     pb team delete TEAM-NAME
