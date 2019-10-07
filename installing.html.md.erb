@@ -10,9 +10,9 @@ This topic describes how to install and configure Pivotal Build Service.
 
 ## <a id='overview'></a> Overview
 
-To install Build Service, you must configure UAA, credentials, TLS certificates, and relocate images to an internal image registry. You can also define optional parameters and annotations during installation.
+To install Build Service, you must configure UAA, credentials, and TLS certificates, and you must relocate images to an internal image registry. You can also define optional parameters and annotations during installation.
 
-The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation, in which all interaction with Build Service can be done through the kubectl CLI only.
+The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation. In a kpack-only installation, all interaction with Build Service can be done through the `kubectl` CLI only.
 
 
 ## <a id='prerequisites'></a> Prerequisites
@@ -23,12 +23,12 @@ Before you install Build Service, you must do the following:
 
 - Install Ruby. Ruby is required to create a UAA client.
 
-- Install an ingress controller on the Kubernetes cluster where you will install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. See [How to set up an Ingress Controller for a PKS cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster).
+- Install an ingress controller on the Kubernetes cluster where you install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. See [How to set up an Ingress Controller for a PKS cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster).
 
 - Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
   <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
-- Configure PersistentVolumes on the Kubernetes cluster where you will install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires PersistentVolumeClaims to cache build artifacts, which reduces the time of subsequent builds.
+- Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in tke Kubernetes documentation.
 
 - Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
 
@@ -50,14 +50,14 @@ To retrieve the PKS cluster credentials:
     ```
     pks get-credentials CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service will run.
+    Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service runs.
 
 1. Target the PKS cluster by running:
 
     ```
     kubectl config use-context CLUSTER-NAME
     ```
-    Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service will run.
+    Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service runs.
 
 ### <a id='uaa-client-creation'></a> Install a UAA Client
 
@@ -72,7 +72,7 @@ To install a UAA client for Build Service:
     ```
     <p class="note"><strong>Note</strong>: If you are not using <code>rbenv</code> or <code>rvm</code>, you may need to run <code>sudo gem install cf-uaac</code> to install <code>uaac</code>.</p>
 
-1. Target the UAA that you will use to authenticate Build Service users by running:
+1. Target the UAA that you use to authenticate Build Service users by running:
 
     ```
     uaac target UAA-URL
@@ -188,12 +188,12 @@ This procedure relocates images from the Build Service bundle that you downloade
 
 To move the images from the Build Service bundle to an internal image registry:
 
-1. Log in to the image registry where the images will be stored by running:
+1. Log in to the image registry where the images are stored by running:
 
     ```
     docker login YOUR-IMAGE-REGISTRY
     ```
-    Where `YOUR-IMAGE-REGISTRY` is the name of the image registry where you will push the images. 
+    Where `YOUR-IMAGE-REGISTRY` is the name of the image registry where you push the images. 
 
 1. Push the images to the image registry by running:
 
@@ -243,7 +243,7 @@ To install Build Service:
     ```
     Where:
     - `BUILD-SERVICE-DOMAIN` is the domain name  used to target Build Service. You configured this domain as the domain for the Ingress controller.
-    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service will be installed.
+    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service is installed.
     - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
       <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>.
       Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
@@ -291,7 +291,7 @@ To install Build Service as a kpack-only installation:
         -m /tmp/relocated.json
     ```
     Where:
-    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service will be installed.
+    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service is installed.
     - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
       <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
     - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
@@ -306,7 +306,7 @@ To create a UAA user for Build Service:
 
 1. Install `uaac`. See [Install a UAA Client](#uaa-client-creation).
 
-1. Target the UAA that you will use to authenticate Build Service users by running:
+1. Target the UAA that you use to authenticate Build Service users by running:
 
     ```
     uaac target UAA-URL --skip-ssl-validation
