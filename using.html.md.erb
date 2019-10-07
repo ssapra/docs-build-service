@@ -150,13 +150,13 @@ To update the registry association and credentials for a team:
 
 To allow Build Service to execute builds against app source code in a private Git repository, you must add the Git username and password to the team that manages the source code.
 
-As you apply the registry and Git secret files, the `pb` CLI provides feedback indicating whether or not the commands succeeded.
+As you apply YAML files that associate a Git repository and Git repository credentials with a team, the `pb` CLI provides feedback indicating whether or not the commands succeeded.
 
 #### <a id='add-git-credentials'></a> Associate a Git Repository with a Team
 
 To associate a Git repository and Git repository credentials with a team:
 
-<p class='note'><strong>Note:</strong> In Build Service v0.0.3, if you apply a Git credential that contains a GitHub password, Build Services build against the source code in a public Git repository. The first build succeeds, but subsequent rebuilds do not trigger due to a polling issue. To avoid this, Pivotal recommend you utilize an access token. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
+<p class='note'><strong>Note:</strong> If your YAML file utilizes a username and password, only the first build succeeds, while subsequent rebuilds do not trigger. To avoid this, Pivotal recommend you utilize an access token. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
 
 1. Create a YAML file with the Git repository location and credentials. Enter the following variables:
 
@@ -179,23 +179,6 @@ To associate a Git repository and Git repository credentials with a team:
     ```
     Where `PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE` is the local path to the YAML file that you created in the previous step.
 
-##### Delete Git Credentials From a Team
-
-To delete Git credentials from a team:
-
-1. Delete the registry secrets from the team by running:
-
-    ```
-    pb secrets registry delete REGISTRY-DOMAIN -t TEAM-NAME
-    ```
-    Where `TEAM-NAME` is the name of the team.
-
-1. Delete the Git credentials from the team by running:
-
-    ```
-    pb secrets git delete github.com -t TEAM-NAME
-    ```
-
 #### <a id='change-repo-association'></a> Change Git Repository Association and Credentials
 
 To update the Git repository and credentials for a team:
@@ -211,6 +194,25 @@ To update the Git repository and credentials for a team:
     pb secrets registry apply -f PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE
     ```
     Where `PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE` is the local path to the YAML file that you created in the previous step.
+
+#### <a id='delete-git-creds'></a> Delete Git Repository and Credentials from a Team
+
+To delete a Git repository from a team:
+
+1. Run:
+
+    ```
+    pb secrets registry delete REGISTRY-DOMAIN -t TEAM-NAME
+    ```
+    Where `TEAM-NAME` is the name of the team.
+
+To delete Git credentials from a team:
+
+1. Run:
+
+    ```
+    pb secrets git delete github.com -t TEAM-NAME
+    ```
 
 ### <a id='delete-team'></a> Delete a Team
 
@@ -240,9 +242,7 @@ To delete a team:
 
 The following procedures describe how to create and manage images in Build Service.
 
-### <a id='create-image'></a> Image Configurations
-
-An image configuration defines the specification that Build Service uses to create images. 
+### <a id='create-image'></a> Image Configurations 
 
 To create an image, you must create an image configuration YAML that includes the following properties:
 
@@ -254,7 +254,7 @@ To create an image, you must create an image configuration YAML that includes th
   - Includes an `env` property that supplies values to the build by setting environment variables.
   - Each `env` environment variable is an object with a `name` and a `value`, for example `BP_JAVA_VERSION` and `8.*`.
 
-* `image_registry`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the team configuration. The value for `image_registry` must match the domain of one of the registries that you provided in the team configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
+* `image_registry`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the team configuration. For more information, see [Manage Image Registries for a Team](#manage-image-registries). The value for `image_registry` must match the domain of one of the registries that you provided in the team configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
 
 For more information about creating and applying image configurations for apps with source code in GitHub or source code saved locally, see [Apply Image Configurations](#apply-image).
 
@@ -327,7 +327,7 @@ To apply an image configuration that uses local source code:
 
 ### <a id='rebuild-image'></a> Image Rebuilds
 
-Rebuilds happen in two ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`. An automatic rebuild occurs when build inputs within the image configuration change, without you editing the image configuration itself.
+Rebuilds happen in two ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`. An automatic rebuild occurs when build inputs change, without you editing the image configuration itself.
 
 You can initiate an imperative rebuild in the following ways:
 
