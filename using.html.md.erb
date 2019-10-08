@@ -8,9 +8,9 @@ This topic describes how to use the Pivotal Build Service CLI, `pb`, to log in t
 
 ## <a id='configure-cli'></a> Log In to Build Service
 
-After you configure and install Build Service, you can use the Build Service CLI, `pb`, to target and log in to your Build Service installation.
+After you configure and install Build Service, you can use the `pb` CLI to target and log in to your Build Service installation.
 
-For more information about installation and configuring Build Service, see [Installing and Configuring Build Service](./installing.html). 
+For more information, see [Installing and Configuring Build Service](./installing.html). 
 
 To target your Build Service installation and log in:
 
@@ -35,7 +35,7 @@ To target your Build Service installation and log in:
     ```
 1. When prompted, enter the `username` and `password` for UAA. 
     <br><br>
-    You can also pass your username and password to Build Service by specifying the environment variables `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI defaults to picking these up and using them if they exist in the environment.
+    You can also pass your username and password to Build Service by specifying the environment variables `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI defaults to using them if they exist in the environment.
 
 
 ## <a id='manage-teams'></a> Manage Teams
@@ -70,8 +70,7 @@ To add members to a team:
     ```
 
     Where:
-    * `UAA-USER-EMAIL` is the email address for the user.
-    <p class="note"><strong>Note:</strong> The user email address must be in UAA to add the user to a team.</p>
+    * `UAA-USER-EMAIL` is the email address for the user. The user email address must be in UAA to add the user to a team.
     * `TEAM-NAME` is the name of the team where the user is added.
 
 #### Remove Members of a Team
@@ -85,7 +84,7 @@ To remove members of a team:
     ```
     Where:
     * `UAA-USER-EMAIL`: Is the email address for the user.
-    * `TEAM-NAME` is the name of the team from which the user is removed.
+    * `TEAM-NAME` is the name of the user's team.
 
 ### <a id='manage-image-registries'></a> Manage Image Registries for a Team
 
@@ -144,7 +143,7 @@ To update the registry association and credentials for a team:
     ```
     pb secrets registry apply -f PATH-TO-REGISTRY-CREDENTIALS-YAML
     ```
-    Where `PATH-TO-REGISTRY-CREDENTIALS-YAML` is the local path to the YAML file that you created in the previous step.
+    Where `PATH-TO-REGISTRY-CREDENTIALS-YAML` is the local path to the YAML file that you created in the previous section.
 
 ### <a id='manage-git-repos'></a> Manage Git Repositories for a Team
 
@@ -156,7 +155,7 @@ As you apply YAML files that associate a Git repository and Git repository crede
 
 To associate a Git repository and Git repository credentials with a team:
 
-<p class='note'><strong>Note:</strong> If your YAML file utilizes a username and password, only the first build succeeds, while subsequent rebuilds do not trigger. To avoid this, Pivotal recommend you utilize an access token. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
+<p class='note'><strong>Note:</strong> If your YAML file utilizes a username and password, only the first build succeeds, while subsequent rebuilds do not trigger. To avoid this, Pivotal recommends you use an access token. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
 
 1. Create a YAML file with the Git repository location and credentials. Enter the following variables:
 
@@ -250,7 +249,7 @@ To create an image, you must create an image configuration YAML that includes th
 
 * `source`: Defines the Git location of the code that the image is built against. The `revision` can be either a `branch`, `tag` or a commit `sha`. When you target the image against a branch, Build Service triggers a build for every new commit.
 
-* `build`: Defines additional configuration for your app, such as buildpack version numbers.
+* `build`: Defines additional configuration for your app such as buildpack version numbers.
   - Includes an `env` property that supplies values to the build by setting environment variables.
   - Each `env` environment variable is an object with a `name` and a `value`, for example `BP_JAVA_VERSION` and `8.*`.
 
@@ -357,7 +356,7 @@ Build Service auto-rebuilds images when one or more of the following build input
 
 * There is a new commit on a branch or tag Build Service is tracking.
 
-Pivotal Build Service does not rebuild images based on new OS packages, such as `cflinuxfs3`.
+Pivotal Build Service does not rebuild images based on new OS packages such as `cflinuxfs3`.
 
 ### <a id='monitor-builds'></a> Monitor Builds for an Image
 
