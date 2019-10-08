@@ -254,7 +254,7 @@ To create an image, you must create an image configuration YAML that includes th
   - Includes an `env` property that supplies values to the build by setting environment variables.
   - Each `env` environment variable is an object with a `name` and a `value`, for example `BP_JAVA_VERSION` and `8.*`.
 
-* `image_registry`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the team configuration. For more information, see [Manage Image Registries for a Team](#manage-image-registries). The value for `image_registry` must match the domain of one of the registries that you provided in the team configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
+* `image`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the team configuration. For more information, see [Manage Image Registries for a Team](#manage-image-registries). The value for `image` must match the domain of one of the registries that you provided in the team configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
 
 For more information about creating and applying image configurations for apps with source code in GitHub or source code saved locally, see [Apply Image Configurations](#apply-image).
 
@@ -264,7 +264,7 @@ Build Service supports builds against apps with source code that is saved in a G
 
 The procedures in this section describe how to apply image configurations in Build Service that have source code saved in a Git repository or source code saved locally. 
 
-#### Apply an Image With Source Code in a Git Repository
+#### <a id='apply-image-with-git-repo'></a> Apply an Image With Source Code in a Git Repository
 
 To apply an image configuration to Build Service:
 
@@ -278,51 +278,65 @@ To apply an image configuration to Build Service:
         revision: master
     build:
       env:
-      - name: BP_BUILD_ARGUMENTS
-        value: some_value
+      - name: ENV-NAME
+        value: ENV-VALUE
     image:
-      tag: registry.default.com/PATH-TO-EXAMPLE-APP-IMAGE
+      tag: REGISTRY-DOMAIN/PATH-TO-EXAMPLE-APP-IMAGE
     ```
 
     Where:
       * `TEAM-NAME` is the name of the team that owns the new image.
       * `PATH-TO-EXAMPLE-APP` is the path to an app on GitHub.
+      * `ENV-NAME` is the name of your build environment.
+      * `ENV-VALUE` is the value of your build environment.
+      * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
+        * **Docker Hub**: Enter `index.docker.io`.  
+        * **GCR**: Enter `gcr.io`.
+        * **Harbor**: Enter the domain that is specific to your deployment of the registry.
+        * **Artifactory**: Enter the domain that is specific to your deployment of the registry
       * `PATH-TO-EXAMPLE-APP-IMAGE` is the local path to the image registry.
 
-1. Apply the image configuration:
+1. Apply the image configuration by running:
 
     ```
     pb image apply -f PATH-TO-IMAGE-CONFIGURATION
     ```
     Where `PATH-TO-IMAGE-CONFIGURATION` is the local path where you saved the image configuration YAML file.
 
-#### Apply an Image With Local Source Code
+#### <a id='apply-image-with-local-source-code'></a> Apply an Image With Local Source Code
 
 To apply an image configuration that uses local source code:
 
 1. Create an image configuration file that has no Git properties. For example:
 
     ```
-    team: YOUR-TEAM-NAME
+    team: TEAM-NAME
     build:
       env:
-      - name: BP_BUILD_ARGUMENTS
-        value: some_value
+      - name: ENV-NAME
+        value: ENV-VALUE
     image:
-      tag: registry.default.com/PATH-TO-EXAMPLE-APP
+      tag: REGISTRY-DOMAIN/PATH-TO-EXAMPLE-APP
     ```
     Where:
-    * `YOUR-TEAM-NAME` is the name of the team that owns the new image.
+    * `TEAM-NAME` is the name of the team that owns the new image.
     * `PATH-TO-EXAMPLE-APP` is the local path to an app.
+    * `ENV-NAME` is the name of your build environment.
+    * `ENV-VALUE` is the value of your build environment.
+    * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
+      * **Docker Hub**: Enter `index.docker.io`.  
+      * **GCR**: Enter `gcr.io`.
+      * **Harbor**: Enter the domain that is specific to your deployment of the registry.
+      * **Artifactory**: Enter the domain that is specific to your deployment of the registry
 
-1. Apply the image configuration:
+1. Apply the image configuration by running:
 
     ```
-    pb image apply -f /PATH-TO-IMAGE-CONFIGURATION/YOUR-IMAGE-CONFIGURATION.yaml -p /PATH-TO-APP-DIRECTORY
+    pb image apply -f /PATH-TO-IMAGE-CONFIGURATION/IMAGE-CONFIGURATION.yaml -p /PATH-TO-APP-DIRECTORY
     ```
     Where:
     * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
-    * `YOUR-IMAGE-CONFIGURATION` is the name of the image configuration YAML file. 
+    * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file. 
     * `PATH-TO-APP-DIRECTORY` is the local path to the app directory.
 
 ### <a id='rebuild-image'></a> Image Rebuilds
@@ -353,9 +367,9 @@ Build Service stores the ten most recent successful builds and the ten most rece
 
 To view logs for a build, you must provide the build number. You cannot view logs for a build by referencing the image digest.
 
-#### View All Builds for an Image
+#### <a id='view-all-builds'></a> View All Builds for an Image
 
-To list all the builds created for an image:
+To list all the builds created for an image, run:
 
 ```
 pb image builds IMAGE-TAG 
@@ -386,9 +400,9 @@ The following describes the fields in the example output:
         <p class="note"><strong>Note:</strong> It is possible for a rebuild to occur for more than one <code>Reason</code>. When there are multiple reasons for rebuild, the <code>pb</code> CLI output shows the primary reason and appends a <code>+</code> sign to the <code>Reason</code> field. The following is the priority rank for the <code>Reason</code>:<code>CONFIG</code>, <code>COMMIT</code>, <code>BUILDER</code>, in descending order.</p>
 * `Digest`: Contains the `SHA256` of the successfully built image. You can reference this SHA to perform Docker commands like `pull` and `inspect`.
 
-### View Logs For a Build
+### <a id='view-build-logs'></a> View Logs for a Build
 
-To view logs for a build:
+To view logs for a build, run:
 
 ```
 pb image logs IMAGE-TAG -b BUILD-NUMBER
@@ -461,19 +475,21 @@ The following is an example of the output of the command:
 [build-step-cache]
 ```
 
-#### View Logs for a Running Build
+#### <a id='view-running-build-logs'></a> View Logs for a Running Build
 
 You can stream logs that show the progress of a build. The logs terminate when the build completes.
 
 To view logs for a running build:
 
-```
-pb image logs IMAGE-TAG -b BUILD-NUMBER -f
-```
-Where:
+1. Run:
 
-* `IMAGE-TAG` is the value of the field `image.tag` in the image configuration YAML file.
-* `BUILD-NUMBER` is the number of the build.
+    ```
+    pb image logs IMAGE-TAG -b BUILD-NUMBER -f
+    ```
+    Where:
+
+    * `IMAGE-TAG` is the value of the field `image.tag` in the image configuration YAML file.
+    * `BUILD-NUMBER` is the number of the build.
 
 ### <a id='delete-images'></a> Delete an Image
 
@@ -483,7 +499,7 @@ This procedure describes how to delete a Build Service image.
 
 To delete an image:
 
-1. Run the following command:
+1. Run:
 
     ```
     pb image delete IMAGE-TAG
