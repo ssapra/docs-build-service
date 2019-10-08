@@ -28,7 +28,7 @@ Before you install Build Service, you must do the following:
 - Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
   <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
-- Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in tke Kubernetes documentation.
+- Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
 - Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
 
