@@ -216,18 +216,6 @@ You can do a standard Build Service installation or install Build Service as a k
 
 The following procedure describes how to do a standard Build Service installation. To install Build Service so that all interactions with Build Service must be made through kubectl, see [Install Build Service as a kpack-Only Installation](#kubectl).
 
-To install Build Service:
-
-1. Run the following command with `duffle`:
-    <p class="note"><strong>Note:</strong> If you defined custom parameters in a <code>parameters.json</code> file as part of <a href="#create-params-file">(Optional) Define Custom Parameters and Annotations</a>, add <code>-p /tmp/parameters.json</code> to the following command.</p>
-
-    ```
-    duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
-        -f /tmp/build-service-${version}.tgz \
-        -m /tmp/relocated.json
-    ```
-    Where `INSTALLATION-NAME` is the unique name for the Build Service installation. You can use this name after installation to upgrade Build Service.
-
 1. Use `duffle` to install Build Service and define the required Build Service parameters by running:
 
     ```
