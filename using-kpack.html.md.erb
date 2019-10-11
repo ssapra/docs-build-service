@@ -62,7 +62,7 @@ To configure the `builder` field:
 
 1. Define the `builder` field in your image resource YAML file in one of the following ways:
 
-    * Cluster builder
+    1. Cluster builder
 
         ```
         builder:
@@ -73,7 +73,7 @@ To configure the `builder` field:
         * `CLUSTER-BUILDER-NAME` is the name of the ClusterBuilder resource in Kubernetes.
         * `ClusterBuilder` is the type as defined in Kubernetes. This value is always `ClusterBuilder`.
 
-    * Namespaced builder
+    1. Namespaced builder
 
         ```
         builder:
@@ -95,7 +95,7 @@ To configure the `source` field:
 
 1. Configure the `source` field in your image resource YAML file in one of the following ways:
 
-    * Git
+    1. Git
 
         ```
         source:
@@ -110,7 +110,7 @@ To configure the `source` field:
         * `GIT-REVISION` is the Git revision you want to use. This value may be a commit SHA, branch name, or tag.
         * `SUBDIRECTORY` is a subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
 
-    * Blob
+    1. Blob
 
         ```
         source:
@@ -123,7 +123,7 @@ To configure the `source` field:
         * `BLOB-URL` is the URL of the source code blob. Either this blob must be publicly accessible, or the access token must be contained in the URL.
         * `SUBDIRECTORY` is the subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
 
-    * Registry
+    1. Registry
 
         ```
         source:
@@ -162,7 +162,6 @@ To configure the `build` field:
             memory: MEMORY-REQUEST
     ```
     Where:
-
     * `ENV-VAR-NAME` is the name of the environment variable.
     * `ENV-VAR-VALUE` is the value of the environment variable.
     * `CPU-LIMIT` is the amount of CPU the build is allowed to use.
@@ -181,7 +180,7 @@ To create a builder resource:
 
 1. Configure the builder resource in your image resource YAML file in one of the following ways:
 
-    * **Namespaced builder**: This is a builder that exists inside a namespace and cannot be shared between namespaces. This property allows you to push the image of the builder to a private registry by giving the option to set `ImagePullSecret`. See the following example:
+    1. **Namespaced builder**: This is a builder that exists inside a namespace and cannot be shared between namespaces. This property allows you to push the image of the builder to a private registry by giving the option to set `ImagePullSecret`. See the following example:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
@@ -200,10 +199,9 @@ To create a builder resource:
         * `NAMESPACE` is the namespace where the builder is created.
         * `BUILDER-IMAGE-TAG` is the builder image tag.
         * `UPDATE-POLICY` is the update policy of the builder. Valid options are `polling` and `external`. `external` requires you to update the resource by applying a new configuration, whereas `polling` automatically checks every five minutes to see if a new version of the builder image exists.
-        * `BUILDER-SECRET` is an optional parameter that you should use only if the builder image is in a
-    private builder that require credentials to access. To create this secret, see the [Create a Secret based on existing Docker credentials](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#registry-secret-existing-credentials) section of the _Pull an Image from a Private Registry_ topic in the Kubernetes documentation.
+        * `BUILDER-SECRET` is an optional parameter that you should use only if the builder image is in a private builder that require credentials to access. To create this secret, see the [Create a Secret based on existing Docker credentials](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#registry-secret-existing-credentials) section of the _Pull an Image from a Private Registry_ topic in the Kubernetes documentation.
 
-    * **Cluster builder**: This type of builder can be used inside any namespace. The image must exist in a publicly accessible registry. See the following example:
+    1. **Cluster builder**: This type of builder can be used inside any namespace. The image must exist in a publicly accessible registry. See the following example:
 
           ```
           apiVersion: build.pivotal.io/v1alpha1
@@ -244,7 +242,7 @@ To configure and create a resource:
 1. Create a secret so kpack can push image builds to your desired registry. The `name` of this credential is referenced to create a service account.
     <p class='note'><strong>Note:</strong> The secret must be annotated with the registry prefix for its corresponding registry. For Docker Hub, this should be <code>index.docker.io</code>. For GCR, this should be <code>gcr.io</code>.</p>
 
-    * For GCR:
+    1. For GCR:
 
         ```
         apiVersion: v1
@@ -265,7 +263,7 @@ To configure and create a resource:
         * `USERNAME` is the username you define for the build.
         * `PASSWORD` is the password you define for the build.
 
-    * For Docker Hub:
+    1. For Docker Hub:
 
         ```
         apiVersion: v1
@@ -341,7 +339,7 @@ To configure and create a resource:
 
 1. Apply an image configuration to the cluster. In addition to specifying the source code URL and any build time environment variable names and values your app needs, you can also exercise additional control over how kpack executes builds. You can do this by specifying cache size, build history limit, and resources used.
 
-    * To build an image from a Git repository:
+    1. To build an image from a Git repository:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
@@ -392,7 +390,7 @@ To configure and create a resource:
         * `CPU-REQUEST` is the maximum CPU capacity of the build.
         * `MEMORY-REQUEST` is the maximum memory capacity of the build.
 
-    * If you would like to build an image from a hosted ZIP or JAR:
+    1. If you would like to build an image from a hosted ZIP or JAR:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
