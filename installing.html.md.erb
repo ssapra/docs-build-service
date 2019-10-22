@@ -12,7 +12,9 @@ This topic describes how to install and configure Pivotal Build Service.
 
 To install Build Service, you must configure UAA, credentials, and TLS certificates, and you must relocate images to an internal image registry. You can also define optional parameters and annotations during installation.
 
-The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation. In a kpack-only installation, all interaction with Build Service can be done through the `kubectl` CLI only.
+The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation .
+
+For kpack-only installation follow [this page](./installing-kpack-only.html#overview)
 
 
 ## <a id='prerequisites'></a> Prerequisites
@@ -157,6 +159,8 @@ To create a credentials file:
 
 To define custom parameters and annotations for Build Service, create a JSON file that defines the parameters.
 
+<p class="note"><strong>Note:</strong> If you create the parameters file you can provide it to the duffle install command using `-p` instead of all the `--set` options depicted in [the installation step](#kpack-only)</p>
+
 To define custom parameters and annotations for Build Service:
 
 1. Navigate to the `/tmp` folder and create a file named `parameters.json`.
@@ -206,12 +210,6 @@ To move the images from the Build Service bundle to an internal image registry:
 
 The following procedures describe how to use `duffle` to define the required Build Service parameters and install build service. 
 
-You can do a standard Build Service installation or install Build Service as a kpack-only installation. Do one of the following:
-
-* **Standard Build Service Installation**: See [Install Build Service](#standard-install).
-
-* **kpack-Only Build Service Installation**: See [Install Build Service as a kpack-Only Installation](#kubectl). 
-
 ### <a id='standard-install'></a> Install Build Service
 
 The following procedure describes how to do a standard Build Service installation. To install Build Service so that all interactions with Build Service must be made through kubectl, see [Install Build Service as a kpack-Only Installation](#kubectl).
@@ -238,53 +236,6 @@ The following procedure describes how to do a standard Build Service installatio
     - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
     - `REGISTRY-PASSWORD` is the password to access the registry.  
     - `UAA-URL` is the URL to access UAA.
-
-### <a id='kpack-only'></a> Install Build Service as a kpack-Only Installation 
-
-This procedure describes how to install Build Service as a kpack-only installation.
-
-<p class="note warning"><strong>Warning:</strong> If you do a kpack-only installation, all user interactions with Build Service must be done through the kubectl CLI.</p>
-
-For more information about kpack, see the [kpack](https://github.com/pivotal/kpack) repository on GitHub.
-
-To install Build Service as a kpack-only installation: 
-
-1. Remove the following properties from the `credentials.yml` file that you created as part of [Create a Credentials File](#create-creds-file):
-    - `tls_cert`
-    - `tls_key`
-
-1. Create a `parameters.json` file and set the `no_gateway` property in the file to `true`. This installs the Pivotal Builder, Build Service CRDs, and their controllers. For more information, see [(Optional) Define Custom Parameters and Annotations](#create-params-file).
-
-1. Use `duffle` to define the required Build Service files by running:
-
-    ```
-    duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
-        -p /tmp/parameters.json \
-        -f /tmp/build-service-${version}.tgz \
-        -m /tmp/relocated.json
-    ```
-    Where `INSTALLATION-NAME` is the unique name for the Build Service installation. You can use this name after installation to upgrade Build Service.
-
-1. Use `duffle` to define the required Build Service parameters and install Build Service by running:
-
-    ```
-    duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
-        --set domain="" \
-        --set kubernetes_env=PKS-CLUSTER-NAME \
-        --set docker_registry=IMAGE-REGISTRY \
-        --set registry_username="REGISTRY-USERNAME" \
-        --set registry_password="REGISTRY-PASSWORD" \
-        --set uaa_url="" \
-        -f /tmp/build-service-${version}.tgz \
-        -m /tmp/relocated.json
-    ```
-    Where:
-    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service is installed.
-    - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
-      <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
-    - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
-    - `REGISTRY-PASSWORD` is the password to access the registry.  
-
 
 ## <a id='users-create'></a> Create a UAA User for Build Service
 
