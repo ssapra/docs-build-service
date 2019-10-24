@@ -12,14 +12,14 @@ The kpack integration is a declarative build system that allows you to have more
 
 A declarative build system is a system to which you declare the desired result of a build, which the system then builds on its own without direction. For example, when you give the system the names of the libraries a project depends upon, the system fetches the libraries and finds the source classes on its own. This is different from an imperative build system, which requires you to run commands to tell it how to do what you want to accomplish.
 
-The kpack integration can be used with Build Service, with other services, or on its own to build app images. For more information on kpack-only installations, see the [Install Build Service as a kpack-Only Installation](installing.html#kpack-only) section of the _Installing and Configuring Build Service_ topic.
+The kpack integration can be used with Build Service, with other services, or on its own to build app images. For more information on kpack-only installations, see the [Install Build Service as a kpack-Only Installation](installing-kpack-only.html#install) section of the _Installing and Configuring Build Service_ topic.
 
 
 ## <a id='prerequistites'></a> Prerequisites
 
 This documentation assumes you have the following:
 
-* An installation of kpack. To install kpack, see [Installing kpack](https://github.com/pivotal/kpack/blob/master/docs/install.md) on GitHub.
+* An installation of kpack. To install kpack, see [Installing kpack-only](./installing-kpack-only.html).
 
 * A Kubernetes cluster. To create a Kubernetes cluster, see [Using Minikube to Create a Cluster
 ](https://kubernetes.io/docs/tutorials/kubernetes-basics/create-cluster/cluster-intro/) in the Kubernetes documentation.
@@ -54,7 +54,7 @@ The `image` resource is what kpack uses to declaratively build app images. It is
 * `build`: Configuration that is passed to every image build. For more information, see [Build Configuration](#build-config).
 
 
-## <a id='builder-config'></a> Configure the Builder
+### <a id='builder-config'></a> Configure the Builder in the Image Resource
 
 The `builder` field in the image resource describes the builder that builds the OCI images for a provided image configuration.
 
@@ -87,7 +87,7 @@ To configure the `builder` field:
 <p class='note'><strong>Note:</strong> This image can only reference builders defined in the same namespace. This is not true for cluster builders because they are not namespace-scoped.</p>
 
 
-## <a id='source-config'></a> Configure the Source
+### <a id='source-config'></a> Configure the Source in the Image Resource
 
 The `source` field in the image resource is a composition of a source code location and a `subpath`.
 
@@ -140,7 +140,7 @@ To configure the `source` field:
         * `SUBDIRECTORY` is a subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
 
 
-## <a id='build-config'></a> Configure the Build
+### <a id='build-config'></a> Configure the Build in the Image Resource
 
 The `build` field in the `image` resource can be used to configure environment variables required during the build process and to configure resource limits on `CPU` and `memory`.
 
