@@ -55,36 +55,48 @@ To create a new project:
     ```
     Where `PROJECT-NAME` is a unique name for the project.
 
+### <a id='targeting-project'></a> Targeting a project
+
+Under the hood, projects map to the Kubernetes namespace concept.
+Because of this, resources produced by the build service cannot be accessed globally across all the namespaces in the cluster.  
+
+The `pb` CLI makes it easy to specify the desired project.  Run:
+    ```
+    pb project target <PROJECT-NAME>
+    ```
+    Where `PROJECT-NAME` is a unique name for the project.
+
+When running commands, Build Service will now assume that you are referring to the specified project.
+In order to set a different target project, simply run the command again and specify a different project. 
+
 ### <a id='manage-project-members'></a> Add and Remove Project Members
 
 All members of a project can add and remove project members.
 
 #### Add Members to a Project
 
-To add members to a project:
+To add members to the currently targeted project:
 
 1. Run:
 
     ```
-    pb project user add UAA-USERNAME -t PROJECT-NAME
+    pb project user add UAA-USERNAME
     ```
 
     Where:
     * `UAA-USERNAME` is the username for the user.
-    * `PROJECT-NAME` is the name of the project where the user is added.
 
 #### Remove Members of a Project
 
-To remove members of a project:
+To remove members from the currently targeted project:
 
 1. Run:
 
     ```
-    pb project user remove UAA-USERNAME -t PROJECT-NAME
+    pb project user remove UAA-USERNAME
     ```
     Where:
     * `UAA-USERNAME`: Is the username address for the user.
-    * `PROJECT-NAME` is the name of the user's project.
 
 ### <a id='manage-image-registries'></a> Manage Image Registries for a Project
 
@@ -105,16 +117,18 @@ Build Service supports the following image registries:
 
 To associate an image registry and image registry credentials with a project:
 
+1. Target the project the image should be associated with
+    `pb project target PROJECT-NAME`
+    Where `PROJECT-NAME` is the name of the project that owns the image.
+
 1. Create a YAML file with the image registry location and credentials. Enter the following variables:
 
     ```
-    project: YOUR-PROJECT-NAME
     registry: REGISTRY-DOMAIN
     username: REGISTRY-USERNAME
     password: REGISTRY-PASSWORD
     ```
     Where:
-    * `YOUR-PROJECT-NAME` is the name of the project that owns the image.
     * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
       * **Docker Hub**: Enter `index.docker.io`.  
       * **GCR**: Enter `gcr.io`.
@@ -155,18 +169,16 @@ As you apply YAML files that associate a Git repository and Git repository crede
 
 To associate a Git repository and Git repository credentials with a project:
 
-<p class='note'><strong>Note:</strong> If your YAML file utilizes a username and password, only the first build succeeds, while subsequent rebuilds do not trigger. To avoid this, Pivotal recommends you use an access token. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
+<p class='note'><strong>Note:</strong> If your git repository uses an access token, you can specify the token in the below `password` field. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
 
 1. Create a YAML file with the Git repository location and credentials. Enter the following variables:
 
     ```
-    project: YOUR-PROJECT-NAME
     repository: GIT-REPOSITORY
     username: GIT-USERNAME
     password: GIT-PASSWORD/TOKEN
     ```
     Where:
-    * `YOUR-PROJECT-NAME` is the name of the project that owns the image.
     * `GIT-REPOSITORY` is the URL of the GitHub repository.
     * `GIT-USERNAME` is the Git username used to access the GitHub repository.
     * `GIT-PASSWORD/TOKEN` is the password or access token used to access the GitHub repository.
@@ -183,34 +195,24 @@ To associate a Git repository and Git repository credentials with a project:
 To update the Git repository and credentials for a project:
 
 1. Modify the variables in your Git repository YAML file.
-    * To change the project the Git repository is associated with, modify `project`.
     * To change the Git repository associated with the project, modify `repository`.
     * To change the credentials for the Git repository, modify `username` and `password`.
 
-1. Apply the image registry file by running:
+1. Apply the Git Repository Credentials file by running:
 
     ```
     pb secrets registry apply -f PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE
     ```
     Where `PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE` is the local path to the YAML file that you created in the previous step.
 
-#### <a id='delete-git-creds'></a> Delete Git Repository and Credentials from a Project
-
-To delete a Git repository from a project:
-
-1. Run:
-
-    ```
-    pb secrets registry delete REGISTRY-DOMAIN -t PROJECT-NAME
-    ```
-    Where `PROJECT-NAME` is the name of the project.
+#### <a id='delete-git-creds'></a> Delete Git Repository Credentials from a Project
 
 To delete Git credentials from a project:
 
 1. Run:
 
     ```
-    pb secrets git delete github.com -t PROJECT-NAME
+    pb secrets git delete github.com
     ```
 
 ### <a id='delete-project'></a> Delete a Project
@@ -221,7 +223,7 @@ This procedure describes how to delete a project using the `pb` CLI.
 
 To delete a project:
 
-1. Delete any images on Build Service owned by the project. You cannot delete a project if the project owns any images on Build Service.
+1. You must delete all image configs in Build Service owned by the project. You cannot delete a project if the project owns any images on Build Service. See <a href="#delete-images">this section</a> on how to delete image configurations.
 
 1. Run:
 
@@ -230,13 +232,6 @@ To delete a project:
     ```
     Where `PROJECT-NAME` is the name of the project to delete.
 
-1. View the following success message in the CLI output:
-
-    ```
-    Successfully deleted project PROJECT-NAME
-    ```
-
-
 ## <a id='manage-images'></a> Manage Images
 
 The following procedures describe how to create and manage images in Build Service.
@@ -244,8 +239,6 @@ The following procedures describe how to create and manage images in Build Servi
 ### <a id='create-image'></a> Image Configurations 
 
 To create an image, you must create an image configuration YAML that includes the following properties:
-
-* `project`: The project in Build Service that owns the image. You can only create images for projects of which you are a member.
 
 * `source`: Defines the Git location of the code that the image is built against. The `revision` can be either a `branch`, `tag` or a commit `sha`. When you target the image against a branch, Build Service triggers a build for every new commit.
 
@@ -270,7 +263,6 @@ To apply an image configuration to Build Service:
 1. Create an image configuration YAML file. For example:
 
     ```
-    project: PROJECT-NAME
     source:
       git:
         url: https://github.com/PATH-TO-EXAMPLE-APP
@@ -284,7 +276,6 @@ To apply an image configuration to Build Service:
     ```
 
     Where:
-      * `PROJECT-NAME` is the name of the project that owns the new image.
       * `PATH-TO-EXAMPLE-APP` is the path to an app on GitHub.
       * `ENV-NAME` is the name of your build environment.
       * `ENV-VALUE` is the value of your build environment.
@@ -309,7 +300,6 @@ To apply an image configuration that uses local source code:
 1. Create an image configuration file that has no Git properties. For example:
 
     ```
-    project: PROJECT-NAME
     build:
       env:
       - name: ENV-NAME
@@ -318,7 +308,6 @@ To apply an image configuration that uses local source code:
       tag: REGISTRY-DOMAIN/PATH-TO-EXAMPLE-APP
     ```
     Where:
-    * `PROJECT-NAME` is the name of the project that owns the new image.
     * `PATH-TO-EXAMPLE-APP` is the local path to an app.
     * `ENV-NAME` is the name of your build environment.
     * `ENV-VALUE` is the value of your build environment.
@@ -338,15 +327,34 @@ To apply an image configuration that uses local source code:
     * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file. 
     * `PATH-TO-APP-DIRECTORY` is the local path to the app directory.
 
+### <a id='list-images'></a> List Images
+
+List all the image configurations for the currently targeted Project:
+
+`pb image list`
+
+The following is an example of the output for this command:
+
+```
+Project: some-project
+
+Images
+------
+first/image:tag
+second/image:tag
+third/image:tag
+```
+
 ### <a id='rebuild-image'></a> Image Rebuilds
 
-Rebuilds happen in two ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`. An automatic rebuild occurs when build inputs change, without you editing the image configuration itself.
+Rebuilds happen in two ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`.
+An automatic rebuild occurs when build inputs change, without you editing the image configuration itself.
 
 You can initiate an imperative rebuild in the following ways:
 
 * You update the commit, branch, Git repository, or build fields on the image's configuration file and re-apply it by running `pb image apply`.
 
-* You upload a new copy of the local source code by running `pb image apply -p`.
+* You upload a new copy of the local source code by running `pb image apply -p PATH-TO-SOURCE`.
 
 For more information, see [Apply Image Configurations](#apply-image).
 
@@ -356,7 +364,7 @@ Build Service auto-rebuilds images when one or more of the following build input
 
 * There is a new commit on a branch or tag Build Service is tracking.
 
-Build Service does not rebuild images based on new OS packages such as `cflinuxfs3`.
+* There is a new base OS image available such as `cflinuxfs3`
 
 ### <a id='monitor-builds'></a> Monitor Builds for an Image
 
@@ -380,10 +388,11 @@ The following is an example of the output for this command:
 ```
 Build    Status    Started Time           Finished Time          Reason    Digest
 -----    ------    ------------           -------------          ------    ------
-    1    SUCCESS   2019-09-09 21:55:27    2019-07-08 21:56:54    CONFIG    *************************************************
+    1    SUCCESS   2019-09-09 21:55:27    2019-07-08 21:55:54    CONFIG    *************************************************
     2    SUCCESS   2019-09-09 21:56:55    2019-07-08 21:57:40    COMMIT    *************************************************
-    3    FAILED    2019-09-09 21:58:55    2019-07-08 21:59:40    CONFIG+   --
-    4    BUILDING  2019-09-09 21:58:55    --                     BUILDER   --
+    3    SUCCESS   2019-09-09 21:57:55    2019-07-08 21:58:40    STACK     *************************************************
+    4    FAILED    2019-09-09 21:58:55    2019-07-08 21:59:40    CONFIG+   --
+    5    BUILDING  2019-09-09 21:59:55    --                     BUILDER   --
     -    PENDING   --                     --                     UNKNOWN   --
 ```
 
@@ -397,7 +406,68 @@ The following describes the fields in the example output:
     * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes.
     * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image.
         <p class="note"><strong>Note:</strong> It is possible for a rebuild to occur for more than one <code>Reason</code>. When there are multiple reasons for rebuild, the <code>pb</code> CLI output shows the primary reason and appends a <code>+</code> sign to the <code>Reason</code> field. The following is the priority rank for the <code>Reason</code>:<code>CONFIG</code>, <code>COMMIT</code>, <code>BUILDER</code>, in descending order.</p>
+    * `STACK`: Occurs when a new base OS image (called a `run image`) is available.
 * `Digest`: Contains the `SHA256` of the successfully built image. You can reference this SHA to perform Docker commands like `pull` and `inspect`.
+
+#### <a id='view-build-details'></a> View Build Details for an Image
+
+Display detailed information about a build:
+
+`pb image build IMAGE-TAG -b BUILD-NUMBER`
+
+Where:
+    * `IMAGE-TAG` is the value of the field `image.tag` in the image configuration YAML file.
+    * `BUILD-NUMBER` is the build number of the build to inspect.
+
+The following is an example of the output for this command:
+
+```
+------------------
+Retrieving information for image "gcr.io/myapp" - build 1
+------------------
+STATUS
+     Status:     SUCCESS
+     Reasons:    Config
+     Image:      gcr.io/myapp@sha256:f87b614257af05c3301c1554c4f15131793caec3adf55e45d2c612e90445765a
+------------------
+BUILD DETAILS
+     Run Image:  cloudfoundry/cnb:run@sha256:asdas098asdas
+     Builder:    cloudfoundry/cnb:bionic@sha256:grtewwads0asdvf09asdf
+
+     Source:
+         Git:        http://github.com/myapp
+         Revision:   ad123ad
+     Buildpacks: 
+         Id:         io.java.etc
+         Version:    123
+
+         Id:         io.kotlin.etc
+         Version:    321
+
+------------------
+```
+
+The following describes the fields in the example output:
+
+* `Status`: Describes the status of a previous or pending build image.
+* `Reason`: Describes why an image rebuild occured. These reasons include:
+    * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and the user ran `pb image apply`.
+    * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes.
+    * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image.
+        <p class="note"><strong>Note:</strong> It is possible for a rebuild to occur for more than one <code>Reason</code>. When there are multiple reasons for rebuild, the <code>pb</code> CLI output shows the primary reason and appends a <code>+</code> sign to the <code>Reason</code> field. The following is the priority rank for the <code>Reason</code>:<code>CONFIG</code>, <code>COMMIT</code>, <code>BUILDER</code>, in descending order.</p>
+    * `STACK`: Occurs when a new base OS image (called a `run image`) is available.
+* `Image`: The full image tag for the app image produced by the build
+* `Run Image`: The full image tag for the run image used by the app
+* `Builder`: The full image tag for the builder image used by the build
+* `Source`: This field will contain one of the following
+    * For a build created from a git commit
+        * `Git`: This is the repository url
+        * `Revision`: This is the commit SHA
+    * For a build created from local source code
+        * Displays `Local Source` to indicate that the source code was pushed from a development workstation
+    * For a build created from a blob
+        * `Blob`: The blob url
+* `Buildpacks`: A list with buildpacks used by the build
 
 ### <a id='view-build-logs'></a> View Logs for a Build
 
