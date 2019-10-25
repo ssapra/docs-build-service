@@ -5,7 +5,7 @@ owner: Build Service Team
 
 <strong><%= modified_date %></strong>
 
-This topic describes how to install and configure Pivotal Build Service.
+This topic describes how to install and configure a kpack-only deployment.
 
 
 ## <a id='overview'></a> Overview
@@ -20,12 +20,11 @@ For standard Build Service installation follow [this page](./installing.html#ove
 
 Before you install Build Service, you must do the following:
 
-- Install Pivotal Container Service (PKS). See [Installing Enterprise PKS](https://docs.pivotal.io/pks/1-5/installing.html).
+- Create or use an existing Kubernetes cluster.
 
 - Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
-  <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
-- Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
+- Configure `PersistentVolumes` on the Kubernetes cluster where you install kpack. Configure the cache size per image to 2&nbsp;GB. kpack requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
 - Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
 
@@ -36,29 +35,9 @@ Before you install Build Service, you must do the following:
 
 The procedures in this section describe how to configure kpack to prepare for installation.
 
-### <a id='retrieve-credentials'></a> Retrieve PKS Cluster Credentials
-
-This procedure retrieves the credentials that authenticate communication between kubectl and the PKS cluster where Build Service runs.
-
-To retrieve the PKS cluster credentials:
-
-1. Run the following command:
-
-    ```
-    pks get-credentials CLUSTER-NAME
-    ```
-    Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service runs.
-
-1. Target the PKS cluster by running:
-
-    ```
-    kubectl config use-context CLUSTER-NAME
-    ```
-    Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service runs.
-
 ### <a id='create-creds-file'></a> Create a Credentials File
 
-Create a credentials file to provide the location of the TLS certificate credentials to `duffle` during Build Service installation.
+<p class="note"><strong>Note:</strong> Ensure that the kubectl CLI has access to the Kubernetes cluster</p>
 
 To create a credentials file:
 
@@ -81,42 +60,10 @@ To create a credentials file:
          path: "/cnab/app/cert/ca.crt"
     ```
     Where:
-      - `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine. This file is required to enable Build Service to interact with the target cluster.
-      - `PATH-TO-CA` is the path to the Certificate Authority (CA). This CA is  required to enable Build Service to interact with internally deployed registries. This is the CA that was used while deploying the registry.
-      - `PATH-TO-TLS-CERTIFICATE` is the path to the TLS certificate. This TLS certificate required for authenticated communication between the `pb` CLI and Build Service. The CA for this TLS certificate must be trusted by the workstation communicating with Build Service.
-      - `PATH-TO-TLS-PRIVATE-KEY` is the path to the private key corresponding to the TLS certificate.
+      - `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine. This file is required to enable kpack to interact with the target cluster.
+      - `PATH-TO-CA` is the path to the Certificate Authority (CA). This CA is required to enable kpack to interact with internally deployed registries. This is the CA that was used while deploying the registry.
 
       <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
-
-### <a id='create-params-file'></a> (Optional) Define Custom Parameters and Annotations
-
-To define custom parameters, create a JSON file that defines the parameters.
-
-<p class="note"><strong>Note: </strong>If you create the parameters file you can provide it to the duffle install command using <code>-p</code> instead of all the <code>--set</code> options depicted in <a href="#kpack-only">Install Build Service as a kpack-Only Installation</a></p>
-
-To define custom parameters:
-
-1. Navigate to the `/tmp` folder and create a file named `parameters.json`.
-
-1. Add any of the following optional properties to the `/tmp/parameters.json` file:
-    - `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling Builder images for buildpack updates. By default, this property is `false`.
-    If you set `disable_builder_polling` to true, you must configure a Builder Webhook. For more information, see [Setting up Builder Webhooks](./webhooks.html).
-    - `replica_count`: Defines the number of Build Service instances running. By default, `replica_count` is `1`.
-    - `no_gateway`: Installs the Pivotal Builder and kpack, the Build Service CRDs, and controllers. This is a boolean value that defaults to `false`.
-    - `http_proxy`: The http proxy to be used for network traffic.
-    - `https_proxy`: The https proxy to be used for network traffic.
-    - `no_proxy`: A comma separated list of host names that should not use a proxy.
-
-    <p class="note warning"><strong>Warning:</strong> If you set <code>no_gateway</code> to <code>true</code>, you can only interact with Build Service through <code>kubectl</code>. For more information, see <a href="#kpack-only">Install Build Service as a kpack-Only Installation</a>.</p>
-    
-    **Sample parameters.json**
-    ```
-    {
-      "ingress_annotations": {
-        "kubernetes.io/ingress.YOUR-ANNOTATION-KEY": "YOUR-ANNOTATION-VALUE"
-      }
-    }
-    ```
 
 ### <a id='relocate-images'></a> Move Images to an Image Registry
 
@@ -138,27 +85,15 @@ To move the images from the Build Service bundle to an internal image registry:
     ```
 
 
-## <a id='install'></a> Install Build Service
+## <a id='install'></a> Install kpack
 
 The following procedures describe how to use `duffle` to define the required parameters and install kpack. 
-
-### <a id='kpack-only'></a> Install Build Service as a kpack-Only Installation 
-
-This procedure describes how to install Build Service as a kpack-only installation.
-
-<p class="note warning"><strong>Warning:</strong> If you do a kpack-only installation, all user interactions with Build Service must be done through the kubectl CLI.</p>
 
 For more information about kpack, see the [kpack](https://github.com/pivotal/kpack) repository on GitHub.
 
 To install Build Service as a kpack-only installation: 
 
-1. Remove the following properties from the `credentials.yml` file that you created as part of [Create a Credentials File](#create-creds-file):
-    - `tls_cert`
-    - `tls_key`
-
-1. Create a `parameters.json` file and set the `no_gateway` property in the file to `true`. This installs the Pivotal Builder, Build Service CRDs, and their controllers. For more information, see [(Optional) Define Custom Parameters and Annotations](#create-params-file).
-
-1. Use `duffle` to define the required Build Service parameters and install Build Service by running:
+1. Use `duffle` to define the required kpack parameters and install kpack by running:
 
     ```
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
@@ -168,12 +103,21 @@ To install Build Service as a kpack-only installation:
         --set registry_username="REGISTRY-USERNAME" \
         --set registry_password="REGISTRY-PASSWORD" \
         --set uaa_url="" \
+        --set no_gateway=true \
         -f /tmp/build-service-${version}.tgz \
         -m /tmp/relocated.json
     ```
     Where:
-    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service is installed.
+    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where kpack is installed.
     - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
       <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
     - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
-    - `REGISTRY-PASSWORD` is the password to access the registry.  
+    - `REGISTRY-PASSWORD` is the password to access the registry.
+    
+    Other optional parameters you may add using `--set`:
+    - `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling Builder images for buildpack updates. By default, this property is `false`.
+    If you set `disable_builder_polling` to true, you must configure a Builder Webhook. For more information, see [Setting up Builder Webhooks](./webhooks.html).
+    - `replica_count`: Defines the number of Build Service instances running. By default, `replica_count` is `1`.
+    - `http_proxy`: The http proxy to be used for network traffic.
+    - `https_proxy`: The https proxy to be used for network traffic.
+    - `no_proxy`: A comma separated list of host names that should not use a proxy.

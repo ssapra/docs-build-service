@@ -12,22 +12,22 @@ This topic describes how to install and configure Pivotal Build Service.
 
 To install Build Service, you must configure UAA, credentials, and TLS certificates, and you must relocate images to an internal image registry. You can also define optional parameters and annotations during installation.
 
-The procedures in this topic describe how to do a standard Build Service installation or a kpack-only installation .
+The procedures in this topic describe how to do a standard Build Service installation.
 
-For kpack-only installation follow [this page](./installing-kpack-only.html#overview)
+For a kpack-only installation follow [this page](./installing-kpack-only.html#overview)
 
 
 ## <a id='prerequisites'></a> Prerequisites
 
 Before you install Build Service, you must do the following:
 
-- Install Pivotal Container Service (PKS). See [Installing Enterprise PKS](https://docs.pivotal.io/pks/1-5/installing.html).
+- Install Pivotal Container Service (PKS) 1.5 or newer. See [Installing Enterprise PKS](https://docs.pivotal.io/pks/1-5/installing.html).
 
 - Install Ruby. Ruby is required to create a UAA client.
 
 - Install an ingress controller on the Kubernetes cluster where you install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. See [How to set up an Ingress Controller for a PKS cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster).
 
-- Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+- Install the Kubernetes command-line tool, `kubectl`. See [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
   <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
 - Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
@@ -36,6 +36,22 @@ Before you install Build Service, you must do the following:
 
 - Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
 
+
+## <a id='enable-uaa-oidc'></a> Enable UAA as an OIDC provider for PKS
+
+The authorization process on Build Service is done using a combination of Rbac Rules and PKS UAA authentication.
+
+To enable this authorization flow the PKS UAA need to be enabled as an OIDC provider:
+
+1. Access opsman and enter the PKS tile configuration
+
+1. In the `Settings` tab press the `UAA` link
+
+1. Find the option `Configure created clusters to use UAA as the OIDC provider.` and select `Enabled`
+
+1. Ensure the values from `UAA OIDC Groups Prefix` and `UAA OIDC Username Prefix` are the same and save it to used during the duffle installation step
+
+1. Save the changes, Review Pending Changes, and Apply them to the clusters
 
 ## <a id='configure'></a> Configure Build Service
 
@@ -61,44 +77,9 @@ To retrieve the PKS cluster credentials:
     ```
     Where `CLUSTER-NAME` is the name of the PKS cluster where Build Service runs.
 
-### <a id='uaa-client-creation'></a> Install a UAA Client
+### <a id='uaa-client-creation'></a> User Management
 
-UAA authenticates Build Service users. To allow Build Service to interact with UAA, you must install and configure a UAA client.
-
-To install a UAA client for Build Service:
-
-1. Install the `uaac` client by running:
-
-    ```
-    gem install cf-uaac
-    ```
-    <p class="note"><strong>Note</strong>: If you are not using <code>rbenv</code> or <code>rvm</code>, you may need to run <code>sudo gem install cf-uaac</code> to install <code>uaac</code>.</p>
-
-1. Target the UAA that you use to authenticate Build Service users by running:
-
-    ```
-    uaac target UAA-URL
-    ```
-    Where `UAA-URL` is the URL for the UAA that is used to authenticate users for Build Service.
-
-    <p class="note"><strong>Note:</strong> If the UAA uses a self-signed certificate, add the <code>--skip-ssl-validation</code> flag to the command.</p>
-
-1. In Ops Manager, go to the **UAA credentials** section. Record the password for the admin user. 
-
-1. Login as the admin user with the password you recorded in the previous step by running:
-
-    ```
-    uaac token client get admin -s ADMIN-PASSWORD
-    ```
-    Where `ADMIN-PASSWORD` is the password for the UAA admin user. 
-
-1. Associate the UAA client with Build Service:
-    <p class="note warning"><strong>Warning:</strong> Run the following command exactly as it appears below. The <code>--secret</code> property must be an empty string.</p>
-
-    ```
-    uaac client add pivotal_build_service_cli --secret="" --authorized_grant_types="password"
-    uaac client update pivotal_build_service_cli --scope="openid,scim.read" --authorized_grant_types="password,refresh_token,client_credentials" --authorities="scim.read" --access_token_validity 600 --refresh_token_validity 21600
-    ```
+Build Service uses PKS Provided UAA to authenticate the Users. See [this step](#users-create) for more information on how to create users
 
 ### <a id='configure-tls'></a> Configure TLS Certificate
 
@@ -109,7 +90,7 @@ To configure a TLS certificate for Build Service:
 1. Create or use an existing TLS certificate for the Build Service domain.
   <p class="note"><strong>Note:</strong> If you use a self-signed certificate, add the <code>--skip-ssl-validation</code> flag.</p>
 
-1. If you use Mac OS, add the CA certificate for the TLS certificate to the keychain. Update the trust settings from `Use System Defaults` to `Always Trust` with the `pb` CLI.
+1. If you use Mac OS, add the CA certificate for the TLS certificate to the keychain. Update the trust settings from `Use System Defaults` to `Always Trust` via the OS X keychain.
 
 1. Record the local paths to the `.crt` and `.key` files for the TLS certificate.
 
@@ -155,33 +136,26 @@ To create a credentials file:
 
       <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
 
-### <a id='create-params-file'></a> (Optional) Define Custom Parameters and Annotations
+### <a id='custom-ingress-annotations'></a> (Optional) Define Custom Ingress Annotations
 
-To define custom parameters and annotations for Build Service, create a JSON file that defines the parameters.
+This section describes how to create a parameters file to provide ingress annotations to the Build Service during installation.
+By default, Build Service uses the NGINX ingress controller and you do not have to use any annotations. 
+However, providing custom ingress annotations will allow you to use to different ingress controllers.
 
-<p class="note"><strong>Note:</strong> If you create the parameters file you can provide it to the duffle install command using `-p` instead of all the `--set` options depicted in [the installation step](#kpack-only)</p>
+To define custom ingress annotations for Build Service, create a JSON file that defines the annotations.
 
-To define custom parameters and annotations for Build Service:
+<p class="note"><strong>Note:</strong> If you create the parameters file you can provide it to the duffle install command using `-p`</p>
 
 1. Navigate to the `/tmp` folder and create a file named `parameters.json`.
 
-1. Add any of the following optional properties to the `/tmp/parameters.json` file:
-    - `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling Builder images for buildpack updates. By default, this property is `false`.
-    If you set `disable_builder_polling` to true, you must configure a Builder Webhook. For more information, see [Setting up Builder Webhooks](./webhooks.html).
-    - `ingress_annotations`: Configures ingress annotations.
-    - `replica_count`: Defines the number of Build Service instances running. By default, `replica_count` is `1`.
-    - `no_gateway`: Installs the Pivotal Builder and kpack, the Build Service CRDs, and controllers. This is a boolean value that defaults to `false`.
-    - `http_proxy`: The http proxy to be used for network traffic.
-    - `https_proxy`: The https proxy to be used for network traffic.
-    - `no_proxy`: A comma separated list of host names that should not use a proxy.
+1. Add the `ingress_annotations` property to the `/tmp/parameters.json` file
 
-    <p class="note warning"><strong>Warning:</strong> If you set <code>no_gateway</code> to <code>true</code>, you can only interact with Build Service through <code>kubectl</code>. For more information, see <a href="#kpack-only">(Optional) Install Build Service as a kpack-Only Installation</a>.</p>
-    
     **Sample parameters.json**
     ```
     {
       "ingress_annotations": {
-        "kubernetes.io/ingress.YOUR-ANNOTATION-KEY": "YOUR-ANNOTATION-VALUE"
+        "kubernetes.io/ingress.YOUR-ANNOTATION-KEY": "YOUR-ANNOTATION-VALUE",
+        "kubernetes.io/ingress.ANOTHER-ANNOTATION-KEY": "ANOTHER-ANNOTATION-VALUE"
       }
     }
     ```
@@ -237,20 +211,44 @@ The following procedure describes how to do a standard Build Service installatio
     - `REGISTRY-PASSWORD` is the password to access the registry.  
     - `UAA-URL` is the URL to access UAA.
 
+    <p class="note"><strong>Note:</strong> If on the step [Enable UAA as OIDC provider for PKS](#enable-uaa-oidc) the values saved were different than `oidc:` please add the flag --uaa_username_prefix="VALUE-SAVED" to the duffle command</p>
+    
+    <p class="note"><strong>Note:</strong> If you have option ingress annotations as described [here](#custom-ingress-annotations), remember to include them with the `-p /tmp/parameters.json`</p>
+    
+    Other optional parameters you may add using `--set`:
+    - `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling Builder images for buildpack updates. By default, this property is `false`.
+    If you set `disable_builder_polling` to true, you must configure a Builder Webhook. For more information, see [Setting up Builder Webhooks](./webhooks.html).
+    - `replica_count`: Defines the number of Build Service instances running. By default, `replica_count` is `1`.
+    - `http_proxy`: The http proxy to be used for network traffic.
+    - `https_proxy`: The https proxy to be used for network traffic.
+    - `no_proxy`: A comma separated list of host names that should not use a proxy.
+
 ## <a id='users-create'></a> Create a UAA User for Build Service
 
 To access Build Service, configure one or more users on UAA using `uaac`.
 
 To create a UAA user for Build Service:
 
-1. Install `uaac`. See [Install a UAA Client](#uaa-client-creation).
+1. Install `uaac`.
+   ```
+   gem install cf-uaac
+   ```
 
 1. Target the UAA that you use to authenticate Build Service users by running:
 
     ```
     uaac target UAA-URL --skip-ssl-validation
     ```
-    Where `UAA-URL` is the URL of the UAA that authenticates Build Service users. 
+    Where `UAA-URL` is the URL of the UAA that authenticates Build Service users.
+
+1. In Ops Manager, go to the **UAA credentials** section. Record the password for the admin user.
+
+1. Login as the admin user with the password you recorded in the previous step by running:
+
+   ```
+   uaac token client get admin -s ADMIN-PASSWORD
+   ```
+   Where `ADMIN-PASSWORD` is the password for the UAA admin user.
 
 1. Create a user by running:
 
@@ -266,8 +264,6 @@ To create a UAA user for Build Service:
 ## <a id='verify-installation'></a> Verify Installation 
 
 Verify Build Service installation by logging in to Build Service with the UAA user credentials you created. 
-
-<p class="note"><strong>Note:</strong> This procedure does not apply to kpack-only Build Service installations where the <code>no_gateway</code> parameter in the <code>parameters.json</code> file is set to <code>true</code>. This procedure applies only to standard Build Service installations.</p>
 
 To verify Build Service installation:
 
