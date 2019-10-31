@@ -187,10 +187,10 @@ To update the Git repository and credentials for a team:
     * To change the Git repository associated with the team, modify `repository`.
     * To change the credentials for the Git repository, modify `username` and `password`.
 
-1. Apply the image registry file by running:
+1. Apply the Git repository file by running:
 
     ```
-    pb secrets registry apply -f PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE
+    pb secrets git apply -f PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE
     ```
     Where `PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE` is the local path to the YAML file that you created in the previous step.
 
@@ -201,7 +201,7 @@ To delete a Git repository from a team:
 1. Run:
 
     ```
-    pb secrets registry delete REGISTRY-DOMAIN -t TEAM-NAME
+    pb secrets git delete REGISTRY-DOMAIN -t TEAM-NAME
     ```
     Where `TEAM-NAME` is the name of the team.
 
