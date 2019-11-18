@@ -327,6 +327,44 @@ To apply an image configuration that uses local source code:
     * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file. 
     * `PATH-TO-APP-DIRECTORY` is the local path to the app directory.
 
+#### <a id='apply-image-by-referencing-blob-store-source'></a> Apply an Image With Source Code In A Blob Store
+
+To apply an image and reference source code that lives in a blobstore:
+
+1. Create an image configuration file that has no Git properties. For example:
+
+    ```
+    build:
+      source:
+        blob:
+          url: https://storage.blob.com/my-org/myapp.jar
+      env:
+      - name: ENV-NAME
+        value: ENV-VALUE
+    image:
+      tag: REGISTRY-DOMAIN/PATH-TO-EXAMPLE-APP
+    ```
+    Where:
+    * `PATH-TO-EXAMPLE-APP` is the local path to an app.
+    * `ENV-NAME` is the name of your build environment.
+    * `ENV-VALUE` is the value of your build environment.
+    * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
+      * **Docker Hub**: Enter `index.docker.io`.  
+      * **GCR**: Enter `gcr.io`.
+      * **Harbor**: Enter the domain that is specific to your deployment of the registry.
+      * **Artifactory**: Enter the domain that is specific to your deployment of the registry
+
+1. Apply the image configuration by running:
+
+    ```
+    pb image apply -f /PATH-TO-IMAGE-CONFIGURATION/IMAGE-CONFIGURATION.yaml 
+    ```
+    Where:
+    * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
+    * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file. 
+        
+ **Note:** 0.0.4 does not support polling functionality for source code that lives in a blobstore.  This means that apps will not be rebuilt when new source code is pushed to the specified blob URL.        
+        
 ### <a id='list-images'></a> List Images
 
 List all the image configurations for the currently targeted Project:
