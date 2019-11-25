@@ -148,7 +148,6 @@ To associate an image registry and image registry credentials with a project:
 To update the registry association and credentials for a project:
 
 1. Modify the variables in your image registry YAML file.
-    * To change the project the registry is associated with, modify `project`.
     * To change the registry associated with the project, modify `registry`.
     * To change the credentials for the registry, modify `username` and `password`.
 
@@ -201,7 +200,7 @@ To update the Git repository and credentials for a project:
 1. Apply the Git Repository Credentials file by running:
 
     ```
-    pb secrets registry apply -f PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE
+    pb secrets git apply -f PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE
     ```
     Where `PATH-TO-REPOSITORY-CREDENTIALS-YAML-FILE` is the local path to the YAML file that you created in the previous step.
 
