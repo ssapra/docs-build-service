@@ -82,14 +82,14 @@ To install a UAA client for Build Service:
 
     <p class="note"><strong>Note:</strong> If the UAA uses a self-signed certificate, add the <code>--skip-ssl-validation</code> flag to the command.</p>
 
-1. In Ops Manager, go to the **UAA credentials** section. Record the password for the admin user. 
+1. In the PKS tile, select the **Credentials** tab and record the credential for **Pks Uaa Management Admin Client**. 
 
-1. Login as the admin user with the password you recorded in the previous step by running:
+1. Log in as the admin client with the password you recorded in the previous step by running:
 
     ```
-    uaac token client get admin -s ADMIN-PASSWORD
+    uaac token client get admin -s ADMIN-CLIENT-SECRET
     ```
-    Where `ADMIN-PASSWORD` is the password for the UAA admin user. 
+    Where `ADMIN-CLIENT-SECRET` is the credential for **Pks Uaa Management Admin Client**. 
 
 1. Associate the UAA client with Build Service:
     <p class="note warning"><strong>Warning:</strong> Run the following command exactly as it appears below. The <code>--secret</code> property must be an empty string.</p>
