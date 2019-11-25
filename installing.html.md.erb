@@ -240,14 +240,14 @@ To create a UAA user for Build Service:
     ```
     Where `UAA-URL` is the URL of the UAA that authenticates Build Service users.
 
-1. In Ops Manager, go to the **UAA credentials** section. Record the password for the admin user.
+1. In Ops Manager, PKS Tile, record the credential for  **Pks Uaa Management Admin Client**.
 
-1. Login as the admin user with the password you recorded in the previous step by running:
+1. Login as the admin client with the password you recorded in the previous step by running:
 
    ```
-   uaac token client get admin -s ADMIN-PASSWORD
+   uaac token client get admin -s ADMIN-CLIENT_SECRET
    ```
-   Where `ADMIN-PASSWORD` is the password for the UAA admin user.
+   Where `ADMIN-CLIENT_SECRET` is the credential for **Pks Uaa Management Admin Client**.
 
 1. Create a user by running:
 
