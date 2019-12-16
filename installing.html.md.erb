@@ -131,7 +131,7 @@ To create a credentials file:
     ```
     Where:
       - `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine. This file is required to enable Build Service to interact with the target cluster.
-      - `PATH-TO-CA` is the path to the Certificate Authority (CA). This CA is  required to enable Build Service to interact with internally deployed registries. This is the CA that was used while deploying the registry.
+      - `PATH-TO-CA` is the path to the Certificate Authority (CA). This CA certificate is only required if is internally singed - it can be left blank if desired.  Build Service uses CA certificates to interact with internally deployed registries. This is the CA that was used while deploying the registry.
       - `PATH-TO-TLS-CERTIFICATE` is the path to the TLS certificate. This TLS certificate required for authenticated communication between the `pb` CLI and Build Service. The CA for this TLS certificate must be trusted by the workstation communicating with Build Service.
       - `PATH-TO-TLS-PRIVATE-KEY` is the path to the private key corresponding to the TLS certificate.
 
