@@ -53,11 +53,11 @@ To create a new project:
     ```
     pb project create PROJECT-NAME
     ```
-    Where `PROJECT-NAME` is a unique name for the project.
+    Where `PROJECT-NAME` is a unique name for the project. 
 
 ### <a id='targeting-project'></a> Targeting a project
 
-Under the hood, projects map to the Kubernetes namespace concept.
+Under the hood, projects map to the Kubernetes namespace concept. Because of this, users should not create projects with the same name as pre-existing k8s namespaces. The user that creates the project is added to the project as its first member.
 Because of this, resources produced by the build service cannot be accessed globally across all the namespaces in the cluster.  
 
 The `pb` CLI makes it easy to specify the desired project.  Run:
@@ -148,6 +148,7 @@ To associate an image registry and image registry credentials with a project:
 To update the registry association and credentials for a project:
 
 1. Modify the variables in your image registry YAML file.
+    * To change the project the registry is associated with, modify `project`.
     * To change the registry associated with the project, modify `registry`.
     * To change the credentials for the registry, modify `username` and `password`.
 
@@ -168,7 +169,7 @@ As you apply YAML files that associate a Git repository and Git repository crede
 
 To associate a Git repository and Git repository credentials with a project:
 
-<p class='note'><strong>Note:</strong> If your git repository uses an access token, you can specify the token in the below `password` field. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
+<p class='note'><strong>Note:</strong> If your git repository uses an access token, you can specify the token in the below <code>password</code> field. For more information, see <a href="https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line">Creating a personal access token for the command line</a> in the GitHub documentation.</p>
 
 1. Create a YAML file with the Git repository location and credentials. Enter the following variables:
 
@@ -325,7 +326,7 @@ To apply an image configuration that uses local source code:
     * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
     * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file. 
     * `PATH-TO-APP-DIRECTORY` is the local path to the app directory.
-
+        
 #### <a id='apply-image-by-referencing-blob-store-source'></a> Apply an Image With Source Code In A Blob Store
 
 To apply an image and reference source code that lives in a blobstore:
@@ -362,8 +363,9 @@ To apply an image and reference source code that lives in a blobstore:
     * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
     * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file. 
         
- **Note:** 0.0.4 does not support polling functionality for source code that lives in a blobstore.  This means that apps will not be rebuilt when new source code is pushed to the specified blob URL.        
+ **Note:** 0.0.4 does not support polling functionality for source code that lives in a blobstore.  This means that apps will not be rebuilt when new source code is pushed to the specified blob URL.
         
+
 ### <a id='list-images'></a> List Images
 
 List all the image configurations for the currently targeted Project:
@@ -397,7 +399,9 @@ For more information, see [Apply Image Configurations](#apply-image).
 
 Build Service auto-rebuilds images when one or more of the following build inputs change:
 
-* New buildpack versions are made available through an updated builder image. The Build Service Bundle on Pivotal Network includes the latest buildpacks in its builder images. When you update Build Service, it copies the new buildpacks over to your container registry.
+* New buildpack versions are made available through an updated builder image 
+    - The Build Service Bundle on Pivotal Network includes the latest buildpacks contained in a builder image 
+    - When upgrading PBS, you will relocate new buildpack versions over to your container registry
 
 * There is a new commit on a branch or tag Build Service is tracking.
 
