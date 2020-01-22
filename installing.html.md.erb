@@ -205,7 +205,7 @@ The following procedure describes how to do a standard Build Service installatio
     Where:
     - `BUILD-SERVICE-DOMAIN` is the domain name  used to target Build Service. You configured this domain as the domain for the Ingress controller.
     - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service is installed.
-    - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
+    - `IMAGE-REGISTRY` is the domain reference of the image registry that you configured.  
       <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>.
       Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
     - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
@@ -227,6 +227,8 @@ The following procedure describes how to do a standard Build Service installatio
 ## <a id='users-create'></a> Create a UAA User for Build Service
 
 To access Build Service, configure one or more users on UAA using `uaac`.
+
+**Note:** It is not required to create new users if PKS UAA is already integrated with LDAP/SAML and can leverage IDP users.
 
 To create a UAA user for Build Service:
 
