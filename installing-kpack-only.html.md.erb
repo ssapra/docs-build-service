@@ -15,6 +15,7 @@ The procedures in this topic describe how to do a kpack-only installation. In a 
 
 For a standard Build Service installation, see [Installing and Configuring Build Service](./installing.html).
 
+
 ## <a id='prerequisites'></a> Prerequisites
 
 Before you install Build Service, you must do the following:
@@ -26,9 +27,9 @@ Before you install Build Service, you must do the following:
 
 - Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
-- Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
+- Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/).
 
-- Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
+- Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/).
 
 
 ## <a id='configure'></a> Configure kpack
@@ -107,7 +108,7 @@ To define custom parameters:
     - `no_proxy`: A comma separated list of host names that should not use a proxy.
 
     <p class="note warning"><strong>Warning:</strong> If you set <code>no_gateway</code> to <code>true</code>, you can only interact with Build Service through <code>kubectl</code>. For more information, see <a href="#kpack-only">Install Build Service as a kpack-Only Installation</a>.</p>
-    
+
     **Sample parameters.json**
     ```
     {
@@ -128,7 +129,7 @@ To move the images from the Build Service bundle to an internal image registry:
     ```
     docker login YOUR-IMAGE-REGISTRY
     ```
-    Where `YOUR-IMAGE-REGISTRY` is the name of the image registry where you push the images. 
+    Where `YOUR-IMAGE-REGISTRY` is the name of the image registry where you push the images.
 
 1. Push the images to the image registry by running:
 
@@ -139,9 +140,9 @@ To move the images from the Build Service bundle to an internal image registry:
 
 ## <a id='install'></a> Install Build Service
 
-The following procedures describe how to use `duffle` to define the required parameters and install kpack. 
+The following procedures describe how to use `duffle` to define the required parameters and install kpack.
 
-### <a id='kpack-only'></a> Install Build Service as a kpack-Only Installation 
+### <a id='kpack-only'></a> Install Build Service as a kpack-Only Installation
 
 This procedure describes how to install Build Service as a kpack-only installation.
 
@@ -149,7 +150,7 @@ This procedure describes how to install Build Service as a kpack-only installati
 
 For more information about kpack, see the [kpack](https://github.com/pivotal/kpack) repository on GitHub.
 
-To install Build Service as a kpack-only installation: 
+To install Build Service as a kpack-only installation:
 
 1. Remove the following properties from the `credentials.yml` file that you created as part of [Create a Credentials File](#create-creds-file):
     - `tls_cert`
@@ -171,8 +172,8 @@ To install Build Service as a kpack-only installation:
         -m /tmp/relocated.json
     ```
     Where:
-    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service is installed.
-    - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
+    * `PKS-CLUSTER-NAME` is the name of the PKS cluster where Build Service is installed.
+    * `IMAGE-REGISTRY` is the domain of the image registry that you configured.
       <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
-    - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
-    - `REGISTRY-PASSWORD` is the password to access the registry.  
+    * `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
+    * `REGISTRY-PASSWORD` is the password to access the registry.  

@@ -17,7 +17,7 @@ The kpack integration can be used with Build Service, with other services, or on
 
 ## <a id='prerequistites'></a> Prerequisites
 
-This documentation assumes you have the following:
+This documentation assumes you have:
 
 * An installation of kpack. To install kpack, see [Installing kpack](https://github.com/pivotal/kpack/blob/master/docs/install.md) on GitHub.
 
@@ -33,7 +33,9 @@ This documentation assumes you have the following:
 
 ## <a id='image-resource'></a> Understand the Image Resource
 
-The `image` resource is what kpack uses to declaratively build app images. It is contained within a YAML file. The following defines the relevant fields of the `image` resource spec in more detail:
+The `image` resource is what kpack uses to declaratively build app images. It is contained within a YAML file.
+
+The `image` resource YAML file contains these fields:
 
 * `tag`: The image tag.
 
@@ -60,7 +62,7 @@ The `builder` field in the image resource describes the builder that builds the 
 
 To configure the `builder` field:
 
-1. Define the `builder` field in your image resource YAML file in one of the following ways:
+1. Define the `builder` field in your image resource YAML file in one of these ways:
 
     1. Cluster builder
 
@@ -93,9 +95,9 @@ The `source` field in the image resource is a composition of a source code locat
 
 To configure the `source` field:
 
-1. Configure the `source` field in your image resource YAML file in one of the following ways:
+1. Configure the `source` field in your image resource YAML file in one of these ways:
 
-    1. Git
+    1. To use a Git repository, configure the `source` field with these variables:
 
         ```
         source:
@@ -110,7 +112,7 @@ To configure the `source` field:
         * `GIT-REVISION` is the Git revision you want to use. This value may be a commit SHA, branch name, or tag.
         * `SUBDIRECTORY` is a subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
 
-    1. Blob
+    1. To use a blob, configure the `source` field with these variables:
 
         ```
         source:
@@ -123,7 +125,7 @@ To configure the `source` field:
         * `BLOB-URL` is the URL of the source code blob. Either this blob must be publicly accessible, or the access token must be contained in the URL.
         * `SUBDIRECTORY` is the subdirectory within the source folder where the app code resides. This can be ignored if the source code resides at the `root` level.
 
-    1. Registry
+    1. To use a registry, configure the `source` field with these variables:
 
         ```
         source:
@@ -142,11 +144,11 @@ To configure the `source` field:
 
 ## <a id='build-config'></a> Configure the Build
 
-The `build` field in the `image` resource can be used to configure environment variables required during the build process and to configure resource limits on `CPU` and `memory`.
+You can use the `build` field in the `image` resource to configure environment variables required during the build process and resource limits on `CPU` and `memory`.
 
 To configure the `build` field:
 
-1. Configure the following variables in your image resource YAML file:
+1. Configure these variables in your image resource YAML file:
 
     ```
     build:
@@ -176,11 +178,11 @@ For more information about setting environment variables, see [Define Environmen
 
 There are two types of builder resources that kpack supports. You must create these builder resources before you create any image resource, because they define which builder is used to create these images.
 
-To create a builder resource: 
+To create a builder resource:
 
-1. Configure the builder resource in your image resource YAML file in one of the following ways:
+1. Configure the builder resource in your image resource YAML file in one of these ways:
 
-    1. **Namespaced builder**: This is a builder that exists inside a namespace and cannot be shared between namespaces. This property allows you to push the image of the builder to a private registry by giving the option to set `ImagePullSecret`. See the following example:
+    1. **Namespaced builder**: This is a builder that exists inside a namespace and cannot be shared between namespaces. This property allows you to push the image of the builder to a private registry by giving the option to set `ImagePullSecret`. For example:
 
         ```
         apiVersion: build.pivotal.io/v1alpha1
@@ -201,7 +203,7 @@ To create a builder resource:
         * `UPDATE-POLICY` is the update policy of the builder. Valid options are `polling` and `external`. `external` requires you to update the resource by applying a new configuration, whereas `polling` automatically checks every five minutes to see if a new version of the builder image exists.
         * `BUILDER-SECRET` is an optional parameter that you should use only if the builder image is in a private builder that require credentials to access. To create this secret, see the [Create a Secret based on existing Docker credentials](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#registry-secret-existing-credentials) section of the _Pull an Image from a Private Registry_ topic in the Kubernetes documentation.
 
-    1. **Cluster builder**: This type of builder can be used inside any namespace. The image must exist in a publicly accessible registry. See the following example:
+    1. **Cluster builder**: This type of builder can be used inside any namespace. The image must exist in a publicly accessible registry. For example:
 
           ```
           apiVersion: build.pivotal.io/v1alpha1
@@ -224,11 +226,19 @@ For more information about builders, see [Builders](https://github.com/pivotal/k
 
 There are several resource types that work together to produce an image resource. This section describes how to configure and create each resource in your image resource YAML file.
 
-The YAML resources below each contain a `name` field. You should reference these names when configuring other resource types. To apply a particular resource type, run the command `kubectl apply -f RESOURCE-PATH.yml`.
+The YAML resources below each contain a `name` field. You should reference these names when configuring other resource types.
+
+To apply a particular resource type:
+
+1. Run:
+
+    ```
+    kubectl apply -f RESOURCE-PATH.yml
+    ```
 
 To configure and create a resource:
 
-1. Create a namespace. This defines the partition inside which all of the builds run.
+1. Create a namespace inside which all of the builds are to run:
 
     ```
     apiVersion: v1
@@ -236,11 +246,10 @@ To configure and create a resource:
     metadata:
         name: NAMESPACE
     ```
-    Where:
-    * `NAMESPACE` is the name you give the namespace.
+    Where `NAMESPACE` is the name you give the namespace.
 
-1. Create a secret so kpack can push image builds to your desired registry. The `name` of this credential is referenced to create a service account.
-    <p class='note'><strong>Note:</strong> The secret must be annotated with the registry prefix for its corresponding registry. For Docker Hub, this should be <code>index.docker.io</code>. For GCR, this should be <code>gcr.io</code>.</p>
+1. Create a secret so kpack can push image builds to your desired registry. The registry uses the value in the `name` field to create a service account.
+    <p class='note'><strong>Note:</strong> The `annotations` field must include the registry prefix for its corresponding registry. For Docker Hub, this should be <code>index.docker.io</code>. For GCR, this should be <code>gcr.io</code>.</p>
 
     1. For GCR:
 
@@ -285,7 +294,7 @@ To configure and create a resource:
         * `PASSWORD` is the password you define for the build.<br>
         For more information about Docker registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
 
-1. Create a secret to give the build pull access from the desired Git repository. The example below is for a GitHub repository. You can also specify a personal access token. If you are building against source code that lives in a public registry, you do not need to configure a Git secret.
+1. Create a secret to give the build pull access from the desired Git repository. The example below is for a GitHub repository. You can also specify a personal access token. If you are building against source code that is stored in a public registry, you do not need to configure a Git secret.
 
     ```
     apiVersion: v1
@@ -308,8 +317,9 @@ To configure and create a resource:
     For more information about Git registry secrets, see [Secrets](https://github.com/pivotal/kpack/blob/master/docs/secrets.md) in the kpack repository on GitHub.
 
 1. Apply each of these credentials to your Kubernetes cluster by running:
+
     ```
-    kubectl apply -f SECRET-FILE.yaml
+    kubectl apply -f SECRET-FILE.yml
     ```
 
 1. Create a service account that uses the Docker registry secret and the Git registry secret. When configuring the image resource, include the `name` of your Docker registry secret and the `name` of your Git repository secret.
@@ -331,8 +341,9 @@ To configure and create a resource:
     * `GIT-BUILD-NAME` is the name of your Git repository secret.
 
 1. Apply this service account to your Kubernetes cluster by running:
+
     ```
-    kubectl apply -f SERVICE-ACCOUNT.yaml
+    kubectl apply -f SERVICE-ACCOUNT.yml
     ```
 
 1. Go to the [sample-java-app](https://github.com/buildpack/sample-java-app) repository on GitHub and fork it to your GitHub account. You can use this fork to build an app with kpack and watch it update when pushes are made to your fork.
@@ -440,42 +451,51 @@ To configure and create a resource:
           * `MEMORY-REQUEST` is the maximum memory capacity of the build.
 
 1. Apply the image to your Kubernetes cluster by running:
+
     ```
     kubectl apply -f IMAGE.yaml
     ```
 
 1. Check the status of the image by running:
+
     ```
     kubectl get images
     ```
     You should see that the image has an unknown `READY` status as it builds:
+
     ```
     NAME                  LATESTIMAGE   READY
     tutorial-image                      Unknown
     ```
 
 1. You can tail the logs for the image that is currently building by running:
+
     ```
     logs -image tutorial-image
     ```
     <p class='note'><strong>Note:</strong> The log utility does not exit when the build finishes. You must exit it manually.</p>
 
 1. Once the image finishes building, get the image by running:
+
     ```
     kubectl get image tutorial-image
     ```
     You should see the following output:
+
     ```
     NAMESPACE   NAME             LATESTIMAGE                          READY
     test        tutorial-image   gcr.io/PROJECT-NAME/app@SHA-NUMBER   True
     ```
 
 1. You can now use the latest image locally in a Kubernetes deployment. To run the latest image locally, run:
+
     ```
     docker run -p 8080:8080 LATEST-IMAGE
     ```
+    Where `LATEST-IMAGE` is the latest image.
 
 1. When you push any update to the forked sample app repository you configured, kpack should recognize the update and automatically rebuild your image. To see the new builds, run:
+
     ```
     kubectl get builds
     ```
