@@ -14,6 +14,7 @@ The procedures in this topic describe how to do a kpack-only installation. In a 
 
 For a standard Build Service installation, see [Installing and Configuring Build Service](./installing.html).
 
+
 ## <a id='prerequisites'></a> Prerequisites
 
 Before you install Build Service, you must do the following:
@@ -24,9 +25,9 @@ Before you install Build Service, you must do the following:
 
 - Configure `PersistentVolumes` on the Kubernetes cluster where you install kpack. Configure the cache size per image to 2&nbsp;GB. kpack requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
-- Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
+- Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/).
 
-- Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/). 
+- Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/).
 
 
 ## <a id='configure'></a> Configure kpack
@@ -74,7 +75,7 @@ To move the images from the Build Service bundle to an internal image registry:
     ```
     docker login YOUR-IMAGE-REGISTRY
     ```
-    Where `YOUR-IMAGE-REGISTRY` is the name of the image registry where you push the images. 
+    Where `YOUR-IMAGE-REGISTRY` is the name of the image registry where you push the images.
 
 1. Push the images to the image registry by running:
 
@@ -85,11 +86,11 @@ To move the images from the Build Service bundle to an internal image registry:
 
 ## <a id='install'></a> Install kpack
 
-The following procedures describe how to use `duffle` to define the required parameters and install kpack. 
+The following procedures describe how to use `duffle` to define the required parameters and install kpack.
 
 For more information about kpack, see the [kpack](https://github.com/pivotal/kpack) repository on GitHub.
 
-To install Build Service as a kpack-only installation: 
+To install Build Service as a kpack-only installation:
 
 1. Use `duffle` to define the required kpack parameters and install kpack by running:
 
@@ -111,7 +112,7 @@ To install Build Service as a kpack-only installation:
       <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
     - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
     - `REGISTRY-PASSWORD` is the password to access the registry.
-    
+
     Other optional parameters you may add using `--set`:
     - `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling Builder images for buildpack updates. By default, this property is `false`.
     If you set `disable_builder_polling` to true, you must configure a Builder Webhook. For more information, see [Setting up Builder Webhooks](./webhooks.html).
