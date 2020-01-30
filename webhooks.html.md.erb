@@ -27,23 +27,23 @@ To set up builder webhooks for an Artifactory repository:
 
 1. Configure the plugin to send `docker.tagCreated` events to the `BUILD-SERVICE-API/v1/artifactory/webhook` endpoint, as in this example configuration:
 
-  ```
-  {
-    "webhooks": {
-      "ci": {
-        "url": "BUILD-SERVICE-API/v1/artifactory/webhook",
-        "events": [
-          "docker.tagCreated"
-        ],
-        "repositories": ["ARTIFACTORY-REPOSITORY"],
-        "format": "default"
-      },
+    ```
+    {
+      "webhooks": {
+        "ci": {
+          "url": "BUILD-SERVICE-API/v1/artifactory/webhook",
+          "events": [
+            "docker.tagCreated"
+          ],
+          "repositories": ["ARTIFACTORY-REPOSITORY"],
+          "format": "default"
+        },
+      }
     }
-  }
-  ```
-  Where:
-  * `BUILD-SERVICE-API` is the URL of your API.
-  * `ARTIFACTORY-REPOSITORY` is your Artifactory repository.
+    ```
+    Where:
+    * `BUILD-SERVICE-API` is the URL of your API.
+    * `ARTIFACTORY-REPOSITORY` is your Artifactory repository.
 
 ### <a id='docker-notifications'></a> Docker Registry Notifications
 
@@ -77,5 +77,6 @@ To set up builder webhooks for Docker Hub:
     kubectl get builder build-service-builder -n build-service-builds -o jsonpath='{.spec.image}'
     ```
     Where `BUILD-SERVICE-API` is the URL of your API.
+  
   * The webhook should be configured to use the `BUILD-SERVICE-API/v1/docker/webhook` endpoint.
     <p class="note warning"><strong>Warning:</strong> Docker Hub requires Build Service to use a CA-signed certificate.</p>
