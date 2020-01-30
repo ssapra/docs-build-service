@@ -12,24 +12,25 @@ To install Build Service, you must configure a User Account and Authentication (
 
 The procedures in this topic describe how to install and configure a standard Build Service installation. For a kpack-only installation, see [Installing and Configuring kpack Only](./installing-kpack-only.html).
 
+
 ## <a id='prerequisites'></a> Prerequisites
 
 Before you install Build Service, you must:
 
-- Install <%= vars.k8s_runtime_full %> (<%= vars.k8s_runtime_abbr %>) v1.5 or later. For more information, see [Installing Enterprise <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/pks/1-5/installing.html).
+* Install <%= vars.k8s_runtime_full %> (<%= vars.k8s_runtime_abbr %>) v1.5 or later. For more information, see [Installing Enterprise <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/pks/1-5/installing.html) in the <%= vars.k8s_runtime_abbr %> documentation.
 
-- Install Ruby. Ruby is required to create a UAA client.
+* Install Ruby. Ruby is required to create a UAA client.
 
-- Install an ingress controller on the Kubernetes cluster where you install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. For more information, see [How to set up an Ingress Controller for a <%= vars.k8s_runtime_abbr %> cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster) in the Pivotal Knowledge Base.
+* Install an ingress controller on the Kubernetes cluster where you install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. For more information, see [How to set up an Ingress Controller for a <%= vars.k8s_runtime_abbr %> cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster) in the Pivotal Knowledge Base.
 
-- Install the Kubernetes command-line tool, `kubectl`. For more information, see [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+* Install the Kubernetes command-line tool, `kubectl`. For more information, see [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
   <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
-- Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
+* Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
-- Download the Duffle executable for your operating system from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+* Download the Duffle executable for your operating system from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
 
-- Download the Build Service Bundle from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+* Download the Build Service Bundle from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
 
 
 ## <a id='configure'></a> Configure Build Service
@@ -78,7 +79,7 @@ To install a UAA client for Build Service:
 
     <p class="note"><strong>Note:</strong> If the UAA uses a self-signed certificate, add the <code>--skip-ssl-validation</code> flag to the command.</p>
 
-1. In the PKS tile, select the **Credentials** tab and record the credential for **Pks Uaa Management Admin Client**.
+1. In the <%= vars.k8s_runtime_abbr %> tile, select the **Credentials** tab and record the credential for **Pks Uaa Management Admin Client**.
 
 1. Log in as the admin client with the password you recorded in the previous step by running:
 
@@ -229,10 +230,11 @@ This procedure describes how to do a standard Build Service installation. To ins
         -m /tmp/relocated.json
     ```
     Where:
+    * `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
     * `BUILD-SERVICE-DOMAIN` is the domain name used to target Build Service. You configured this domain as the domain for the ingress controller.
     * `<%= vars.k8s_runtime_abbr %>-CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster where Build Service is installed.
     * `IMAGE-REGISTRY` is the domain of the image registry that you configured.
-      <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
+        <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
     * `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key` as the username when using JSON key file authentication.
     * `REGISTRY-PASSWORD` is the password you use to access the registry.
     * `UAA-URL` is the URL to access UAA.
