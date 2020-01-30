@@ -3,8 +3,7 @@ title: Installing and Configuring kpack Only
 owner: Build Service Team
 ---
 
-
-This topic describes how to install and configure a kpack-only deployment.
+This topic describes how to install and configure a kpack-only deployment of Pivotal Build Service.
 
 
 ## <a id='overview'></a> Overview
@@ -13,22 +12,25 @@ To install Build Service, you must configure UAA, credentials, and TLS certifica
 
 The procedures in this topic describe how to do a kpack-only installation. In a kpack-only installation, all interaction with Build Service can be done through the `kubectl` CLI only.
 
-For a standard Build Service installation, see [Installing and Configuring Build Service](./installing.html).
+For a standard Build Service installation, see [Installing and Configuring Build Service](installing.html).
 
 
 ## <a id='prerequisites'></a> Prerequisites
 
-Before you install Build Service, you must do the following:
+Before you install Build Service, you must:
 
-- Create or use an existing Kubernetes cluster.
+* Create or use an existing Kubernetes cluster.
 
-- Install the Kubernetes command-line tool, kubectl. See [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+* Install <%= vars.k8s_runtime_full %> (<%= vars.k8s_runtime_abbr %>) v1.5 or later. For more information, see [Installing Enterprise <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/pks/1-5/installing.html) in the <%= vars.k8s_runtime_abbr %> documentation.
 
-- Configure `PersistentVolumes` on the Kubernetes cluster where you install kpack. Configure the cache size per image to 2&nbsp;GB. kpack requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
+* Install the Kubernetes command-line tool, `kubectl`. For more information, see [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+  <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
-- Download the Duffle executable for your operating system from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/).
+* Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
-- Download the Build Service Bundle from PivNet. See [Pivotal Build Service](https://network.pivotal.io/products/build-service/).
+* Download the Duffle executable for your operating system from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+
+* Download the Build Service Bundle from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
 
 
 ## <a id='configure'></a> Configure kpack
@@ -37,13 +39,13 @@ The procedures in this section describe how to configure kpack to prepare for in
 
 ### <a id='create-creds-file'></a> Create a Credentials File
 
-<p class="note"><strong>Note:</strong> Ensure that the kubectl CLI has access to the Kubernetes cluster</p>
+<p class="note"><strong>Note:</strong> Ensure that the <code>kubectl</code> CLI has access to the Kubernetes cluster.</p>
 
 To create a credentials file:
 
 1. Navigate to the `/tmp` folder and create a file named `credentials.yml`.
 
-1. Add the properties shown in the following example file to the `credentials.yml` file:
+1. Add these properties to the `credentials.yml` file:
 
     ```
     name: build-service-credentials
@@ -60,45 +62,44 @@ To create a credentials file:
          path: "/cnab/app/cert/ca.crt"
     ```
     Where:
-      - `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine. This file is required to enable kpack to interact with the target cluster.
-      - `PATH-TO-CA` is the path to the Certificate Authority (CA). This CA is required to enable kpack to interact with internally deployed registries. This is the CA that was used while deploying the registry.
-
-      <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
+    * `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine. This file is required to enable Build Service to interact with the target cluster.
+    * `PATH-TO-CA` is the path to the Certificate Authority (CA). This CA is required to enable Build Service to interact with internally deployed registries. This is the CA that was used while deploying the registry.
+    <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
 
 ### <a id='relocate-images'></a> Move Images to an Image Registry
 
-This procedure relocates images from the Build Service bundle that you downloaded from PivNet to an internal image registry.
+This procedure describes how to relocate images from the Build Service bundle that you downloaded from Pivotal Network to an internal image registry.
 
 To move the images from the Build Service bundle to an internal image registry:
 
-1. Log in to the image registry where the images are stored by running:
+1. Log in to the image registry where you want to store the images by running:
 
     ```
-    docker login YOUR-IMAGE-REGISTRY
+    docker login IMAGE-REGISTRY
     ```
-    Where `YOUR-IMAGE-REGISTRY` is the name of the image registry where you push the images.
+    Where `IMAGE-REGISTRY` is the name of the image registry where you want to store the images.
 
 1. Push the images to the image registry by running:
 
     ```
-    duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p YOUR-IMAGE-REGISTRY
+    duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p IMAGE-REGISTRY
     ```
 
 
 ## <a id='install'></a> Install kpack
 
-The following procedures describe how to use `duffle` to define the required parameters and install kpack.
+The procedures in this section describe how to use Duffle to define the required kpack parameters and install kpack.
 
 For more information about kpack, see the [kpack](https://github.com/pivotal/kpack) repository on GitHub.
 
 To install Build Service as a kpack-only installation:
 
-1. Use `duffle` to define the required kpack parameters and install kpack by running:
+1. Use Duffle to define the required kpack parameters and install kpack by running:
 
     ```
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
         --set domain="" \
-        --set kubernetes_env=PKS-CLUSTER-NAME \
+        --set kubernetes_env=<%= vars.k8s_runtime_abbr %>-CLUSTER-NAME \
         --set docker_registry=IMAGE-REGISTRY \
         --set registry_username="REGISTRY-USERNAME" \
         --set registry_password="REGISTRY-PASSWORD" \
@@ -108,16 +109,17 @@ To install Build Service as a kpack-only installation:
         -m /tmp/relocated.json
     ```
     Where:
-    - `PKS-CLUSTER-NAME` is the name of the PKS cluster where kpack is installed.
-    - `IMAGE-REGISTRY` is the domain of the image registry that you configured.
-      <p class="note"><strong>Note:</strong> For dockerhub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
-    - `REGISTRY-USERNAME` is the username to access the registry. `gcr.io` expects `_json_key` as the username when using the `JSON Key File` auth.
-    - `REGISTRY-PASSWORD` is the password to access the registry.
-
+    * `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
+    * `<%= vars.k8s_runtime_abbr %>-CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster where Build Service is installed.
+    * `IMAGE-REGISTRY` is the domain of the image registry that you configured.
+        <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
+    * `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key` as the username when using JSON key file authentication.
+    * `REGISTRY-PASSWORD` is the password you use to access the registry.
+    <br>
+    <br>
     Other optional parameters you may add using `--set`:
-    - `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling Builder images for buildpack updates. By default, this property is `false`.
-    If you set `disable_builder_polling` to true, you must configure a Builder Webhook. For more information, see [Setting up Builder Webhooks](./webhooks.html).
-    - `replica_count`: Defines the number of Build Service instances running. By default, `replica_count` is `1`.
-    - `http_proxy`: The http proxy to be used for network traffic.
-    - `https_proxy`: The https proxy to be used for network traffic.
-    - `no_proxy`: A comma separated list of host names that should not use a proxy.
+    * `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling builder images for buildpack updates. By default, this property is set to `false`. If you set `disable_builder_polling` to `true`, you must configure a builder webhook. For more information, see [Setting Up Builder Webhooks](webhooks.html).
+    * `replica_count`: Defines the number of Build Service instances running. The default value is `1`.
+    * `http_proxy`: The HTTP proxy to use for network traffic.
+    * `https_proxy`: The HTTPS proxy to use for network traffic.
+    * `no_proxy`: A comma-separated list of hostnames that should not use a proxy.

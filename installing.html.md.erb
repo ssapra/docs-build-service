@@ -18,22 +18,22 @@ The procedures in this topic describe how to install and configure a standard Bu
 
 Before you install Build Service, you must:
 
-- <%= vars.k8s_runtime_full %> (<%= vars.k8s_runtime_abbr %>) v1.5 or later. For more information, see [Installing Enterprise <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/pks/1-5/installing.html).
+* Install <%= vars.k8s_runtime_full %> (<%= vars.k8s_runtime_abbr %>) v1.5 or later. For more information, see [Installing Enterprise <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/pks/1-5/installing.html) in the <%= vars.k8s_runtime_abbr %> documentation.
 
-- Install Ruby. Ruby is required to create a UAA client.
+* Install Ruby. Ruby is required to create a UAA client.
 
-- Install an ingress controller on the Kubernetes cluster where you install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. For more information, see [How to set up an Ingress Controller for a <%= vars.k8s_runtime_abbr %> cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster) in the Pivotal Knowledge Base.
+* Install an ingress controller on the Kubernetes cluster where you install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. For more information, see [How to set up an Ingress Controller for a <%= vars.k8s_runtime_abbr %> cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster) in the Pivotal Knowledge Base.
 
-- Install the Kubernetes command-line tool, `kubectl`. For more information, see [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+* Install the Kubernetes command-line tool, `kubectl`. For more information, see [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
   <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
-- Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. Persistent volume constrains the number of images that can exist on a Cluster. If each image claims 2GB and you allocate 100GB in persistent volume, Build Service can build, monitor, and execute rebuilds for 50 images at a time. For testing the Alpha release, 20GB to 30GB of persistent volume is sufficient.  Pivotal recommends at least 100GB for more serious usage. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
+* Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. Persistent volume constrains the number of images that can exist on a Kubernetes cluster. If each image claims 2&nbsp;GB and you allocate 100&nbsp;GB in persistent volume, Build Service can build, monitor, and execute rebuilds for 50 images at a time. For testing the Alpha release, 20&nbsp;GB to 30&nbsp;GB of persistent volume is sufficient. <%= vars.recommended_by %> recommends at least 100&nbsp;GB for more serious usage. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
-- Download the Duffle executable for your operating system from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+* Download the Duffle executable for your operating system from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
 
-- Install Docker on the machine that is running Duffle.
+* Install Docker on the machine that is running Duffle.
 
-- Download the Build Service Bundle from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+* Download the Build Service Bundle from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
 
 
 ## <a id='enable-uaa-oidc'></a> Configure UAA as an OIDC Provider for <%= vars.k8s_runtime_abbr %>
@@ -211,10 +211,11 @@ This procedure describes how to do a standard Build Service installation. To ins
         -m /tmp/relocated.json
     ```
     Where:
+    * `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
     * `BUILD-SERVICE-DOMAIN` is the domain name used to target Build Service. You configured this domain as the domain for the ingress controller.
     * `<%= vars.k8s_runtime_abbr %>-CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster where Build Service is installed.
     * `IMAGE-REGISTRY` is the domain of the image registry that you configured.
-      <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
+        <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
     * `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key` as the username when using JSON key file authentication.
     * `REGISTRY-PASSWORD` is the password you use to access the registry.
     * `UAA-URL` is the URL to access UAA.
