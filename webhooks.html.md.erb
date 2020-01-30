@@ -21,13 +21,13 @@ You can set up builder webhooks for any of the image registries in this section.
 
 To set up builder webhooks for Artifactory:
 
-<p class="note"><strong>Note:</strong> The artifactory repository must be the same one you used when you ran <code>duffle relocate</code> during the Build Service installation.</p>
+<p class="note"><strong>Note:</strong> The Artifactory repository must be the same one you used when you ran Duffle during the Build Service installation.</p>
 
 1. Follow the installation procedure in the [Artifactory Webhook Plugin](https://github.com/jfrog/artifactory-user-plugins/tree/master/webhook) repository on GitHub.
 
-1. Configure the plugin to send `docker.tagCreated` events to the `BUILD-SERVICE-API/v1/artifactory/webhook` endpoint. See the following example configuration:
+1. Configure the plugin to send `docker.tagCreated` events to the `BUILD-SERVICE-API/v1/artifactory/webhook` endpoint, as in this example configuration:
 
-  ```yaml
+  ```
   {
     "webhooks": {
       "ci": {
@@ -43,7 +43,7 @@ To set up builder webhooks for Artifactory:
   ```
 ### <a id='docker-notifications'></a> Docker Registry Notifications
 
-To set up notifications for Docker registry:
+To set up notifications for a Docker registry:
 
 <p class="note"><strong>Note:</strong> The Docker registry must be the same one you used when you ran <code>duffle relocate</code> during the Build Service installation.</p>
 
@@ -60,6 +60,7 @@ To set up notifications for Docker registry:
             threshold: 5
             backoff: 10s
     ```
+    Where `BUILD-SERVICE-API` is the URL of your API.
 
 ### <a id='dockerhub'></a> Docker Hub
 
@@ -71,5 +72,6 @@ To set up builder webhooks for Docker Hub:
     ```bash
     kubectl get builder build-service-builder -n build-service-builds -o jsonpath='{.spec.image}'
     ```
+    Where `BUILD-SERVICE-API` is the URL of your API.
   * The webhook should be configured to use the `BUILD-SERVICE-API/v1/docker/webhook` endpoint.
     <p class="note warning"><strong>Warning:</strong> Docker Hub requires Build Service to use a CA-signed certificate.</p>
