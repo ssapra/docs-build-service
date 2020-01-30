@@ -19,7 +19,7 @@ You can set up builder webhooks for any of the image registries in this section.
 
 ### <a id='artifactory'></a> Artifactory
 
-To set up builder webhooks for Artifactory:
+To set up builder webhooks for an Artifactory repository:
 
 <p class="note"><strong>Note:</strong> The Artifactory repository must be the same one you used when you ran Duffle during the Build Service installation.</p>
 
@@ -41,6 +41,10 @@ To set up builder webhooks for Artifactory:
     }
   }
   ```
+  Where:
+  * `BUILD-SERVICE-API` is the URL of your API.
+  * `ARTIFACTORY-REPOSITORY` is your Artifactory repository.
+
 ### <a id='docker-notifications'></a> Docker Registry Notifications
 
 To set up notifications for a Docker registry:
