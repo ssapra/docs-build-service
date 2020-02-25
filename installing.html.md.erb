@@ -23,12 +23,6 @@ Before you install Build Service, you must:
 
 * Install an ingress controller on the Kubernetes cluster where you install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. For more information, see [How to set up an Ingress Controller for a <%= vars.k8s_runtime_abbr %> cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster) in the Pivotal Knowledge Base.
 
-This Pivotal Knowledge Base article is for Helm 2; however, Helm 3 was released in November 2019. I used: 
-```
-helm install nginx nginx-stable/nginx-ingress --set rbac.create=true --namespace ingress --set controller.config.proxy-buffer-size=16k
-```
-nginx [Installation with Helm](https://docs.nginx.com/nginx-ingress-controller/installation/installation-with-helm/)
-
 * Install the Kubernetes command-line tool, `kubectl`. For more information, see [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
   <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
 
@@ -104,9 +98,6 @@ To configure a TLS certificate for Build Service:
 
 1. Create or use an existing TLS certificate for the Build Service domain. For more information, see [Configuring SSL Certificates](https://bosh.io/docs/director-certs/) in the BOSH documentation.
   <p class="note"><strong>Note:</strong> If you use a self-signed certificate, add the <code>--skip-ssl-validation</code> flag.</p>
-
-We generated our own cert and loaded it into Bosh Director like:
-https://docs.pivotal.io/partners/vmware-harbor/integrating-pks.html#load-harbor-cert
 
 1. If you are using Mac OS, add the Certificate Authority (CA) certificate for the TLS certificate to the keychain. Update the trust settings from **Use System Defaults** to **Always Trust** through the OS X keychain.
 
