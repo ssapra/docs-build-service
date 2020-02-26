@@ -64,37 +64,32 @@ This procedure retrieves the credentials that authenticate communication between
 
 To retrieve the <%= vars.k8s_runtime_abbr %> cluster credentials:
 
-1. Login:
-
-  ```
-  pks login -a <API URI (HOST:PORT)> -u <USERNAME> -p <PASSWORD> [--ca-cert <PATH TO CERT> | -k]
-  ```
-
 1. Log in by running:
 
     ```
-    pks login -a <API URI (HOST:PORT)> -u <USERNAME> -p <PASSWORD> [--ca-cert <PATH TO CERT> | -k]
+    pks login -a API-URI -u USERNAME -p PASSWORD --ca-cert PATH-TO-CERTIFICATE
     ```
 
     Where:
-    * `API URI (HOST:PORT)` is the  
-    * `USERNAME` is the  
-    * `PASSWORD` is the 
-    * `PATH-TO-CERT` is the 
+    * `API-URI` is the PKS API server URI.
+    * `USERNAME` is name of your cluster admin.
+    * `PASSWORD` is the cluster admin password.
+    * `PATH-TO-CERTIFICATE` is the path to your root CA certificate.
 
     For example:
 
-    <pre class="terminal">$pks login -a <API URI (HOST:PORT)> -u <USERNAME> -p P4ssW0rd> [--ca-cert <PATH TO CERT> | -k]</pre> 
+    <pre class="terminal">$ pks login -a api.pks.example.com -u alana -p P4ssW0rd --ca-cert /var/tempest/workspaces/default/root&#95;ca&#95;certificate
+
 1. Run:
 
     ```
     pks get-credentials CLUSTER-NAME
     ```
     Where `CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster where Build Service runs.
+    
+	 This command sets the context to the `CLUSTER-NAME` provided.
 
 1. Target the <%= vars.k8s_runtime_abbr %> cluster by running:
-
-    <p class="note"><strong>Note:</strong>If you just ran `pks get-credentials` it sets the cluster name given as the current context.</p>
 
     ```
     kubectl config use-context CLUSTER-NAME
