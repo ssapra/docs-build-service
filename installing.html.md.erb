@@ -64,14 +64,14 @@ This procedure retrieves the credentials that authenticate communication between
 
 To retrieve the <%= vars.k8s_runtime_abbr %> cluster credentials:
 
-1. Log in by running:
+1. Log in to <%= vars.k8s_runtime_abbr %> by running:
 
     ```
     pks login -a API-URI -u USERNAME -p PASSWORD --ca-cert PATH-TO-CERTIFICATE
     ```
 
     Where:
-    * `API-URI` is the PKS API server URI.
+    * `API-URI` is the <%= vars.k8s_runtime_abbr %> API server URI.
     * `USERNAME` is name of your cluster admin.
     * `PASSWORD` is the cluster admin password.
     * `PATH-TO-CERTIFICATE` is the path to your root CA certificate.
