@@ -8,34 +8,56 @@ This topic describes how to install and configure Pivotal Build Service.
 
 ## <a id='overview'></a> Overview
 
-To install Build Service, you must configure a User Account and Authentication (UAA) client, credentials, and TLS certificates. You must then relocate images to an internal image registry. You can also define optional parameters and annotations during installation.
+To install Build Service, you must configure a User Account and Authentication (UAA) client,
+credentials, and TLS certificates.
+You must then relocate images to an internal image registry.
+You can also define optional parameters and annotations during installation.
 
-The procedures in this topic describe how to install and configure a standard Build Service installation. For a kpack-only installation, see [Installing and Configuring kpack Only](./installing-kpack-only.html).
+The procedures in this topic describe how to install and configure a standard Build Service installation.
+For a kpack-only installation, see [Installing and Configuring kpack Only](./installing-kpack-only.html).
 
 
 ## <a id='prerequisites'></a> Prerequisites
 
 Before you install Build Service, you must:
 
-* Install <%= vars.k8s_runtime_full %> (<%= vars.k8s_runtime_abbr %>) v1.5 or later. For more information, see [Installing Enterprise <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/pks/1-5/installing.html) in the <%= vars.k8s_runtime_abbr %> documentation.
+* Install <%= vars.k8s_runtime_full %> (<%= vars.k8s_runtime_abbr %>) v1.5 or later.
+  For more information, see [Installing Enterprise
+  <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/pks/1-5/installing.html) in the <%= vars.k8s_runtime_abbr %> documentation.
 
 * Install Ruby. Ruby is required to create a UAA client.
 
-* Install an ingress controller on the Kubernetes cluster where you install Build Service. The Build Service expects an ingress controller and an ingress service to configure its own ingress. For more information, see [How to set up an Ingress Controller for a <%= vars.k8s_runtime_abbr %> cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster) in the Pivotal Knowledge Base.
+* Install an ingress controller on the Kubernetes cluster where you install Build Service.
+  The Build Service expects an ingress controller and an ingress service to configure its own ingress.
+  For more information, see [How to set up an Ingress Controller for a
+  <%= vars.k8s_runtime_abbr %> cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster)
+  in the Pivotal Knowledge Base.
 
-* Install the Kubernetes command-line tool, `kubectl`. For more information, see [Install and Set Up Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
-  <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller installed locally.</p>
+* Install the Kubernetes command-line tool, `kubectl`.
+  For more information, see [Install and Set Up
+  Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+  <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller
+  installed locally.
+  </p>
 
-* Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service. Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
+* Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service.
+  Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims`
+  to cache build artifacts, which reduces the time of subsequent builds.
+  For more information,
+  see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
+  in the Kubernetes documentation.
 
-* Download the Duffle executable for your operating system from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+* Download the Duffle executable for your operating system from
+the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
 
 * Download the Build Service Bundle from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
 
 
 ## <a id='enable-uaa-oidc'></a> Configure UAA as an OIDC Provider for <%= vars.k8s_runtime_abbr %>
 
-The authorization process for Build Service uses a combination of RBAC rules and UAA authentication. To enable this authorization flow, you must configure UAA as an OpenID Connect (OIDC) provider for your <%= vars.k8s_runtime_abbr %> deployment.
+The authorization process for Build Service uses a combination of RBAC rules and UAA authentication.
+To enable this authorization flow, you must configure UAA as an OpenID Connect (OIDC) provider
+for your <%= vars.k8s_runtime_abbr %> deployment.
 
 To configure UAA as an OIDC provider for your <%= vars.k8s_runtime_abbr %> deployment:
 
@@ -47,7 +69,9 @@ To configure UAA as an OIDC provider for your <%= vars.k8s_runtime_abbr %> deplo
 
 1. Under **Configure created clusters to use UAA as the OIDC provider**, select **Enable**.
 
-1. Ensure the values in the **UAA OIDC Groups Prefix** and **UAA OIDC Username Prefix** fields are the same and record them. You use these values when you install Duffle.
+1. Ensure the values in the **UAA OIDC Groups Prefix** and **UAA OIDC Username Prefix** fields are
+   the same and record them.
+   You use these values when you install Duffle.
 
 1. Click **Save**.
 
@@ -60,7 +84,8 @@ The procedures in this section describe how to configure Build Service to prepar
 
 ### <a id='retrieve-credentials'></a> Retrieve <%= vars.k8s_runtime_abbr %> Cluster Credentials
 
-This procedure retrieves the credentials that authenticate communication between `kubectl` and the <%= vars.k8s_runtime_abbr %> cluster where Build Service runs.
+This procedure retrieves the credentials that authenticate communication between `kubectl`
+and the <%= vars.k8s_runtime_abbr %> cluster where Build Service runs.
 
 To retrieve the <%= vars.k8s_runtime_abbr %> cluster credentials:
 
@@ -98,24 +123,31 @@ To retrieve the <%= vars.k8s_runtime_abbr %> cluster credentials:
 
 ### <a id='uaa-client-creation'></a> User Management
 
-Build Service uses the UAA instance for your <%= vars.k8s_runtime_abbr %> deployment to authenticate users. For more information about creating users, see [Create a UAA User for Build Service](#users-create).
+Build Service uses the UAA instance for your <%= vars.k8s_runtime_abbr %> deployment to authenticate users.
+For more information about creating users, see [Create a UAA User for Build Service](#users-create).
 
 ### <a id='configure-tls'></a> Configure TLS Certificate
 
-You must create a TLS certificate for the Build Service domain or use an existing certificate. This certificate may be self-signed.
+You must create a TLS certificate for the Build Service domain or use an existing certificate.
+This certificate may be self-signed.
 
 To configure a TLS certificate for Build Service:
 
-1. Create or use an existing TLS certificate for the Build Service domain. For more information, see [Configuring SSL Certificates](https://bosh.io/docs/director-certs/) in the BOSH documentation.
+1. Create or use an existing TLS certificate for the Build Service domain.
+   For more information,
+   see [Configuring SSL Certificates](https://bosh.io/docs/director-certs/) in the BOSH documentation.
   <p class="note"><strong>Note:</strong> If you use a self-signed certificate, add the <code>--skip-ssl-validation</code> flag.</p>
 
-1. If you are using Mac OS, add the Certificate Authority (CA) certificate for the TLS certificate to the keychain. Update the trust settings from **Use System Defaults** to **Always Trust** through the OS X keychain.
+1. If you are using Mac OS, add the Certificate Authority (CA) certificate for the TLS certificate
+   to the keychain.
+   Update the trust settings from **Use System Defaults** to **Always Trust** through the OS X keychain.
 
 1. Record the local paths to the `.crt` and `.key` files for the TLS certificate.
 
 ### <a id='create-creds-file'></a> Create a Credentials File
 
-Create a credentials file to provide the location of the TLS certificate credentials to `duffle` during the Build Service installation.
+Create a credentials file to provide the location of the TLS certificate credentials to `duffle`
+during the Build Service installation.
 
 To create a credentials file:
 
@@ -148,19 +180,28 @@ To create a credentials file:
          path: "/cnab/app/cert/tls.key"
     ```
     Where:
-    * `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine. This file is required to enable Build Service to interact with the target cluster.
-    * `PATH-TO-CA` is the path to the CA. This CA is required to enable Build Service to interact with internally deployed registries. This is the CA that was used while deploying the registry.
-    * `PATH-TO-TLS-CERTIFICATE` is the path to the TLS certificate. This TLS certificate is required for authenticated communication between the `pb` CLI and Build Service. The CA for this TLS certificate must be trusted by the workstation communicating with Build Service.
+    * `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine.
+       This file is required to enable Build Service to interact with the target cluster.
+    * `PATH-TO-CA` is the path to the CA. This CA is required to enable Build Service
+       to interact with internally deployed registries.
+       This is the CA that was used while deploying the registry.
+    * `PATH-TO-TLS-CERTIFICATE` is the path to the TLS certificate.
+       This TLS certificate is required for authenticated communication between the `pb` CLI
+       and Build Service.
+       The CA for this TLS certificate must be trusted by the workstation communicating with Build Service.
     * `PATH-TO-TLS-PRIVATE-KEY` is the path to the private key corresponding to the TLS certificate.
     <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
 
 ### <a id='custom-ingress-annotations'></a> (Optional) Define Custom Ingress Annotations
 
-This section describes how to create a parameters file to provide ingress annotations to the Build Service during installation.
+This section describes how to create a parameters file to provide ingress annotations
+to the Build Service during installation.
 
-By default, Build Service uses the NGINX ingress controller, and you do not have to use any annotations. However, providing custom ingress annotations allows you to use different ingress controllers.
+By default, Build Service uses the NGINX ingress controller, and you do not have to use any annotations.
+However, providing custom ingress annotations allows you to use different ingress controllers.
 
-To define custom ingress annotations for Build Service, you must create a JSON file that defines the annotations. To create this JSON file:
+To define custom ingress annotations for Build Service,
+you must create a JSON file that defines the annotations. To create this JSON file:
 
 <p class="note"><strong>Note:</strong> If you create the parameters file, you can provide it while running the Duffle install command using the <code>-p</code> flag.</p>
 
@@ -184,7 +225,8 @@ To define custom ingress annotations for Build Service, you must create a JSON f
 
 ### <a id='relocate-images'></a> Move Images to an Image Registry
 
-This procedure relocates images from the Build Service bundle that you downloaded from Pivotal Network to an internal image registry.
+This procedure relocates images from the Build Service bundle that you downloaded from Pivotal Network
+to an internal image registry.
 
 To move the images from the Build Service bundle to an internal image registry:
 
@@ -204,11 +246,14 @@ To move the images from the Build Service bundle to an internal image registry:
 
 ## <a id='install'></a> Install Build Service
 
-The procedures in these sections describe how to use Duffle to define the required Build Service parameters and install Build Service.
+The procedures in these sections describe how to use Duffle to define
+the required Build Service parameters and install Build Service.
 
 ### <a id='standard-install'></a> Install Build Service
 
-This procedure describes how to do a standard Build Service installation. To install Build Service so that all interactions with Build Service must be made through `kubectl`, see [Installing and Configuring kpack Only](./installing-kpack-only.html).
+This procedure describes how to do a standard Build Service installation.
+To install Build Service so that all interactions with Build Service must be made through `kubectl`,
+see [Installing and Configuring kpack Only](./installing-kpack-only.html).
 
 1. Use Duffle to install Build Service and define the required Build Service parameters by running:
 
@@ -225,17 +270,31 @@ This procedure describes how to do a standard Build Service installation. To ins
     ```
     Where:
     * `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
-    * `BUILD-SERVICE-DOMAIN` is the domain name used to target Build Service. You configured this domain as the domain for the ingress controller.
-    * `<%= vars.k8s_runtime_abbr %>-CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster where Build Service is installed.
+    * `BUILD-SERVICE-DOMAIN` is the domain name used to target Build Service.
+       You configured this domain as the domain for the ingress controller.
+    * `<%= vars.k8s_runtime_abbr %>-CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster
+       where Build Service is installed.
     * `IMAGE-REGISTRY` is the domain of the image registry that you configured.
-        <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>index.docker.io</code>. Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are examples of valid fields for the registry.</p>
-    * `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key` as the username when using JSON key file authentication.
+        <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>index.docker.io</code>.
+      Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
+      examples of valid fields for the registry.</p>
+    * `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key`
+       as the username when using JSON key file authentication.
     * `REGISTRY-PASSWORD` is the password you use to access the registry.
     * `UAA-URL` is the URL to access UAA.
-    <p class="note"><strong>Note:</strong> If the values you recorded during <a href="#enable-uaa-oidc">Configure UAA as an OIDC Provider for <%= vars.k8s_runtime_abbr %></a> are different from the values in `oidc:`, add the <code>--uaa_username_prefix="VALUE-SAVED"</code> flag to the <code>duffle install</code> command.</p>
-    <p class="note"><strong>Note:</strong> If you defined custom ingress annotations during <a href"#cu">(Optional) Define Custom Ingress Annotations</a>, include them with the <code>-p /tmp/parameters.json</code> flag.</p>
+    <p class="note"><strong>Note:</strong> If the values you recorded during
+    <a href="#enable-uaa-oidc">Configure UAA as an OIDC Provider for <%= vars.k8s_runtime_abbr %></a>
+    are different from the values in `oidc:`,
+    add the <code>--uaa_username_prefix="VALUE-SAVED"</code> flag to the <code>duffle install</code> command
+    </p>
+    <p class="note"><strong>Note:</strong> If you defined custom ingress annotations during <a href"#cu">(Optional)
+    Define Custom Ingress Annotations</a>, include them with the <code>-p /tmp/parameters.json</code> flag.</p>
     Other optional parameters you can add using the `--set` flag:
-    * `disable_builder_polling`: If set to `true`, this property prevents Build Service from polling builder images for buildpack updates. By default, this property is set to `false`. If you set `disable_builder_polling` to `true`, you must configure a builder webhook. For more information, see [Setting Up Builder Webhooks](webhooks.html).
+    * `disable_builder_polling`: If set to `true`, this property prevents Build Service
+       from polling builder images for buildpack updates.
+       By default, this property is set to `false`. If you set `disable_builder_polling` to `true`,
+       you must configure a builder webhook.
+       For more information, see [Setting Up Builder Webhooks](webhooks.html).
     * `replica_count`: Defines the number of Build Service instances running. The default value is `1`.
     * `http_proxy`: The HTTP proxy to use for network traffic.
     * `https_proxy`: The HTTPS proxy to use for network traffic.
@@ -261,7 +320,8 @@ To create a UAA user for Build Service:
     ```
     Where `UAA-URL` is the URL of the UAA that authenticates Build Service users.
 
-1. In the <%= vars.k8s_runtime_abbr %> tile, select the **Credentials** tab and record the credential for **Pks Uaa Management Admin Client**.
+1. In the <%= vars.k8s_runtime_abbr %> tile, select the **Credentials** tab
+   and record the credential for **Pks Uaa Management Admin Client**.
 
 1. Log in as the admin client with the password you recorded in the previous step by running:
 
@@ -283,11 +343,13 @@ To create a UAA user for Build Service:
 
 ## <a id='verify-installation'></a> Verify Installation
 
-Verify your Build Service installation by logging in to Build Service with the UAA user credentials you created.
+Verify your Build Service installation by logging in to Build Service with the UAA user credentials
+that you created.
 
 To verify your Build Service installation:
 
-1. Download the `pb` binary from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+1. Download the `pb` binary from the [Pivotal Build
+   Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
 
 1. Target the Build Service installation by running:
 
@@ -295,9 +357,11 @@ To verify your Build Service installation:
     pb api set BUILD-SERVICE-DOMAIN
     ```
     Where `BUILD-SERVICE-DOMAIN` is the domain for your Build Service installation.
-    <p class="note"><strong>Note:</strong> If the UAA for Build Service uses a self-signed CA certificate, add the <code>--skip-ssl-validation</code> flag at the end of the command.</p>
+    <p class="note"><strong>Note:</strong> If the UAA for Build Service uses a self-signed CA certificate,
+    add the <code>--skip-ssl-validation</code> flag at the end of the command.</p>
 
-1. Log in to Build Service with the user that you created as part of [Create a UAA User for Build Service](#users-create) by running:
+1. Log in to Build Service with the user that you created as part of [Create a UAA User for
+   Build Service](#users-create) by running:
 
     ```
     pb login
@@ -306,4 +370,5 @@ To verify your Build Service installation:
 
 ## <a id='remove-tls'></a> (Optional) Remove TLS Certificate
 
-After you verify your Build Service installation, you can delete the `.crt` and `.key` files for the TLS certificate that you created in [Create TLS Certificate](#configure-tls).
+After you verify your Build Service installation, you can delete the `.crt` and `.key` files
+for the TLS certificate that you created in [Create TLS Certificate](#configure-tls).
