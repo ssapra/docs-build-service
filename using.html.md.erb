@@ -1,42 +1,28 @@
 ---
-title: Using the Pivotal Build Service CLI
+title: Using Pivotal Build Service
 owner: Build Service Team
 ---
 
-This topic describes how to use the Pivotal Build Service CLI, `pb`, to log in to Build Service and manage images, projects, and builds.
+This topic describes how to use Pivotal Build Service to manage images, projects, builds, builders, the stack, and the store.
 
 
-## <a id='configure-cli'></a> Log In to Build Service
+## <a id='configure-cli'></a> Log Into Your Kubernetes Cluster
 
-After you configure and install Build Service, you can use the `pb` CLI to target and log in to your Build Service installation.
+After you configure and install Build Service, you can use the `pb` CLI to interact with your Build Service installation.
 
 For more information, see [Installing and Configuring Build Service](./installing.html).
 
-To target your Build Service installation and log in:
+To use your Build Service installation:
 
-1. Target the API for your Build Service installation by running:
+1. Log into your Kubernetes Cluster that has the Build Service installation using the CLI of your preferred managed Kubernetes service.
 
-    ```
-    pb api set YOUR-BUILD-SERVICE-API
-    ```
-    Where `YOUR-BUILD-SERVICE-API` is the URL for the API for your Build Service installation. For example, `https://build-service.example.com`.
-    <p class="note"><strong>Note:</strong> Use the <code>--skip-ssl-validation</code> flag if your Build Service installation targets a UAA that has a self-signed CA cert.</p>
-
-1. Confirm that you targeted the correct Build Service installation by running:
+    For example, if you are using PKS:
 
     ```
-    pb api get
-    ```
+    pks login -a <PKS URL> -u <username> -p <password>
 
-1. Log in to Build Service by running:
-
+    pks get-kubeconfig <cluster> -a <PKS URL> -u <username> -p <password>
     ```
-    pb login
-    ```
-1. When prompted, enter the `username` and `password` for UAA.
-    <br><br>
-    You can also pass your username and password to Build Service by specifying the environment variables `BUILD_SERVICE_USERNAME` and `BUILD_SERVICE_PASSWORD`. The CLI defaults to using them if they exist in the environment.
-
 
 ## <a id='manage-projects'></a> Manage Projects
 
@@ -93,9 +79,9 @@ To add members to a project:
 1. Run:
 
     ```
-    pb project user add UAA-USERNAME
+    pb project user add USERNAME
     ```
-    Where `UAA-USERNAME` is the username of the user you want to add.
+    Where `USERNAME` is the username of the user you want to add.
 
 #### <a id='remove-members'></a> Remove Members from a Project
 
@@ -106,9 +92,9 @@ To remove members from a project:
 1. Run:
 
     ```
-    pb project user remove UAA-USERNAME
+    pb project user remove USERNAME
     ```
-    Where `UAA-USERNAME` is the username of the user you want to remove.
+    Where `USERNAME` is the username of the user you want to remove.
 
 #### <a id=‘list-members'></a> List members in a project
 
@@ -200,24 +186,25 @@ To associate a Git repository and Git repository credentials with a project:
 
 1. Create a YAML file with the Git repository location and credentials. Enter the following variables:
 
-    ```
-    repository: GIT-REPOSITORY
-    username: GIT-USERNAME
-    password: GIT-PASSWORD/TOKEN
-    ```
-    Where:
-    * `GIT-REPOSITORY` is the URL of the GitHub repository.
-    * `GIT-USERNAME` is the Git username used to access the GitHub repository.
-    * `GIT-PASSWORD/TOKEN` is the password or access token used to access the GitHub repository.
+    * If using username and password:
+        ```
+        repository: GIT-REPOSITORY
+        username: GIT-USERNAME
+        password: GIT-PASSWORD/TOKEN
+        ```
+        Where:
+        * `GIT-REPOSITORY` is the URL of the GitHub repository.
+        * `GIT-USERNAME` is the Git username used to access the GitHub repository.
+        * `GIT-PASSWORD/TOKEN` is the password or access token used to access the GitHub repository.
 
-2. To associate an sshKey for a git repository with a project, create a YAML file and enter the following variables:
-    ```
-    repository: GIT-REPOSITORY
-    sshKey: SSH-KEY
-    ```
-    Where:
-    * `GIT-REPOSITORY` is the URL of the GitHub repository. 
-    * `SSH-KEY` is the value of the ssh key needed to access the git repository
+    * If using ssh credentials:
+        ```
+        repository: GIT-REPOSITORY
+        sshKey: SSH-KEY
+        ```
+        Where:
+        * `GIT-REPOSITORY` is the URL of the GitHub repository.
+        * `SSH-KEY` is the value of the ssh key needed to access the git repository
 
 1. Apply the Git repository file to the project by running:
 
@@ -268,6 +255,177 @@ To delete a project:
     ```
     Where `PROJECT-NAME` is the name of the project to delete.
 
+## <a id='manage-store'></a> Manage the Store
+
+### <a id='add-buildpackages-to-store'></a> Add Buildpackages to the Store
+
+Users can add multiple buildpackages at a time from a Docker registry or the local machine:
+    * If using a Docker registry:
+        ```
+        pb store add <buildpackage-1> <buildpackage-2> ...
+        ```
+
+        <p class='note'><strong>Note:</strong> The user must have access to the Docker registry on the local machine.</p>
+
+    * If using ssh credentials:
+        ```
+        pb store add <buildpackage-1> <buildpackage-2> ...  --local
+        ```
+
+<p class='note'><strong>Note:</strong> Documentation for creating buildpackages: https://buildpacks.io/docs/buildpack-author-guide/package-a-buildpack/</p>
+
+### <a id='remove-buildpackages-from-store'></a> Remove Buildpackages from the Store
+
+Users can remove a buildpackage from the store:
+
+    ```
+    pb store remove <buildpackage>
+    ```
+
+### <a id='list-buildpackages-in-store'></a> List Buildpackages in the Store
+
+Users can list the buildpackages in the store:
+
+    ```
+    pb store list
+    ```
+
+Users can also list buildpackages and the buildpack order:
+
+    ```
+    pb store list --order
+    ```
+
+The output of this command is helpful because it mirrors the format used when creating custom builders .
+
+## <a id='manage-stack'></a> Manage the Stack
+
+### <a id='update-stack'></a> Update the Stack
+
+Users can update the stack using build and run images from a Docker registry or the local machine:
+    * If using a Docker registry:
+        ```
+        pb stack update -b <build image> -r <run-image>
+        ```
+
+        <p class='note'><strong>Note:</strong> The user must have access to the Docker registry on the local machine.</p>
+
+    * If using ssh credentials:
+        ```
+        pb stack update -b <build image> -r <run-image> --local
+        ```
+<p class='note'><strong>Note:</strong> Currently, Build Service only supports the `cflinuxfs3` build and run images.</p>
+
+### <a id='get-stack-status'></a> Get Stack Status
+
+Users can get the current status of the stack:
+
+    ```
+    pb stack status
+    ```
+
+The following is an example of the output for this command:
+
+    ```
+    Stack ID:    org.cloudfoundry.stacks.cflinuxfs3
+    Run Image:   cloudfoundry/run:full-cnb
+    Build Image: cloudfoundry/build:full-cnb
+    ```
+
+## <a id='manage-builders'></a> Manage Builders
+
+### <a id='builder-configurations'></a> Builder Configurations
+
+To create a builder, you must create a builder configuration YAML that includes the following properties:
+
+* `name`: The name of the builder.
+
+* `tag`: The registry location where the builder will be created.
+
+* `scope`: Defines whether the builder is available to the all users in the cluster or to users of the currently targeted project. One of 'Cluster' or 'Project'.
+
+* `order`: The buildpack order that the builder will use.
+
+<p class='note'><strong>Note:</strong> Build Service must have the appropriate credentials to push to `tag`. Build Service has access to the registry used at install time and any secrets attached to the current project.</p>
+
+### <a id='apply-builder-configurations'></a> Apply Builder Configurations
+
+To apply a builder configuration to Build Service:
+
+1. Create a builder configuration YAML file. For example:
+
+    ```
+    name: foo
+    tag: REGISTRY-DOMAIN/PATH-TO-NEW-BUILDER
+    scope: Project OR Cluster
+    order:
+    - group:
+      -  id: org.cloudfoundry.node-engine
+      -  id: org.cloudfoundry.npm
+    ```
+
+    # TODO : add a link to a section that explains buildpack order
+
+1. Apply the builder configuration by running:
+
+    ```
+    pb builder apply -f PATH-TO-BUILDER-CONFIGURATION
+    ```
+    Where `PATH-TO-BUILDER-CONFIGURATION` is the local path where you saved the builder configuration YAML file.
+
+    <p class='note'><strong>Note:</strong> When the `scope` is `Project` the builder will be applied to the currently targeted project.</p>
+
+### <a id='delete-builder'></a> Delete a Builder
+
+To delete a builder:
+
+    * Delete a cluster scoped builder:
+    ```
+    pb builder delete <builder name> --cluster
+    ```
+
+    * Delete a project scoped builder:
+    ```
+    pb builder delete <builder name>
+    ```
+
+<p class='note'><strong>Warning:</strong> Deleting a builder will prevent image configs that reference that builder from successfully building again.</p>
+
+### <a id='get-builder-details'></a> Get Builder Details
+
+To get builder details:
+
+    * Details for a cluster scoped builder:
+    ```
+    pb builder get <builder name> --cluster
+    ```
+
+    * Details for a project scoped builder:
+    ```
+    pb builder get <builder name>
+    ```
+
+### <a id='list-builders'></a> List Builders
+
+To list all builders available to the current user:
+
+    ```
+    pb builder list
+    ```
+
+### <a id='get-builder-status'></a> Get Builder Status
+
+To get the current builder status:
+
+    * Status for a cluster scoped builder:
+    ```
+    pb builder status <builder name> --cluster
+    ```
+
+    * Status for a project scoped builder:
+    ```
+    pb builder status <builder name>
+    ```
 
 ## <a id='manage-images'></a> Manage Images
 
@@ -401,6 +559,36 @@ To apply an image and reference source code that lives in a blobstore:
     * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file.
 
 <p class='note'><strong>Note:</strong> Build Service v0.0.4 does not support polling functionality for source code that is stored in a blobstore. When you push new source code to the specified blobstore URL, Build Service cannot rebuild your app.</p>
+
+#### <a id='apply-image-with-custom-builder'></a> Apply an Image With A Custom Builder
+
+Users can use any of the <a href="list-builders">available builders</a> with any of the source types (git, blob, or local).
+
+To apply an image and reference a custom builder:
+
+1. Create an image configuration file that has builder properties:
+
+    ```
+    build:
+      source:
+        git:
+          url: https://github.com/PATH-TO-EXAMPLE-APP
+          revision: master
+    builder:
+      name: BUILDER-NAME
+      scope: Project OR Cluster
+    image:
+      tag: REGISTRY-DOMAIN/PATH-TO-EXAMPLE-APP
+    ```
+
+1. Apply the image configuration by running:
+
+    ```
+    pb image apply -f /PATH-TO-IMAGE-CONFIGURATION/IMAGE-CONFIGURATION.yaml
+    ```
+    Where:
+    * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
+    * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file.
 
 ### <a id='list-images'></a> List Images
 
