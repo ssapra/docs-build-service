@@ -70,9 +70,9 @@ In order to target a different project, run the command again and specify a diff
 
 All members of a project can add and remove project members.
 
-#### <a id='add-members'></a> Add Members to a Project
+#### <a id='add-users'></a> Add Users to a Project
 
-To add members to a project:
+To add users to a project:
 
 1. Target your project.
 
@@ -83,9 +83,9 @@ To add members to a project:
     ```
     Where `USERNAME` is the username of the user you want to add.
 
-#### <a id='remove-members'></a> Remove Members from a Project
+#### <a id='remove-users'></a> Remove Users from a Project
 
-To remove members from a project:
+To remove users from a project:
 
 1. Target your project.
 
@@ -95,6 +95,32 @@ To remove members from a project:
     pb project user remove USERNAME
     ```
     Where `USERNAME` is the username of the user you want to remove.
+
+#### <a id='add-groups'></a> Add Groups to a Project
+
+To add groups to a project:
+
+1. Target your project.
+
+1. Run:
+
+    ```
+    pb project group add GROUPNAME
+    ```
+    Where `GROUPNAME` is the name of the group you want to add.
+
+#### <a id='remove-groups'></a> Remove Group from a Project
+
+To remove groups from a project:
+
+1. Target your project.
+
+1. Run:
+
+    ```
+    pb project group remove GROUPNAME
+    ```
+    Where `GROUPNAME` is the name of the group you want to remove.
 
 #### <a id=‘list-members'></a> List members in a project
 
@@ -257,6 +283,8 @@ To delete a project:
 
 ## <a id='manage-store'></a> Manage the Store
 
+<p class='note'><strong>Note:</strong> Only Build Service Admins can perform store commands./</p>
+
 ### <a id='add-buildpackages-to-store'></a> Add Buildpackages to the Store
 
 Users can add multiple buildpackages at a time from a Docker registry or the local machine:
@@ -300,6 +328,8 @@ The output of this command is helpful because it mirrors the format used when cr
 
 ## <a id='manage-stack'></a> Manage the Stack
 
+<p class='note'><strong>Note:</strong> Only Build Service Admins can perform stack commands./</p>
+
 ### <a id='update-stack'></a> Update the Stack
 
 Users can update the stack using build and run images from a Docker registry or the local machine:
@@ -333,6 +363,8 @@ The following is an example of the output for this command:
     ```
 
 ## <a id='manage-builders'></a> Manage Builders
+
+<p class='note'><strong>Note:</strong> Only Build Service Admins can manage Cluster scoped builders./</p>
 
 ### <a id='builder-configurations'></a> Builder Configurations
 
@@ -490,6 +522,8 @@ To apply an image configuration to Build Service:
 
 #### <a id='apply-image-with-local-source-code'></a> Apply an Image With Local Source Code
 
+Users can apply source code from a directory, compressed source code (`zip`, `tar.gz`, `.tar`), or a `.jar` file.
+
 To apply an image configuration that uses local source code:
 
 1. Create an image configuration file that has no Git properties. For example:
@@ -521,6 +555,8 @@ To apply an image configuration that uses local source code:
     * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
     * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file.
     * `PATH-TO-APP-DIRECTORY` is the local path to the app directory.
+
+<p class='note'><strong>Note:</strong> To use this feature, the user must have access to the Docker registry specified by the `tag` property on the local machine.</p>
 
 #### <a id='apply-image-by-referencing-blob-store-source'></a> Apply an Image With Source Code In A Blob Store
 
@@ -614,7 +650,7 @@ third/image:tag
 
 ### <a id='rebuild-image'></a> Image Rebuilds
 
-Rebuilds happen in two ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`. An automatic rebuild occurs when build inputs change, without you editing the image configuration itself.
+Rebuilds happen in three ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`. An automatic rebuild occurs when build inputs change, without you editing the image configuration itself. Finally, a user can trigger a rebuild manually.
 
 You can initiate an imperative rebuild in these ways:
 
@@ -633,6 +669,14 @@ Build Service auto-rebuilds images when one or more of the following build input
 * There is a new commit on a branch or tag Build Service is tracking.
 
 * There is a new base OS image available, such as `cflinuxfs3`.
+
+You can initiate a manual rebuild using `pb`:
+
+    ```
+    pb image trigger <image tag>
+    ```
+
+This is useful for debugging image builds.
 
 ### <a id='monitor-builds'></a> Monitor Builds for an Image
 
