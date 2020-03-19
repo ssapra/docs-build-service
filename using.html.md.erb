@@ -15,7 +15,7 @@ For more information, see [Installing and Configuring Build Service](./installin
 To use your Build Service installation:
 
 1. Log into your Kubernetes Cluster that has the Build Service installation using the CLI of your preferred managed Kubernetes service.
-
+    <br/><br/>
     For example, if you are using PKS:
 
     ```
@@ -30,45 +30,39 @@ The following procedures describe how to manage projects and project members wit
 
 A `project` is a Build Service entity that provides user access control to images, image configurations, and image builders. For more information, see [Build Service Projects](./index.html#project-config).
 
-### <a id='create-project'></a> Create a Project
+#### <a id='create-project'></a> Create a Project
 
 To create a new project:
 
-1. Run:
-
-    ```
     pb project create PROJECT-NAME
-    ```
-    Where `PROJECT-NAME` is a unique name for the project.
 
-To view projects of which the user is a member, run:
+Where `PROJECT-NAME` is a unique name for the project.
 
-    ```
+#### <a id='create-project'></a> List Projects
+
+To view projects of which the user is a member:
+
     pb project list
-    ```
 
-### <a id='targeting-project'></a> Targeting a Project
+#### <a id='targeting-project'></a> Targeting a Project
 
 Projects map to Kubernetes namespaces. Because of this, you should not create projects with the same name as pre-existing Kubernetes namespaces.
 
 The user who creates the project is added to the project as its first member. Because of this, you cannot access resources produced by Build Service globally across all the namespaces in the cluster.
 
-To target your project:
+To target a project:
 
-1. Run:
-
-    ```
     pb project target PROJECT-NAME
-    ```
-    Where `PROJECT-NAME` is the name of your project.
+
+Where `PROJECT-NAME` is the name of your project.
 
 After you have targeted a project, Build Service assumes that the commands you run are for that project.
 
 In order to target a different project, run the command again and specify a different project.
 
-### <a id='manage-project-members'></a> Add and Remove Project Members
+#### <a id='manage-project-members'></a> Add and Remove Project Members
 
-All members of a project can add and remove project members.
+Any member of a project can add and remove other project members.
 
 #### <a id='add-users'></a> Add Users to a Project
 
@@ -109,7 +103,7 @@ To add groups to a project:
     ```
     Where `GROUPNAME` is the name of the group you want to add.
 
-#### <a id='remove-groups'></a> Remove Group from a Project
+#### <a id='remove-groups'></a> Remove Groups from a Project
 
 To remove groups from a project:
 
@@ -122,7 +116,7 @@ To remove groups from a project:
     ```
     Where `GROUPNAME` is the name of the group you want to remove.
 
-#### <a id=‘list-members'></a> List members in a project
+#### <a id=‘list-members'></a> List members of a project
 
 To list members of a project:
 
@@ -134,7 +128,7 @@ To list members of a project:
     pb project members 
     ```
 
-### <a id='manage-image-registries'></a> Manage Image Registries for a Project
+#### <a id='manage-image-registries'></a> Manage Image Registries for a Project
 
 For a project to use an image registry in Build Service, you must associate an image registry and the image registry credentials with the project. If the source code for the image is saved in a repository, you must also associate the Git credentials with the project.
 
@@ -198,7 +192,7 @@ To update the registry association and credentials for a project:
     ```
     Where `PATH-TO-REGISTRY-CREDENTIALS-YAML` is the local path to the YAML file that you created in the previous section.
 
-### <a id='manage-git-repos'></a> Manage Git Repositories for a Project
+#### <a id='manage-git-repos'></a> Manage Git Repositories for a Project
 
 To allow Build Service to execute builds against app source code in a private Git repository, you must add the Git username and password to the project that manages the source code.
 
@@ -264,7 +258,7 @@ To delete Git credentials from a project:
     pb secrets git delete github.com
     ```
 
-### <a id='delete-project'></a> Delete a Project
+#### <a id='delete-project'></a> Delete a Project
 
 This procedure describes how to delete a project using the `pb` CLI.
 
@@ -288,17 +282,20 @@ To delete a project:
 ### <a id='add-buildpackages-to-store'></a> Add Buildpackages to the Store
 
 Users can add multiple buildpackages at a time from a Docker registry or the local machine:
-    * If using a Docker registry:
-        ```
-        pb store add <buildpackage-1> <buildpackage-2> ...
-        ```
 
-        <p class='note'><strong>Note:</strong> The user must have access to the Docker registry on the local machine.</p>
+* If using a Docker registry:
 
-    * If using ssh credentials:
-        ```
-        pb store add <buildpackage-1> <buildpackage-2> ...  --local
-        ```
+    ```
+    pb store add <buildpackage-1> <buildpackage-2> ...
+    ```
+
+<p class='note'><strong>Note:</strong> The user must have access to the Docker registry on the local machine.</p>
+
+* If using ssh credentials:
+
+    ```
+    pb store add <buildpackage-1> <buildpackage-2> ...  --local
+    ```
 
 <p class='note'><strong>Note:</strong> Documentation for creating buildpackages: https://buildpacks.io/docs/buildpack-author-guide/package-a-buildpack/</p>
 
@@ -306,23 +303,17 @@ Users can add multiple buildpackages at a time from a Docker registry or the loc
 
 Users can remove a buildpackage from the store:
 
-    ```
     pb store remove <buildpackage>
-    ```
 
 ### <a id='list-buildpackages-in-store'></a> List Buildpackages in the Store
 
 Users can list the buildpackages in the store:
 
-    ```
     pb store list
-    ```
 
 Users can also list buildpackages and the buildpack order:
 
-    ```
     pb store list --order
-    ```
 
 The output of this command is helpful because it mirrors the format used when creating custom builders .
 
@@ -333,34 +324,34 @@ The output of this command is helpful because it mirrors the format used when cr
 ### <a id='update-stack'></a> Update the Stack
 
 Users can update the stack using build and run images from a Docker registry or the local machine:
-    * If using a Docker registry:
-        ```
-        pb stack update -b <build image> -r <run-image>
-        ```
 
-        <p class='note'><strong>Note:</strong> The user must have access to the Docker registry on the local machine.</p>
+- If using a Docker registry:
 
-    * If using ssh credentials:
-        ```
-        pb stack update -b <build image> -r <run-image> --local
-        ```
-<p class='note'><strong>Note:</strong> Currently, Build Service only supports the `cflinuxfs3` build and run images.</p>
+    ```
+    pb stack update -b <build image> -r <run-image>
+    ```
+
+<p class='note'><strong>Note:</strong> The user must have access to the Docker registry on the local machine.</p>
+
+* If using ssh credentials:
+
+    ```
+    pb stack update -b <build image> -r <run-image> --local
+    ```
+
+<p class='note'><strong>Note:</strong> Currently, Build Service only supports the <strong>cflinuxfs3</strong> build and run images.</p>
 
 ### <a id='get-stack-status'></a> Get Stack Status
 
 Users can get the current status of the stack:
 
-    ```
     pb stack status
-    ```
 
 The following is an example of the output for this command:
 
-    ```
     Stack ID:    org.cloudfoundry.stacks.cflinuxfs3
     Run Image:   cloudfoundry/run:full-cnb
     Build Image: cloudfoundry/build:full-cnb
-    ```
 
 ## <a id='manage-builders'></a> Manage Builders
 
@@ -396,8 +387,6 @@ To apply a builder configuration to Build Service:
       -  id: org.cloudfoundry.npm
     ```
 
-    # TODO : add a link to a section that explains buildpack order
-
 1. Apply the builder configuration by running:
 
     ```
@@ -411,12 +400,14 @@ To apply a builder configuration to Build Service:
 
 To delete a builder:
 
-    * Delete a cluster scoped builder:
+* Delete a cluster scoped builder:
+
     ```
     pb builder delete <builder name> --cluster
     ```
 
-    * Delete a project scoped builder:
+* Delete a project scoped builder:
+
     ```
     pb builder delete <builder name>
     ```
@@ -427,12 +418,14 @@ To delete a builder:
 
 To get builder details:
 
-    * Details for a cluster scoped builder:
+* Details for a cluster scoped builder:
+
     ```
     pb builder get <builder name> --cluster
     ```
 
-    * Details for a project scoped builder:
+* Details for a project scoped builder:
+
     ```
     pb builder get <builder name>
     ```
@@ -441,20 +434,20 @@ To get builder details:
 
 To list all builders available to the current user:
 
-    ```
     pb builder list
-    ```
 
 ### <a id='get-builder-status'></a> Get Builder Status
 
 To get the current builder status:
 
-    * Status for a cluster scoped builder:
+* Status for a cluster scoped builder:
+
     ```
     pb builder status <builder name> --cluster
     ```
 
-    * Status for a project scoped builder:
+* Status for a project scoped builder:
+
     ```
     pb builder status <builder name>
     ```
@@ -672,9 +665,7 @@ Build Service auto-rebuilds images when one or more of the following build input
 
 You can initiate a manual rebuild using `pb`:
 
-    ```
-    pb image trigger <image tag>
-    ```
+    pb image trigger IMAGE-TAG
 
 This is useful for debugging image builds.
 
