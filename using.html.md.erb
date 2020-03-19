@@ -42,7 +42,7 @@ To target your Build Service installation and log in:
 
 The following procedures describe how to manage projects and project members with the `pb` CLI.
 
-A `project` is a Build Service entity that uses UAA to provide user access control to images, image configurations, and image builders. For more information, see [Build Service Projects](./index.html#project-config).
+A `project` is a Build Service entity that provides user access control to images, image configurations, and image builders. For more information, see [Build Service Projects](./index.html#project-config).
 
 ### <a id='create-project'></a> Create a Project
 
@@ -54,6 +54,12 @@ To create a new project:
     pb project create PROJECT-NAME
     ```
     Where `PROJECT-NAME` is a unique name for the project.
+
+To view projects of which the user is a member, run:
+
+    ```
+    pb project list
+    ```
 
 ### <a id='targeting-project'></a> Targeting a Project
 
@@ -103,6 +109,18 @@ To remove members from a project:
     pb project user remove UAA-USERNAME
     ```
     Where `UAA-USERNAME` is the username of the user you want to remove.
+
+#### <a id=‘list-members'></a> List members in a project
+
+To list members of a project:
+
+1. Target your project.
+
+1. Run:
+
+    ```
+    pb project members 
+    ```
 
 ### <a id='manage-image-registries'></a> Manage Image Registries for a Project
 
@@ -191,6 +209,15 @@ To associate a Git repository and Git repository credentials with a project:
     * `GIT-REPOSITORY` is the URL of the GitHub repository.
     * `GIT-USERNAME` is the Git username used to access the GitHub repository.
     * `GIT-PASSWORD/TOKEN` is the password or access token used to access the GitHub repository.
+
+2. To associate an sshKey for a git repository with a project, create a YAML file and enter the following variables:
+    ```
+    repository: GIT-REPOSITORY
+    sshKey: SSH-KEY
+    ```
+    Where:
+    * `GIT-REPOSITORY` is the URL of the GitHub repository. 
+    * `SSH-KEY` is the value of the ssh key needed to access the git repository
 
 1. Apply the Git repository file to the project by running:
 
@@ -470,9 +497,42 @@ The following describes the fields in the example output:
 
 * `Digest`: Contains the `SHA256` of the successfully built image. You can reference this SHA to run Docker commands such as `pull` and `inspect`.
 
+#### <a id='view-build-details'></a> View the status of a image Config
+
+When a user creates an image using the above workflow, they are also creating an image configuration against which a stream of images will be built.
+
+1. If a particular build associated with an image fails, check the status of the image by running :
+
+    ```
+    pb image status IMAGE-TAG 
+    ```
+
+    Where:
+    * `IMAGE-TAG` is the value of the `image.tag` field in the image configuration YAML file.
+
+The following is an example output of this command
+
+```
+Image
+-----
+Status:          NOT READY
+Message:         N/A
+Latest Image:    gcr.io/myapp@sha256:9d7b1fbf7f5cb0f8efe797f30e598b5e38bb1c08ada143d4c96e4f78111a9239
+
+Last Successful Build
+---------------------
+ID:        1
+Reason:    CONFIG
+
+Last Failed Build
+-----------------
+ID:        2
+Reason:    COMMIT
+```
+
 #### <a id='view-build-details'></a> View Build Details for an Image
 
-To display detailed information about a build:
+To display retrieve a detailed Bill of Materials for a particular build:
 
 1. Run:
 
