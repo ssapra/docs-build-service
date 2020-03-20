@@ -279,7 +279,7 @@ To delete a project:
 
 <p class='note'><strong>Note:</strong> Only Build Service Admins can perform store commands./</p>
 
-### <a id='add-buildpackages-to-store'></a> Add Buildpackages to the Store
+#### <a id='add-buildpackages-to-store'></a> Add Buildpackages to the Store
 
 Users can add multiple buildpackages at a time from a Docker registry or the local machine:
 
@@ -299,13 +299,13 @@ Users can add multiple buildpackages at a time from a Docker registry or the loc
 
 <p class='note'><strong>Note:</strong> Documentation for creating buildpackages: https://buildpacks.io/docs/buildpack-author-guide/package-a-buildpack/</p>
 
-### <a id='remove-buildpackages-from-store'></a> Remove Buildpackages from the Store
+#### <a id='remove-buildpackages-from-store'></a> Remove Buildpackages from the Store
 
 Users can remove a buildpackage from the store:
 
     pb store remove <buildpackage>
 
-### <a id='list-buildpackages-in-store'></a> List Buildpackages in the Store
+#### <a id='list-buildpackages-in-store'></a> List Buildpackages in the Store
 
 Users can list the buildpackages in the store:
 
@@ -321,7 +321,7 @@ The output of this command is helpful because it mirrors the format used when cr
 
 <p class='note'><strong>Note:</strong> Only Build Service Admins can perform stack commands./</p>
 
-### <a id='update-stack'></a> Update the Stack
+#### <a id='update-stack'></a> Update the Stack
 
 Users can update the stack using build and run images from a Docker registry or the local machine:
 
@@ -341,7 +341,7 @@ Users can update the stack using build and run images from a Docker registry or 
 
 <p class='note'><strong>Note:</strong> Currently, Build Service only supports the <strong>cflinuxfs3</strong> build and run images.</p>
 
-### <a id='get-stack-status'></a> Get Stack Status
+#### <a id='get-stack-status'></a> Get Stack Status
 
 Users can get the current status of the stack:
 
@@ -357,7 +357,7 @@ The following is an example of the output for this command:
 
 <p class='note'><strong>Note:</strong> Only Build Service Admins can manage Cluster scoped builders./</p>
 
-### <a id='builder-configurations'></a> Builder Configurations
+#### <a id='builder-configurations'></a> Builder Configurations
 
 To create a builder, you must create a builder configuration YAML that includes the following properties:
 
@@ -371,7 +371,7 @@ To create a builder, you must create a builder configuration YAML that includes 
 
 <p class='note'><strong>Note:</strong> Build Service must have the appropriate credentials to push to `tag`. Build Service has access to the registry used at install time and any secrets attached to the current project.</p>
 
-### <a id='apply-builder-configurations'></a> Apply Builder Configurations
+#### <a id='apply-builder-configurations'></a> Apply Builder Configurations
 
 To apply a builder configuration to Build Service:
 
@@ -396,7 +396,7 @@ To apply a builder configuration to Build Service:
 
     <p class='note'><strong>Note:</strong> When the `scope` is `Project` the builder will be applied to the currently targeted project.</p>
 
-### <a id='delete-builder'></a> Delete a Builder
+#### <a id='delete-builder'></a> Delete a Builder
 
 To delete a builder:
 
@@ -414,7 +414,7 @@ To delete a builder:
 
 <p class='note'><strong>Warning:</strong> Deleting a builder will prevent image configs that reference that builder from successfully building again.</p>
 
-### <a id='get-builder-details'></a> Get Builder Details
+#### <a id='get-builder-details'></a> Get Builder Details
 
 To get builder details:
 
@@ -430,13 +430,13 @@ To get builder details:
     pb builder get <builder name>
     ```
 
-### <a id='list-builders'></a> List Builders
+#### <a id='list-builders'></a> List Builders
 
 To list all builders available to the current user:
 
     pb builder list
 
-### <a id='get-builder-status'></a> Get Builder Status
+#### <a id='get-builder-status'></a> Get Builder Status
 
 To get the current builder status:
 
@@ -456,7 +456,7 @@ To get the current builder status:
 
 The following procedures describe how to create and manage images in Build Service.
 
-### <a id='create-image'></a> Image Configurations
+#### <a id='create-image'></a> Image Configurations
 
 To create an image, you must create an image configuration YAML that includes the following properties:
 
@@ -470,7 +470,7 @@ To create an image, you must create an image configuration YAML that includes th
 
 For more information about creating and applying image configurations for apps with source code in GitHub or source code saved locally, see [Apply Image Configurations](#apply-image).
 
-### <a id='apply-image'></a> Apply Image Configurations
+#### <a id='apply-image'></a> Apply Image Configurations
 
 Build Service supports builds against apps with source code that is saved in a Git repository or saved on your local machine. You can specify only one location for app source code.
 
@@ -619,7 +619,7 @@ To apply an image and reference a custom builder:
     * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
     * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file.
 
-### <a id='list-images'></a> List Images
+#### <a id='list-images'></a> List Images
 
 To list all the image configurations for the currently targeted project:
 
@@ -641,7 +641,7 @@ second/image:tag
 third/image:tag
 ```
 
-### <a id='rebuild-image'></a> Image Rebuilds
+#### <a id='rebuild-image'></a> Image Rebuilds
 
 Rebuilds happen in three ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`. An automatic rebuild occurs when build inputs change, without you editing the image configuration itself. Finally, a user can trigger a rebuild manually.
 
@@ -669,7 +669,7 @@ You can initiate a manual rebuild using `pb`:
 
 This is useful for debugging image builds.
 
-### <a id='monitor-builds'></a> Monitor Builds for an Image
+#### <a id='monitor-builds'></a> Monitor Builds for an Image
 
 The procedures in this section describe how to view information and logs for image builds.
 
@@ -822,7 +822,7 @@ The following describes the fields in the example output:
 
 * `Buildpacks`: A list of buildpacks the build used.
 
-### <a id='view-build-logs'></a> View Logs for a Build
+#### <a id='view-build-logs'></a> View Logs for a Build
 
 To view logs for a build:
 
@@ -913,7 +913,7 @@ To view logs for a running build:
     * `IMAGE-TAG` is the value of the `image.tag` field in the image configuration YAML file.
     * `BUILD-NUMBER` is the number of the build with the logs you want to view.
 
-### <a id='delete-images'></a> Delete an Image
+#### <a id='delete-images'></a> Delete an Image
 
 This procedure describes how to delete a Build Service image.
 
