@@ -1,0 +1,110 @@
+---
+title: Managing Builders
+owner: Build Service Team
+---
+
+<p class='note'><strong>Note:</strong> Only Build Service Admins can manage Cluster scoped builders.</p>
+
+## <a id='builder-configurations'></a> Builder Configurations
+
+To create a builder with the `pb` cli, you must create a builder configuration YAML that includes the following properties:
+
+* `name`: The name of the builder.
+
+* `tag`: The registry location where the builder will be created.
+
+* `scope`: Defines whether the builder is available to the all users in the cluster or to users of the currently targeted project. One of 'Cluster' or 'Project'.
+
+* `order`: The buildpack order that the builder will use.
+
+<p class='note'><strong>Note:</strong> Build Service must have the appropriate credentials to push to <code>tag</code>. Build Service has access to the registry used at install time and any secrets attached to the current project.</p>
+
+## <a id='apply-builder-configurations'></a> Applying Builder Configurations
+
+To apply a builder configuration to Build Service:
+
+1. Create a builder configuration YAML file. For example:
+
+    ```
+    name: foo
+    tag: REGISTRY-DOMAIN/PATH-TO-NEW-BUILDER
+    scope: Project OR Cluster
+    order:
+    - group:
+      -  id: org.cloudfoundry.node-engine
+      -  id: org.cloudfoundry.npm
+    ```
+
+    <p class='note'><strong>Note:</strong> Using the <code>pb store list --order</code> can be useful for this task as the command returns buildpacks available for use in builders in correct order definition.</p>
+
+1. Apply the builder configuration by running:
+
+    ```
+    pb builder apply -f PATH-TO-BUILDER-CONFIGURATION
+    ```
+    Where `PATH-TO-BUILDER-CONFIGURATION` is the local path where you saved the builder configuration YAML file.
+
+    <p class='note'><strong>Note:</strong> When the <code>scope</code> is <code>Project</code> the builder will be applied to the currently targeted project.</p>
+
+## <a id='delete-builder'></a> Deleting Builders
+
+To delete a builder:
+
+* Delete a cluster scoped builder:
+
+    ```
+    pb builder delete <builder name> --cluster
+    ```
+
+* Delete a project scoped builder:
+
+    ```
+    pb builder delete <builder name>
+    ```
+
+<p class='note'><strong>Warning:</strong> Deleting a builder will prevent image configs that reference that builder from successfully building again.</p>
+
+## <a id='get-builder-details'></a> Retrieving Builder Details
+
+To get builder details:
+
+* Details for a cluster scoped builder:
+
+    ```
+    pb builder get <builder name> --cluster
+    ```
+
+* Details for a project scoped builder:
+
+    ```
+    pb builder get <builder name>
+    ```
+
+## <a id='list-builders'></a> Listing Builders
+
+To list all builders available to the current user:
+
+    pb builder list
+
+## <a id='get-builder-status'></a> Retrieving Builder Status
+
+To get the current builder status:
+
+* Status for a cluster scoped builder:
+
+    ```
+    pb builder status <builder name> --cluster
+    ```
+
+* Status for a project scoped builder:
+
+    ```
+    pb builder status <builder name>
+    ```
+
+## <a id='kpack-builder-resources'></a> Corresponding kpack Resources
+
+All Build Service builders are represented as kpack resources.
+
+Project Scoped builders utilize the [CustomBuilder](https://github.com/pivotal/kpack/blob/master/docs/custombuilders.md#custom-builder) resource. Cluster Scoped builders utilize the
+[CustomClusterBuilder](https://github.com/pivotal/kpack/blob/master/docs/customclusterbuilders.md#custom-cluster-builder) resource.

@@ -3,10 +3,53 @@ title: Frequently Asked Questions
 owner: Build Service Team
 ---
 
-This topic provides guidance for common questions about configuring and running Pivotal Build Service.
+**Question**: How do Cloud Native Buildpacks (CNBs), kpack, and Tanzu Build Service overlap and differ?
+
+**CNBs** are build tools that adhere to the <a href="https://github.com/buildpacks/spec">CNB v3 Specification</a> and transform source code into an OCI compliant runnable image. The v3 specification, lifecycle, and local CLI (`pack`) are governed by the open source <a href="buildpacks.io">Cloud Native Buildpacks project.</a>
+
+<a href="https://github.com/pivotal/kpack">kpack</a> is a collection of open source resoure controllers that together function as a Kubernetes native build service. The product provides a declarative image type that builds an image and schedules image rebuilds when dependencies of the image change. kpack is a platform implementation of CNBs in that it utilizes CNBs and the v3 lifecycle to execute image builds.
+
+**Tanzu Build Service** is a commercial product owned and operated by VMware that utilizes kpack and CNBs. Build Service provides additional abstractions intended to ease the use of the above technologies in Enterprise settings. These abstractions are covered in detail throughout the documentation on this site. Additionally, customers of Build Service are entitled to support and VMware Tanzu  buildpacks.
 
 
-## <a id="question-github-repository"></a> How can I configure an image to pull from a private GitHub repository?
+---
+
+**Question**: Why do I see two images in the image registry after a successful build?
+
+By default Build Service will tag each built image twice. The first tag will be the configured image tag. The second tag will be a unique tag with the build number and build timestamp. The second tag is added to ensure that previous images are not deleted on registries that garbage collect untagged images.
+
+---
+
+**Question**: How does TBS work in air gapped environments?
+
+Build Service is shipped using a duffle bundle, which is composed of the kubernetes manifests and images required to successfully install Build Service. The `relocate` command ensure all the images can be relocated to airgapped registries, and by provideing the credentials to the air-gapped registry when executing the `install` command, Build Service can then use that secret to pull images from said registry, hence working in air gapped environments.
+
+---
+
+**Question**: Which buildpacks does TBS support?
+
+Tanzu Build Service ships with the following buildpacks:
+
+* Tanzu Java `io.pivotal.java`
+* Tanzu NodeJS `io.pivotal.nodejs`
+* .NET Core `org.cloudfoundry.dotnet-core`
+* Python `org.cloudfoundry.python`
+* Golang `org.cloudfoundry.go`
+* PHP `org.cloudfoundry.php`
+* HTTPD `org.cloudfoundry.httpd`
+* NGINX `org.cloudfoundry.nginx`
+
+Updated Buildpacks and new buildpacks will be available on [Tanzu Build Service Dependencies](link-needed.com) release page.
+
+---
+
+**Question**: Why do I get an X509 error from Build Service when trying to create an image in my registry?
+
+When interacting with a registry or a git repo that has been deployed using a self signed certificate, Build Service needs to be provided the certificate during install-time in the `credentials.yaml` file. Unfortunately, you will either need to target a registry that does not have self signed certificates and re-install Build Service to work with this registry.
+
+---
+
+**Question**: How can I configure an image to pull from a private GitHub repository?
 
 To configure an image to pull from a private GitHub repository:
 
@@ -33,38 +76,19 @@ To configure an image to pull from a private GitHub repository:
     ```
     Where `SECRET-YAML-FILE` is the YAML file you created in the previous step.
 
+---
 
-## <a id='private-builder-image'></a> Can I use ClusterBuilder with a private builder image?
+**Question**: Why do some builds fail with `Error: could not read run image: *`?
 
-No. Private images are only supported for builder types.
+The run image must be publicly readable or readble with the registry credentials configured in a project/namespace.
 
+To see where the build service run image is located run: `pb stack status`.
 
-## <a id='update-repo-new-builds'></a> My GitHub repository is public and my first build started, but when I update my repository, new builds are not started.
+To update the the location of the run image:
 
-If you configured a secret for GitHub, ensure that it is configured properly. For more information, see [How can I configure an image to pull from a private GitHub repository?](#question-github-repository)
-
-
-## <a id='build-failure'></a> Why do some builds fail with `Error: failed to access run image: connect to repo store`?
-
-If the image is configured for the same registy that the Build Service was relocated to during installation, the credentials configured for the image require read access to the relocated images.
+1. Use `kubectl` to update the `buildservice.pivotal.io/defaultRepository` annotation on the `build-service-stack` Stack resource.
+1. Re-run [`pb stack update`](managing-stack.html) with the most recent build image and run image from the [build-service-dependencies](https://network.pivotal.io/products/tbs-dependencies/) page.
 
 
-## <a id='image-apply-failure'></a> Applying images with local source code fails with the error message `ERROR: uploading source: save image: ... http2: server sent GOAWAY and closed the connection`
+---
 
-Configure your ingress controller so that the maximum field size is at least 8k and the maximum header size is at least 32k.
-
-If you are using Nginx as your ingress controller, apply a ConfigMap configuration to update these settings:
-
-```
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: nginx-configuration
-  namespace: ingress-nginx
-  labels:
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
-data:
-  http2-max-field-size: "8k"
-  http2-max-header-size: "32k"
-```

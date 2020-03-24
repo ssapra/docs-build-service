@@ -1,148 +1,84 @@
 ---
-title: Installing and Configuring Pivotal Build Service
+title: Installing Tanzu Build Service
 owner: Build Service Team
 ---
 
-This topic describes how to install and configure Pivotal Build Service.
-
+This topic describes how to install and configure Tanzu Build Service.
 
 ## <a id='overview'></a> Overview
 
-To install Build Service, you must configure a User Account and Authentication (UAA) client,
-credentials, and TLS certificates.
-You must then relocate images to an internal image registry.
-You can also define optional parameters and annotations during installation.
-
-The procedures in this topic describe how to install and configure a standard Build Service installation.
-For a kpack-only installation, see [Installing and Configuring kpack Only](./installing-kpack-only.html).
-
+Build Service can be installed on any Kubernetes cluster (v1.14 or later) including PKS, GKE and AKS clusters. The installation instructions are divided between the PKS installation (which uses oidc for authentication) and the install on other hosted Kubernetes clusters.
 
 ## <a id='prerequisites'></a> Prerequisites
 
 Before you install Build Service, you must:
 
-* Install <%= vars.k8s_runtime_full %> (<%= vars.k8s_runtime_abbr %>) v1.5 or later.
-  For more information, see [Installing Enterprise
-  <%= vars.k8s_runtime_abbr %>](https://docs.pivotal.io/pks/1-5/installing.html) in the <%= vars.k8s_runtime_abbr %> documentation.
+* Ensure your Kubernetes cluster is configured with `PersistentVolumes`. Configure the cache size per image to 2&nbsp;GB. Build Service utilizes `PersistentVolumeClaims` to cache build artifacts, which reduces the time of subsequent builds. For more information, see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) in the Kubernetes documentation.
 
-* Install Ruby. Ruby is required to create a UAA client.
+* Download the Duffle executable for your operating system from the [Tanzu Build Service](https://network.pivotal.io/products/build-service/) page on Tanzu Network.
 
-* Install an ingress controller on the Kubernetes cluster where you install Build Service.
-  The Build Service expects an ingress controller and an ingress service to configure its own ingress.
-  For more information, see [How to set up an Ingress Controller for a
-  <%= vars.k8s_runtime_abbr %> cluster](https://community.pivotal.io/s/article/how-to-set-up-an-ingress-controller-for-a-pks-cluster)
-  in the Pivotal Knowledge Base.
+* Download the Build Service Bundle from the [Tanzu Build Service](https://network.pivotal.io/products/build-service/) page on Tanzu Network.
 
-* Install the Kubernetes command-line tool, `kubectl`.
-  For more information, see [Install and Set Up
-  Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
-  <p class='note'><strong>Note:</strong> Kubectl is only required if you do not have an ingress controller
-  installed locally.
-  </p>
+* Download the Build Service Dependencies from the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) page on Tanzu Network.
 
-* Configure `PersistentVolumes` on the Kubernetes cluster where you install Build Service.
-  Configure the cache size per image to 2&nbsp;GB. Build Service requires `PersistentVolumeClaims`
-  to cache build artifacts, which reduces the time of subsequent builds.
-  For more information,
-  see [Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/)
-  in the Kubernetes documentation.
+## <a id='pks-install'></a> Installing on PKS
 
-* Download the Duffle executable for your operating system from
-the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+* Install PKS v1.6 or later. For more information, see [Installing Enterprise PKS](https://docs.pivotal.io/pks/1-6/installing.html) in the PKS documentation.
 
-* Download the Build Service Bundle from the [Pivotal Build Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+* To install Build Service, you must configure a User Account and Authentication (UAA) client credentials.
 
+* Configure your PKS tile with `oidc` as described in the next section.
 
-## <a id='enable-uaa-oidc'></a> Configure UAA as an OIDC Provider for <%= vars.k8s_runtime_abbr %>
+### <a id='enable-uaa-oidc'></a> Configure UAA as an OIDC Provider for PKS
 
 The authorization process for Build Service uses a combination of RBAC rules and UAA authentication.
 To enable this authorization flow, you must configure UAA as an OpenID Connect (OIDC) provider
-for your <%= vars.k8s_runtime_abbr %> deployment.
+for your PKS deployment.
 
-To configure UAA as an OIDC provider for your <%= vars.k8s_runtime_abbr %> deployment:
+To configure UAA as an OIDC provider for your PKS deployment:
 
-1. Navigate to the <%= vars.ops_manager %> Installation Dashboard.
+1. Navigate to the OpsManager Installation Dashboard.
 
-1. Click the <%= vars.k8s_runtime_abbr %> tile.
+1. Click the PKS tile.
 
 1. Select **UAA**.
 
 1. Under **Configure created clusters to use UAA as the OIDC provider**, select **Enable**.
 
-1. Ensure the values in the **UAA OIDC Groups Prefix** and **UAA OIDC Username Prefix** fields are
-   the same and record them.
-   You use these values when you install Duffle.
+1. Ensure the values in the **UAA OIDC Groups Prefix** and **UAA OIDC Username Prefix** fields are the same and record them. Eg. `"oidc:"`. You will need these values during the installation of Build Service.
+      <p class="note"><strong>Note:</strong> Ensure you add a <code>:</code> at the end of the desired prefix.</p>
 
 1. Click **Save**.
 
-1. In the <%= vars.ops_manager %> Installation Dashboard, click **Review Pending Changes**, then **Apply Changes**.
+1. In the OpsManager Installation Dashboard, click **Review Pending Changes**, then **Apply Changes**.
 
 
-## <a id='configure'></a> Configure Build Service
-
-The procedures in this section describe how to configure Build Service to prepare for installation.
-
-### <a id='retrieve-credentials'></a> Retrieve <%= vars.k8s_runtime_abbr %> Cluster Credentials
+### <a id='retrieve-credentials'></a> Retrieve PKS Cluster Credentials
 
 This procedure retrieves the credentials that authenticate communication between `kubectl`
-and the <%= vars.k8s_runtime_abbr %> cluster where Build Service runs.
+and the PKS cluster where Build Service runs.
 
-To retrieve the <%= vars.k8s_runtime_abbr %> cluster credentials:
+To retrieve the PKS cluster credentials:
 
-1. Log in to <%= vars.k8s_runtime_abbr %> by running:
+1. Log in to PKS and get the latest kubeconfig by running:
 
     ```
-    pks login -a API-URI -u USERNAME -p PASSWORD --ca-cert PATH-TO-CERTIFICATE
+    pks get-kubeconfig CLUSTER-NAME -a API-URI -u USERNAME -p PASSWORD --ca-cert PATH-TO-CERTIFICATE
     ```
 
     Where:
-    * `API-URI` is the <%= vars.k8s_runtime_abbr %> API server URI.
+    * `API-URI` is the PKS API server URI.
     * `USERNAME` is name of your cluster admin.
     * `PASSWORD` is the cluster admin password.
     * `PATH-TO-CERTIFICATE` is the path to your root CA certificate.
+    * `CLUSTER-NAME` is the name of the PKS cluster where Build Service runs.
+
+    This command sets the context to the `CLUSTER-NAME` provided.
 
     For example:
 
-    <pre class="terminal">$ pks login -a api.pks.example.com -u alana -p P4ssW0rd --ca-cert /var/tempest/workspaces/default/root&#95;ca&#95;certificate
+    <pre class="terminal">$ pks get-kubeconfig build-cluster -a api.pks.example.com -u alana -p P4ssW0rd --ca-cert /var/tempest/workspaces/default/root&#95;ca&#95;certificate
 
-1. Run:
-
-    ```
-    pks get-credentials CLUSTER-NAME
-    ```
-    Where `CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster where Build Service runs.
-    
-	 This command sets the context to the `CLUSTER-NAME` provided.
-
-1. Target the <%= vars.k8s_runtime_abbr %> cluster by running:
-
-    ```
-    kubectl config use-context CLUSTER-NAME
-    ```
-    Where `CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster where Build Service runs.
-
-### <a id='uaa-client-creation'></a> User Management
-
-Build Service uses the UAA instance for your <%= vars.k8s_runtime_abbr %> deployment to authenticate users.
-For more information about creating users, see [Create a UAA User for Build Service](#users-create).
-
-### <a id='configure-tls'></a> Configure TLS Certificate
-
-You must create a TLS certificate for the Build Service domain or use an existing certificate.
-This certificate may be self-signed.
-
-To configure a TLS certificate for Build Service:
-
-1. Create or use an existing TLS certificate for the Build Service domain.
-   For more information,
-   see [Configuring SSL Certificates](https://bosh.io/docs/director-certs/) in the BOSH documentation.
-  <p class="note"><strong>Note:</strong> If you use a self-signed certificate, add the <code>--skip-ssl-validation</code> flag.</p>
-
-1. If you are using Mac OS, add the Certificate Authority (CA) certificate for the TLS certificate
-   to the keychain.
-   Update the trust settings from **Use System Defaults** to **Always Trust** through the OS X keychain.
-
-1. Record the local paths to the `.crt` and `.key` files for the TLS certificate.
 
 ### <a id='create-creds-file'></a> Create a Credentials File
 
@@ -168,16 +104,6 @@ To create a credentials file:
          path: "PATH-TO-CA"
        destination:
          path: "/cnab/app/cert/ca.crt"
-     - name: tls_cert
-       source:
-         path: "PATH-TO-TLS-CERTIFICATE"
-       destination:
-         path: "/cnab/app/cert/tls.crt"
-     - name: tls_key
-       source:
-         path: "PATH-TO-TLS-PRIVATE-KEY"
-       destination:
-         path: "/cnab/app/cert/tls.key"
     ```
     Where:
     * `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine.
@@ -185,47 +111,11 @@ To create a credentials file:
     * `PATH-TO-CA` is the path to the CA. This CA is required to enable Build Service
        to interact with internally deployed registries.
        This is the CA that was used while deploying the registry.
-    * `PATH-TO-TLS-CERTIFICATE` is the path to the TLS certificate.
-       This TLS certificate is required for authenticated communication between the `pb` CLI
-       and Build Service.
-       The CA for this TLS certificate must be trusted by the workstation communicating with Build Service.
-    * `PATH-TO-TLS-PRIVATE-KEY` is the path to the private key corresponding to the TLS certificate.
     <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
 
-### <a id='custom-ingress-annotations'></a> (Optional) Define Custom Ingress Annotations
+### <a id='relocate-images'></a> Relocate Images to a Registry
 
-This section describes how to create a parameters file to provide ingress annotations
-to the Build Service during installation.
-
-By default, Build Service uses the NGINX ingress controller, and you do not have to use any annotations.
-However, providing custom ingress annotations allows you to use different ingress controllers.
-
-To define custom ingress annotations for Build Service,
-you must create a JSON file that defines the annotations. To create this JSON file:
-
-<p class="note"><strong>Note:</strong> If you create the parameters file, you can provide it while running the Duffle install command using the <code>-p</code> flag.</p>
-
-1. Navigate to the `/tmp` folder and create a file named `parameters.json`.
-
-1. Add the `ingress_annotations` property to the `/tmp/parameters.json` file:
-
-    ```
-    {
-      "ingress_annotations": {
-        "kubernetes.io/ingress.ANNOTATION-KEY": "ANNOTATION-VALUE",
-        "kubernetes.io/ingress.ANOTHER-ANNOTATION-KEY": "ANOTHER-ANNOTATION-VALUE"
-      }
-    }
-    ```
-    Where:
-    * `ANNOTATION-KEY` is a key you define for the first annotation.
-    * `ANNOTATION-VALUE` is the value you define for the first annotation.
-    * `ANOTHER-ANNOTATION-KEY` is a key you define for the second annotation.
-    * `ANOTHER-ANNOTATION-VALUE` is the value you define for the second annotation.
-
-### <a id='relocate-images'></a> Move Images to an Image Registry
-
-This procedure relocates images from the Build Service bundle that you downloaded from Pivotal Network
+This procedure relocates images from the Build Service bundle that you downloaded from Tanzu Network
 to an internal image registry.
 
 To move the images from the Build Service bundle to an internal image registry:
@@ -243,132 +133,265 @@ To move the images from the Build Service bundle to an internal image registry:
     duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p IMAGE-REGISTRY
     ```
 
+### <a id='standard-install'></a> Run Duffle  Install
 
-## <a id='install'></a> Install Build Service
+Use Duffle to install Build Service and define the required Build Service parameters by running:
 
-The procedures in these sections describe how to use Duffle to define
-the required Build Service parameters and install Build Service.
 
-### <a id='standard-install'></a> Install Build Service
-
-This procedure describes how to do a standard Build Service installation.
-To install Build Service so that all interactions with Build Service must be made through `kubectl`,
-see [Installing and Configuring kpack Only](./installing-kpack-only.html).
-
-1. Use Duffle to install Build Service and define the required Build Service parameters by running:
-
-    ```
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
-        --set domain=BUILD-SERVICE-DOMAIN \
-        --set kubernetes_env=<%= vars.k8s_runtime_abbr %>-CLUSTER-NAME \
+        --set kubernetes_env=PKS-CLUSTER-NAME \
         --set docker_registry=IMAGE-REGISTRY \
         --set registry_username="REGISTRY-USERNAME" \
         --set registry_password="REGISTRY-PASSWORD" \
-        --set uaa_url=UAA-URL \
+        --set custom_builder_image="BUILDER-IMAGE-TAG" \
+        --set admin_users="ADMIN-USERS" \
+        --set oidc_username_prefix="OIDC-USER-PREFIX" \
+        --set oidc_group_prefix="OIDC-GROUP-PREFIX" \
         -f /tmp/build-service-${version}.tgz \
         -m /tmp/relocated.json
+
+Where:
+
+* `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
+* `PKS-CLUSTER-NAME` is the name of the PKS cluster
+   where Build Service is installed.
+* `IMAGE-REGISTRY` is the domain of the image registry that you configured.
+    <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be https://index.docker.io/v1/
+  Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
+  examples of valid fields for the registry.</p>
+* `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key`
+   as the username when using JSON key file authentication.
+* `REGISTRY-PASSWORD` is the password you use to access the registry.
+    <p class="note"><strong>Note:</strong> See [Secrets in Tanzu Build Service](secrets-in-tbs.html) for more information about how the registry username and password are used in Tanzu Build Service.</p>
+* `BUILDER-IMAGE-TAG` is the tag where Build Service will create. This should be in the `IMAGE-REGISTRY` ex: `my.harbor.io/build-service/default-builder`
+* `ADMIN-USERS` is a comma separated list of users who will be granted admin privileges on Build Service.
+* `OIDC-USER-PREFIX` is the UAA OIDC Username Prefix configured.
+* `OIDC-GROUP-PREFIX` is the UAA OIDC Groups Prefix configured.
+
+Other optional parameters you can add using the `--set` flag:
+
+* `admin_groups`: a comma separated list of groups that will be granted admin privileges on Build Service.
+* `http_proxy`: The HTTP proxy to use for network traffic.
+* `https_proxy`: The HTTPS proxy to use for network traffic.
+* `no_proxy`: A comma-separated list of hostnames that should not use a proxy.
+
+## <a id='pks-install'></a> Installing on GKE/AKS
+
+Create a kubernetes cluster that you would like to install build service onto and target the cluster as follow:
+
+
+    kubectl config use-context <CLUSTER-NAME>
+
+
+### <a id='create-creds-file'></a> Create a Credentials File
+
+Create a credentials file to provide the location of the TLS certificate credentials to `duffle`
+during the Build Service installation.
+
+To create a credentials file:
+
+1. Navigate to the `/tmp` folder and create a file named `credentials.yml`.
+
+1. Add the properties shown in the example below to the `credentials.yml` file:
+
+    ```
+    name: build-service-credentials
+    credentials:
+     - name: kube_config
+       source:
+         path: "PATH-TO-KUBECONFIG"
+       destination:
+         path: "/root/.kube/config"
+     - name: ca_cert
+       source:
+         path: "PATH-TO-CA"
+       destination:
+         path: "/cnab/app/cert/ca.crt"
     ```
     Where:
-    * `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
-    * `BUILD-SERVICE-DOMAIN` is the domain name used to target Build Service.
-       You configured this domain as the domain for the ingress controller.
-    * `<%= vars.k8s_runtime_abbr %>-CLUSTER-NAME` is the name of the <%= vars.k8s_runtime_abbr %> cluster
-       where Build Service is installed.
-    * `IMAGE-REGISTRY` is the domain of the image registry that you configured.
-        <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>index.docker.io</code>.
-      Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
-      examples of valid fields for the registry.</p>
-    * `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key`
-       as the username when using JSON key file authentication.
-    * `REGISTRY-PASSWORD` is the password you use to access the registry.
-    * `UAA-URL` is the URL to access UAA.
-    <p class="note"><strong>Note:</strong> If the values you recorded during
-    <a href="#enable-uaa-oidc">Configure UAA as an OIDC Provider for <%= vars.k8s_runtime_abbr %></a>
-    are different from the values in `oidc:`,
-    add the <code>--uaa_username_prefix="VALUE-SAVED"</code> flag to the <code>duffle install</code> command
-    </p>
-    <p class="note"><strong>Note:</strong> If you defined custom ingress annotations during <a href"#cu">(Optional)
-    Define Custom Ingress Annotations</a>, include them with the <code>-p /tmp/parameters.json</code> flag.</p>
-    Other optional parameters you can add using the `--set` flag:
-    * `disable_builder_polling`: If set to `true`, this property prevents Build Service
-       from polling builder images for buildpack updates.
-       By default, this property is set to `false`. If you set `disable_builder_polling` to `true`,
-       you must configure a builder webhook.
-       For more information, see [Setting Up Builder Webhooks](webhooks.html).
-    * `replica_count`: Defines the number of Build Service instances running. The default value is `1`.
-    * `http_proxy`: The HTTP proxy to use for network traffic.
-    * `https_proxy`: The HTTPS proxy to use for network traffic.
-    * `no_proxy`: A comma-separated list of hostnames that should not use a proxy.
+    * `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine.
+       This file is required to enable Build Service to interact with the target cluster.
+    * `PATH-TO-CA` is the path to the CA. This CA is required to enable Build Service
+       to interact with internally deployed registries.
+       This is the CA that was used while deploying the registry.
+    <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
 
+### <a id='relocate-images'></a> Relocate Images to a Registry
 
-## <a id='users-create'></a> Create a UAA User for Build Service
+This procedure relocates images from the Build Service bundle that you downloaded from Tanzu Network
+to an internal image registry.
 
-To access Build Service, you must configure one or more UAA users using the `uaac` CLI.
+To move the images from the Build Service bundle to an internal image registry:
 
-To create a UAA user for Build Service:
-
-1. Install `uaac` by running:
+1. Log in to the image registry where you want to store the images by running:
 
     ```
-    gem install cf-uaac
+    docker login IMAGE-REGISTRY
     ```
+    Where `IMAGE-REGISTRY` is the name of the image registry where you want to store the images.
 
-1. Target the UAA that you use to authenticate Build Service users by running:
-
-    ```
-    uaac target UAA-URL --skip-ssl-validation
-    ```
-    Where `UAA-URL` is the URL of the UAA that authenticates Build Service users.
-
-1. In the <%= vars.k8s_runtime_abbr %> tile, select the **Credentials** tab
-   and record the credential for **Pks Uaa Management Admin Client**.
-
-1. Log in as the admin client with the password you recorded in the previous step by running:
+1. Push the images to the image registry by running:
 
     ```
-    uaac token client get admin -s ADMIN-CLIENT-SECRET
+    duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p IMAGE-REGISTRY
     ```
-    Where `ADMIN-CLIENT-SECRET` is the credential for **Pks Uaa Management Admin Client**.
 
-1. Create a user by running:
+<p class="note"><strong>Note:</strong> When relocating to a harbor/gcr registry, the IMAGE-REGISTRY will need to be appended with the destination folder for the images eg. IMAGE-REGISTRY/build-service-imgs</p>
 
-    ```
-    uaac user add USER-USERNAME -p USER-PASSWORD --emails USER-EMAIL
-    ```
-    Where:
-    * `USER-USERNAME` is a username for the new user.
-    * `USER-PASSWORD` is a password for the new user.
-    * `USER-EMAIL` is the email address of the new user.
+### <a id='standard-install'></a> Run Duffle  Install
 
+Use Duffle to install Build Service and define the required Build Service parameters by running:
+
+    duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
+        --set kubernetes_env=PKS-CLUSTER-NAME \
+        --set docker_registry=IMAGE-REGISTRY \
+        --set registry_username="REGISTRY-USERNAME" \
+        --set registry_password="REGISTRY-PASSWORD" \
+        --set custom_builder_image="BUILDER-IMAGE-TAG" \
+        --set admin_users="ADMIN-USERS" \
+        -f /tmp/build-service-${version}.tgz \
+        -m /tmp/relocated.json
+
+Where:
+
+* `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
+* `PKS-CLUSTER-NAME` is the name of the PKS cluster
+   where Build Service is installed.
+* `IMAGE-REGISTRY` is the domain of the image registry that you configured.
+    <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>https://index.docker.io/v1/</code>.
+  Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
+  examples of valid fields for the registry.</p>
+* `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key`
+   as the username when using JSON key file authentication.
+* `REGISTRY-PASSWORD` is the password you use to access the registry.
+    <p class="note"><strong>Note:</strong> [Secrets in Tanzu Build Service](secrets-in-tbs.html) for more information about how the registry username and password are used in Tanzu Build Service.</p>
+* `BUILDER-IMAGE-TAG` is the tag where Build Service will create. This should be in the `IMAGE-REGISTRY` ex: `my.harbor.io/build-service/default-builder`
+* `ADMIN-USERS` is a comma separated list of users who will be granted admin privileges on Build Service.
+
+Other optional parameters you can add using the `--set` flag:
+
+* `admin_groups`: a comma separated list of groups that will be granted admin privileges on Build Service.
+* `http_proxy`: The HTTP proxy to use for network traffic.
+* `https_proxy`: The HTTPS proxy to use for network traffic.
+* `no_proxy`: A comma-separated list of hostnames that should not use a proxy.
 
 ## <a id='verify-installation'></a> Verify Installation
 
-Verify your Build Service installation by logging in to Build Service with the UAA user credentials
-that you created.
+Verify your Build Service installation by first targetting the cluster Build Service has been installed on
 
 To verify your Build Service installation:
 
-1. Download the `pb` binary from the [Pivotal Build
-   Service](https://network.pivotal.io/products/build-service/) page on Pivotal Network.
+1. Download the `pb` binary from the [Tanzu Build Service](https://network.pivotal.io/products/build-service/) page on Tanzu Network.
 
-1. Target the Build Service installation by running:
+1. List the builders available in your installation:
 
-    ```
-    pb api set BUILD-SERVICE-DOMAIN
-    ```
-    Where `BUILD-SERVICE-DOMAIN` is the domain for your Build Service installation.
-    <p class="note"><strong>Note:</strong> If the UAA for Build Service uses a self-signed CA certificate,
-    add the <code>--skip-ssl-validation</code> flag at the end of the command.</p>
+    pb builder list
 
-1. Log in to Build Service with the user that you created as part of [Create a UAA User for
-   Build Service](#users-create) by running:
+You should see an output that looks as follows:
 
-    ```
-    pb login
-    ```
+    Cluster Builders
+    ----------------
+    default
 
 
-## <a id='remove-tls'></a> (Optional) Remove TLS Certificate
+## <a id='update-deps'></a> Updating Build Service Dependencies
 
-After you verify your Build Service installation, you can delete the `.crt` and `.key` files
-for the TLS certificate that you created in [Create TLS Certificate](#configure-tls).
+Visit the [Build Service dependencies tile on PivNet](https://network.pivotal.io/products/tbs-dependencies). Build Service can be updated with those artifacts both directly against the PivNet registry or via the downloaded versions of those images.
+
+
+### <a id='update-online-deps'></a> Online update of Dependencies
+
+If the `pb` CLI has access to pull images from the Pivnet Registry, the stack images and buildpacks used by build service can be updated using the following commands.
+
+#### Stack Update
+
+Update the stack:
+
+    pb stack update --build-image registry.pivotal.io/tbs-dependencies/build@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run@sha256:<image-sha>
+
+<p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack</p>
+
+The updated stack can be viewed with the following command:
+
+    pb stack status
+
+#### Store Update
+
+Update the store:
+
+    pb store add registry.pivotal.io/tbs-dependencies/<buildpack-name>:<buildpack-tag>
+
+Additionally, multiple buildpacks can be added to Build Service by passing multiple image references
+
+    pb store add registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag> registry.pivotal.io/tbs-dependencies/<buildpack2>:<buildpack2-tag> registry.pivotal.io/tbs-dependencies/<buildpack3>:<buildpack3-tag>
+
+To list the buildpacks now available to build service:
+
+    pb store list
+
+### <a id='update-offline-deps'></a> Offline update of Dependencies
+
+If the `pb` CLI cannot access the images in the Pivnet Registry, the stack images and buildpacks used by build service can be updated by first downloading those images and saving them as `.tar` files. These file can be provided to the `pb` CLI to upload to build service.
+
+#### Stack Update
+
+Fetch the stack images into the docker daemon:
+
+    docker pull registry.pivotal.io/tbs-dependencies/build@sha256:<image-sha>
+    docker pull registry.pivotal.io/tbs-dependencies/run@sha256:<image-sha>
+
+Save those images to disk:
+
+    docker save registry.pivotal.io/tbs-dependencies/build@sha256:<image-sha> > build.tar
+    docker save registry.pivotal.io/tbs-dependencies/run@sha256:<image-sha> > run.tar
+
+Update the stack with the saved image:
+
+    pb stack update --build-image build.tar --run-image run.tar --local
+
+<p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack</p>
+
+The updated stack can be viewed with the following command:
+
+    pb stack status
+
+#### Store Update
+
+Fetch the buildpack images into the docker daemon:
+
+    docker pull registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag>
+    docker pull registry.pivotal.io/tbs-dependencies/<buildpack2:<buildpack2-tag>
+
+Save those images to disk:
+
+    docker save registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag> > buildpack1.tar
+    docker save registry.pivotal.io/tbs-dependencies/<buildpack2>:<buildpack2-tag> > buildpack2.tar
+
+
+Update the store with the previously saved images:
+
+    pb store add buildpack1.tar --local
+
+Additionally, multiple buildpacks can be added to Build Service by passing multiple image references
+
+    pb store add buildpack1.tar buildpack2.tar --local
+
+To list the buildpacks now available to build service:
+
+    pb store list
+
+
+## <a id='ensure-readable-run-image'></a> Ensuring the Run Image is Readable
+
+Build Service relies on the run-image being publicly readable or readable with the registry credentials configured in a project/namespace for the builds to be executed successfully.
+
+The location of the run image can be identified by running the following command:
+
+    pb stack status
+
+To update the the location of the run image:
+
+1. Using `kubectl` update the `buildservice.pivotal.io/defaultRepository` annotation on the `build-service-stack` Stack resource to a location that can be accessed publicly.
+1. Re-run [`pb stack update`](managing-stack.html) with the most recent build image and run image from the [build-service-dependencies](upgrading.html) page.
+
+
