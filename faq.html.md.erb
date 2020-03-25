@@ -49,6 +49,33 @@ When interacting with a registry or a git repo that has been deployed using a se
 
 ---
 
+Question: How do I configure a secret to publish images to Dockerhub?
+
+Dockerhub requires the secret registry to be exactly: "https://index.docker.io/v1/". 
+
+1. Create a YAML file with these values:
+
+    ```
+    project: PROJECT-NAME
+    repository: https://index.docker.io/v1/
+    username: DOCKERHUB-USERNAME
+    password: DOCKERHUB-PASSWORD
+    ```
+    Where:
+    * `PROJECT-NAME` is the name of your Build Service project/namespace.
+    * `DOCKERHUB-USERNAME` is your dockerhub username.
+    * `DOCKERHUB-PASSWORD` is your dockerhub password.
+
+1. Create the secret by running:
+
+    ```
+    pb secrets registry apply -f SECRET-YAML-FILE
+    ```
+    Where `SECRET-YAML-FILE` is the YAML file you created in the previous step.
+
+
+---
+
 **Question**: How can I configure an image to pull from a private GitHub repository?
 
 To configure an image to pull from a private GitHub repository:
@@ -64,7 +91,7 @@ To configure an image to pull from a private GitHub repository:
     password: PASSWORD
     ```
     Where:
-    * `PROJECT-NAME` is the name of your Build Service project.
+    * `PROJECT-NAME` is the name of your Build Service project/namespace.
     * `GITHUB-REPOSITORY-URL` is the URL of your GitHub repository.
     * `PERSONAL-ACCESS-TOKEN` is the personal access token you generated in the previous step.
     * `PASSWORD` is the password for your GitHub repository.
