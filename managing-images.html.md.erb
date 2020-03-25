@@ -250,14 +250,13 @@ Build    Status    Started Time           Finished Time          Reason    Diges
     3    SUCCESS   2019-09-09 21:57:55    2019-07-08 21:58:40    STACK     *************************************************
     4    FAILED    2019-09-09 21:58:55    2019-07-08 21:59:40    CONFIG+   --
     5    BUILDING  2019-09-09 21:59:55    --                     BUILDER   --
-    -    PENDING   --                     --                     UNKNOWN   --
 ```
 
 The following describes the fields in the example output:
 
 * `Build`: Describes the index of builds in the order that they were built.
 
-* `Status`: Describes the status of a previous or pending build image.
+* `Status`: Describes the status of a previous build image.
 
 * `Started Time`: Describes when a build started.
 
@@ -343,7 +342,7 @@ BUILD DETAILS
 
 The following describes the fields in the example output:
 
-* `Status`: Describes the status of a previous or pending build image.
+* `Status`: Describes the status of a previous build image.
 
 * `Reason`: Describes why an image rebuild occured. These reasons include:
     * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and you run `pb image apply`.
