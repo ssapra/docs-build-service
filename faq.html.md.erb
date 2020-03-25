@@ -116,6 +116,12 @@ To update the the location of the run image:
 1. Use `kubectl` to update the `buildservice.pivotal.io/defaultRepository` annotation on the `build-service-stack` Stack resource.
 1. Re-run [`pb stack update`](managing-stack.html) with the most recent build image and run image from the [build-service-dependencies](https://network.pivotal.io/products/tbs-dependencies/) page.
 
-
 ---
 
+## Why don't my image builds appear in my Harbor registry?
+
+There is a known bug in the Harbor UI that prevents it from showing images.
+If you are unable to see a recently build image in the Harbor UI, try pulling
+it using the `docker` CLI to verify that it exists.
+
+---
