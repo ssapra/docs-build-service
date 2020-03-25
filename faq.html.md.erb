@@ -5,7 +5,7 @@ owner: Build Service Team
 
 ## How do Cloud Native Buildpacks (CNBs), kpack, and Tanzu Build Service overlap and differ?
 
-**CNBs** are build tools that adhere to the <a href="https://github.com/buildpacks/spec">CNB v3 Specification</a> and transform source code into an OCI compliant runnable image. The v3 specification, lifecycle, and local CLI (`pack`) are governed by the open source <a href="buildpacks.io">Cloud Native Buildpacks project.</a>
+**CNBs** are build tools that adhere to the <a href="https://github.com/buildpacks/spec">CNB v3 Specification</a> and transform source code into an OCI compliant runnable image. The v3 specification, lifecycle, and local CLI (`pack`) are governed by the open source <a href="https://buildpacks.io">Cloud Native Buildpacks project.</a>
 
 <a href="https://github.com/pivotal/kpack">kpack</a> is a collection of open source resoure controllers that together function as a Kubernetes native build service. The product provides a declarative image type that builds an image and schedules image rebuilds when dependencies of the image change. kpack is a platform implementation of CNBs in that it utilizes CNBs and the v3 lifecycle to execute image builds.
 
@@ -107,7 +107,7 @@ To configure an image to pull from a private GitHub repository:
 
 ## Why do some builds fail with `Error: could not read run image: *`?
 
-The run image must be publicly readable or readble with the registry credentials configured in a project/namespace.
+The run image must be publicly readable or readable with the registry credentials configured in a project/namespace.
 
 To see where the build service run image is located run: `pb stack status`.
 

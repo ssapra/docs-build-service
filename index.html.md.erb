@@ -12,7 +12,7 @@ This topic provides an overview of Tanzu Build Service (Beta).
 
 ## <a id='overview'></a> Overview
 
-Tanzu Build Service uses the open-source [Cloud Native Buildpacks](http://buildpacks.io) project to turn app source code into [container images](https://github.com/opencontainers/image-spec/blob/master/spec.md). Build Service executes reproducible builds that align with modern container standards, and addtionally keep the images up-to date. It does so by leveraging kubernetes infastructure with [kpack](https://github.com/pivotal/kpack), a Cloud Native Bulidpacks Platform, to orchestrate the image lifecycle.
+Tanzu Build Service uses the open-source [Cloud Native Buildpacks](https://buildpacks.io) project to turn app source code into [container images](https://github.com/opencontainers/image-spec/blob/master/spec.md). Build Service executes reproducible builds that align with modern container standards, and additionally keep the images up-to date. It does so by leveraging kubernetes infrastructure with [kpack](https://github.com/pivotal/kpack), a Cloud Native Bulidpacks Platform, to orchestrate the image lifecycle.
 
 You can use Build Service to develop and automate containerized software workflows securely and at scale.
 
@@ -42,7 +42,7 @@ A `store` serves as a repository for Cloud Native Buildpacks available for use i
 
 ### <a id='store'></a> Stack
 
-A `stack` defines a pair of build and run OS images. Critical security vulnerabilities are addressed by building apps on the most up-to date stack. The stack used by Build Service to build an applicaiton is referenced in the builder and is currently [`cflinuxfs3`](https://github.com/cloudfoundry/cflinuxfs3).
+A `stack` defines a pair of build and run OS images. Critical security vulnerabilities are addressed by building apps on the most up-to date stack. The stack used by Build Service to build an application is referenced in the builder and is currently [`cflinuxfs3`](https://github.com/cloudfoundry/cflinuxfs3).
 
 
 ### <a id='project'></a> Projects
