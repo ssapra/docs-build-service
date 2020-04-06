@@ -1,0 +1,64 @@
+---
+title: Release Notes
+owner: Build Service Team
+---
+
+## 0.1.0
+
+**Release Date**: April 6, 2020
+
+**0.1.0** represents the Beta release of the Tanzu Build Service. This new version carries with it significant changes and improvements in multiple areas.
+
+Most notably, we have introduced three new resources: the store, the stack, and custom builder. Users will utilize these new resources in order to achieve fine-grained control over the dependencies that a given deployment of TBS is using to build apps. Please access our documentation for more information about these new resources.
+
+Additionally, we decoupled TBS from several dependencies. By doing so, we expect that it will be signficantly easier to deploy the product. Specifically, we removed the gateway sitting between the `pb` CLI and the user’s K8s cluster and removed the requirement to configure an ingress controller, thereby making the install experience less complicated. We also removed the dependency on PKS UAA as an OIDC provider and instead rely on the credentials in the user’s kubeconfig for authentication. This change makes TBS deployable on any K8s distribution.
+
+We also made several improvements in other areas based on our roadmap and feedback from the Alpha release:
+
+* pb cli utilizes local kubeconfig credentials
+* Introduced a measure of RBAC via an Admin user type
+* Features that allow users to check the “status” of their image and builder to help with troubleshooting
+* Support for specifying a local zip file (such as a JAR) when running `pb image apply`
+* Improved management of projects
+    * Add a prevously defined LDAP group to a project
+    * List members and groups
+    * List projects users is a member of
+* Support for specifying SSH credentials when creating a `git` secret in order for TBS to access a source code repository
+
+### Product Snapshot
+
+Tanzu Build Service 0.1.0 ships with the following components:
+
+* [kpack 0.0.7](https://github.com/pivotal/kpack/releases/tag/v0.0.7)
+* [CNB lifecycle v0.7.2](https://github.com/buildpacks/lifecycle/releases/tag/v0.7.2)
+* [pb cli v0.1.0](https://network.pivotal.io/products/build-service/#/releases/603387)
+
+Tanzu Build Service 0.1.0 ships with the following Buildpacks:
+
+* Tanzu Java `io.pivotal.java`
+* Tanzu NodeJS `io.pivotal.nodejs`
+* .NET Core `org.cloudfoundry.dotnet-core`
+* Python `org.cloudfoundry.python`
+* Golang `org.cloudfoundry.go`
+* PHP `org.cloudfoundry.php`
+* HTTPD `org.cloudfoundry.httpd`
+* NGINX `org.cloudfoundry.nginx`
+
+Tanzu Build Service 0.1.0 ships with the following stacks:
+
+* cflinuxfs3 `org.cloudfoundry.stacks.cflinuxfs3`
+
+### Product Dependencies
+
+Build Service can be installed on any Kubernetes cluster (v1.14 or later).
+
+### Breaking Changes
+
+* `pb login` & `pb api` functionality was removed in order to leverage the local kubeconfig.
+* Dockerhub secrets must now be configured with the exact registry: "https://index.docker.io/v1/".
+* duffle install configuration has been updated to remove the build service "gateway".
+* "kpack only" installation option has been removed.
+
+### Upgrade Path
+
+No supported upgrade paths.
