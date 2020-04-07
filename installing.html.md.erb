@@ -139,7 +139,7 @@ Use Duffle to install Build Service and define the required Build Service parame
 
 
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
-        --set kubernetes_env=PKS-CLUSTER-NAME \
+        --set kubernetes_env=CLUSTER-NAME \
         --set docker_registry=IMAGE-REGISTRY \
         --set registry_username="REGISTRY-USERNAME" \
         --set registry_password="REGISTRY-PASSWORD" \
@@ -153,8 +153,7 @@ Use Duffle to install Build Service and define the required Build Service parame
 Where:
 
 * `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
-* `PKS-CLUSTER-NAME` is the name of the PKS cluster
-   where Build Service is installed.
+* `CLUSTER-NAME` is the name of the Kubernetes cluster where Build Service is installed.
 * `IMAGE-REGISTRY` is the domain of the image registry that you configured.
     <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be https://index.docker.io/v1/
   Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
@@ -175,7 +174,7 @@ Other optional parameters you can add using the `--set` flag:
 * `https_proxy`: The HTTPS proxy to use for network traffic.
 * `no_proxy`: A comma-separated list of hostnames that should not use a proxy.
 
-## <a id='pks-install'></a> Installing on GKE/AKS
+## <a id='other-install'></a> Installing on GKE/AKS
 
 Create a kubernetes cluster that you would like to install build service onto and target the cluster as follow:
 
@@ -243,7 +242,7 @@ To move the images from the Build Service bundle to an internal image registry:
 Use Duffle to install Build Service and define the required Build Service parameters by running:
 
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
-        --set kubernetes_env=PKS-CLUSTER-NAME \
+        --set kubernetes_env=CLUSTER-NAME \
         --set docker_registry=IMAGE-REGISTRY \
         --set registry_username="REGISTRY-USERNAME" \
         --set registry_password="REGISTRY-PASSWORD" \
@@ -255,8 +254,7 @@ Use Duffle to install Build Service and define the required Build Service parame
 Where:
 
 * `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
-* `PKS-CLUSTER-NAME` is the name of the PKS cluster
-   where Build Service is installed.
+* `CLUSTER-NAME` is the name of the Kubernetes cluster where Build Service is installed.
 * `IMAGE-REGISTRY` is the domain of the image registry that you configured.
     <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>https://index.docker.io/v1/</code>.
   Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
