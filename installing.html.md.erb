@@ -21,6 +21,116 @@ Before you install Build Service, you must:
 
 * Download the Build Service Dependencies from the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) page on Tanzu Network.
 
+## <a id='other-install'></a> Installing on TKG/GKE/AKS
+
+Create a kubernetes cluster that you would like to install build service onto and target the cluster as follow:
+
+
+    kubectl config use-context <CLUSTER-NAME>
+
+
+### <a id='create-creds-file'></a> Create a Credentials File
+
+Create a credentials file to provide the location of the TLS certificate credentials to `duffle`
+during the Build Service installation.
+
+To create a credentials file:
+
+1. Navigate to the `/tmp` folder and create a file named `credentials.yml`.
+
+1. Add the properties shown in the example below to the `credentials.yml` file:
+
+    ```
+    name: build-service-credentials
+    credentials:
+     - name: kube_config
+       source:
+         path: "PATH-TO-KUBECONFIG"
+       destination:
+         path: "/root/.kube/config"
+     - name: ca_cert
+       source:
+         path: "PATH-TO-CA"
+       destination:
+         path: "/cnab/app/cert/ca.crt"
+    ```
+    Where:
+    * `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine.
+       This file is required to enable Build Service to interact with the target cluster.
+    * `PATH-TO-CA` is the path to the CA. This CA is required to enable Build Service
+       to interact with internally deployed registries.
+       This is the CA that was used while deploying the registry.
+    <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
+
+### <a id='relocate-images'></a> Relocate Images to a Registry
+
+This procedure relocates images from the Build Service bundle that you downloaded from Tanzu Network
+to an internal image registry.
+
+To move the images from the Build Service bundle to an internal image registry:
+
+1. Log in to the image registry where you want to store the images by running:
+
+    ```
+    docker login IMAGE-REGISTRY
+    ```
+    Where `IMAGE-REGISTRY` is the name of the image registry where you want to store the images.
+
+1. Push the images to the image registry by running:
+
+    ```
+    duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p IMAGE-REGISTRY
+    ```
+
+    <p class="note"><strong>Note:</strong> When relocating to a harbor/gcr registry, the IMAGE-REGISTRY will need to be appended with the destination folder for the images eg. IMAGE-REGISTRY/build-service-imgs</p>
+
+    For example:
+    * Dockerhub `duffle relocate -f /tmp/build-service-0.1.0.tgz -m /tmp/relocated.json -p my-dockerhub-repo`
+    * GCR `duffle relocate -f /tmp/build-service-0.1.0.tgz -m /tmp/relocated.json -p gcr.io/my-project/build-service`
+    * Artifactory `duffle relocate -f /tmp/build-service-0.1.0.tgz -m /tmp/relocated.json -p artifactory.com/my-project/build-service`
+    * Harbor `duffle relocate -f /tmp/build-service-0.1.0.tgz -m /tmp/relocated.json -p harbor.io/my-project/build-service`
+
+### <a id='standard-install'></a> Run Duffle  Install
+
+Use Duffle to install Build Service and define the required Build Service parameters by running:
+
+    duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
+        --set kubernetes_env=CLUSTER-NAME \
+        --set docker_registry=DOCKER-REGISTRY \
+        --set docker_repository=DOCKER-REPOSITORY \
+        --set registry_username="REGISTRY-USERNAME" \
+        --set registry_password="REGISTRY-PASSWORD" \
+        --set custom_builder_image="BUILDER-IMAGE-TAG" \
+        -f /tmp/build-service-${version}.tgz \
+        -m /tmp/relocated.json
+
+Where:
+
+* `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
+* `CLUSTER-NAME` is the name of the Kubernetes cluster where Build Service is installed.
+* `DOCKER-REGISTRY` is the domain of the image registry that you configured.
+    <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>https://index.docker.io/v1/</code>.
+  Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
+  examples of valid fields for the registry.</p>
+* `DOCKER-REPOSITORY` is the image registry where stack images and store buildpackages will be relocated.
+    <p class="note"><strong>Note:</strong> This is identical to the IMAGE_REGISTRY argument provided during duffle relocation.</p>
+* `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key`
+   as the username when using JSON key file authentication.
+* `REGISTRY-PASSWORD` is the password you use to access the registry.
+    <p class="note"><strong>Note:</strong> [Secrets in Tanzu Build Service](secrets-in-tbs.html) for more information about how the registry username and password are used in Tanzu Build Service.</p>
+* `BUILDER-IMAGE-TAG` is the fully-qualified tag where Build Service will create a default cluster-wide builder.
+    <p class="note"><strong>Note:</strong> Please provide the fully-qualified image tag.
+    For example, if installing using Dockerhub, you would provide <code>my-dockerhub-org/default-builder</code>.
+    If installing using GCR, you would provide <code>gcr.io/my-project/build-service/default-builder</code>.</p>
+
+Other optional parameters you can add using the `--set` flag:
+
+* `admin_users` is a comma separated list of users who will be granted admin privileges on Build Service.
+* `admin_groups`: a comma separated list of groups that will be granted admin privileges on Build Service.
+* `http_proxy`: The HTTP proxy to use for network traffic.
+* `https_proxy`: The HTTPS proxy to use for network traffic.
+* `no_proxy`: A comma-separated list of hostnames that should not use a proxy.
+
 ## <a id='pks-install'></a> Installing on PKS
 
 * Install PKS v1.6 or later. For more information, see [Installing Enterprise PKS](https://docs.pivotal.io/pks/1-6/installing.html) in the PKS documentation.
@@ -133,6 +243,14 @@ To move the images from the Build Service bundle to an internal image registry:
     duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p IMAGE-REGISTRY
     ```
 
+    <p class="note"><strong>Note:</strong> When relocating to a harbor/gcr registry, the IMAGE-REGISTRY will need to be appended with the destination folder for the images eg. IMAGE-REGISTRY/build-service-imgs</p>
+
+    For example:
+    * Dockerhub `duffle relocate -f /tmp/build-service-0.1.0.tgz -m /tmp/relocated.json -p my-dockerhub-repo`
+    * GCR `duffle relocate -f /tmp/build-service-0.1.0.tgz -m /tmp/relocated.json -p gcr.io/my-project/build-service`
+    * Artifactory `duffle relocate -f /tmp/build-service-0.1.0.tgz -m /tmp/relocated.json -p artifactory.com/my-project/build-service`
+    * Harbor `duffle relocate -f /tmp/build-service-0.1.0.tgz -m /tmp/relocated.json -p harbor.io/my-project/build-service`
+
 ### <a id='standard-install'></a> Run Duffle  Install
 
 Use Duffle to install Build Service and define the required Build Service parameters by running:
@@ -140,13 +258,13 @@ Use Duffle to install Build Service and define the required Build Service parame
 
     duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
         --set kubernetes_env=CLUSTER-NAME \
-        --set docker_registry=IMAGE-REGISTRY \
-        --set registry_username="REGISTRY-USERNAME" \
-        --set registry_password="REGISTRY-PASSWORD" \
-        --set custom_builder_image="BUILDER-IMAGE-TAG" \
-        --set admin_users="ADMIN-USERS" \
-        --set oidc_username_prefix="OIDC-USER-PREFIX" \
-        --set oidc_group_prefix="OIDC-GROUP-PREFIX" \
+        --set docker_registry=DOCKER-REGISTRY \
+        --set docker_repository=DOCKER-REPOSITORY \
+        --set registry_username=REGISTRY-USERNAME \
+        --set registry_password=REGISTRY-PASSWORD \
+        --set custom_builder_image=BUILDER-IMAGE-TAG \
+        --set oidc_username_prefix=OIDC-USER-PREFIX \
+        --set oidc_group_prefix=OIDC-GROUP-PREFIX \
         -f /tmp/build-service-${version}.tgz \
         -m /tmp/relocated.json
 
@@ -154,120 +272,26 @@ Where:
 
 * `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
 * `CLUSTER-NAME` is the name of the Kubernetes cluster where Build Service is installed.
-* `IMAGE-REGISTRY` is the domain of the image registry that you configured.
+* `DOCKER-REGISTRY` is the domain of the image registry that you configured.
     <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be https://index.docker.io/v1/
   Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
   examples of valid fields for the registry.</p>
+* `DOCKER-REPOSITORY` is the image registry where stack images and store buildpackages will be relocated.
+    <p class="note"><strong>Note:</strong> This is identical to the IMAGE_REGISTRY argument provided during duffle relocation.</p>
 * `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key`
    as the username when using JSON key file authentication.
 * `REGISTRY-PASSWORD` is the password you use to access the registry.
     <p class="note"><strong>Note:</strong> See [Secrets in Tanzu Build Service](secrets-in-tbs.html) for more information about how the registry username and password are used in Tanzu Build Service.</p>
-* `BUILDER-IMAGE-TAG` is the tag where Build Service will create. This should be in the `IMAGE-REGISTRY` ex: `my.harbor.io/build-service/default-builder`
-* `ADMIN-USERS` is a comma separated list of users who will be granted admin privileges on Build Service.
+* `BUILDER-IMAGE-TAG` is the fully-qualified tag where Build Service will create a default cluster-wide builder.
+    <p class="note"><strong>Note:</strong> Please provide the fully-qualified image tag.
+    For example, if installing using Dockerhub, you would provide <code>my-dockerhub-org/default-builder</code>.
+    If installing using GCR, you would provide <code>gcr.io/my-project/build-service/default-builder</code>.</p>
 * `OIDC-USER-PREFIX` is the UAA OIDC Username Prefix configured.
 * `OIDC-GROUP-PREFIX` is the UAA OIDC Groups Prefix configured.
 
 Other optional parameters you can add using the `--set` flag:
 
-* `admin_groups`: a comma separated list of groups that will be granted admin privileges on Build Service.
-* `http_proxy`: The HTTP proxy to use for network traffic.
-* `https_proxy`: The HTTPS proxy to use for network traffic.
-* `no_proxy`: A comma-separated list of hostnames that should not use a proxy.
-
-## <a id='other-install'></a> Installing on GKE/AKS
-
-Create a kubernetes cluster that you would like to install build service onto and target the cluster as follow:
-
-
-    kubectl config use-context <CLUSTER-NAME>
-
-
-### <a id='create-creds-file'></a> Create a Credentials File
-
-Create a credentials file to provide the location of the TLS certificate credentials to `duffle`
-during the Build Service installation.
-
-To create a credentials file:
-
-1. Navigate to the `/tmp` folder and create a file named `credentials.yml`.
-
-1. Add the properties shown in the example below to the `credentials.yml` file:
-
-    ```
-    name: build-service-credentials
-    credentials:
-     - name: kube_config
-       source:
-         path: "PATH-TO-KUBECONFIG"
-       destination:
-         path: "/root/.kube/config"
-     - name: ca_cert
-       source:
-         path: "PATH-TO-CA"
-       destination:
-         path: "/cnab/app/cert/ca.crt"
-    ```
-    Where:
-    * `PATH-TO-KUBECONFIG` is the path to the kubeconfig configuration file on your local machine.
-       This file is required to enable Build Service to interact with the target cluster.
-    * `PATH-TO-CA` is the path to the CA. This CA is required to enable Build Service
-       to interact with internally deployed registries.
-       This is the CA that was used while deploying the registry.
-    <p class="note"><strong>Note:</strong> All local paths in the credentials file must be absolute.</p>
-
-### <a id='relocate-images'></a> Relocate Images to a Registry
-
-This procedure relocates images from the Build Service bundle that you downloaded from Tanzu Network
-to an internal image registry.
-
-To move the images from the Build Service bundle to an internal image registry:
-
-1. Log in to the image registry where you want to store the images by running:
-
-    ```
-    docker login IMAGE-REGISTRY
-    ```
-    Where `IMAGE-REGISTRY` is the name of the image registry where you want to store the images.
-
-1. Push the images to the image registry by running:
-
-    ```
-    duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p IMAGE-REGISTRY
-    ```
-
-<p class="note"><strong>Note:</strong> When relocating to a harbor/gcr registry, the IMAGE-REGISTRY will need to be appended with the destination folder for the images eg. IMAGE-REGISTRY/build-service-imgs</p>
-
-### <a id='standard-install'></a> Run Duffle  Install
-
-Use Duffle to install Build Service and define the required Build Service parameters by running:
-
-    duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
-        --set kubernetes_env=CLUSTER-NAME \
-        --set docker_registry=IMAGE-REGISTRY \
-        --set registry_username="REGISTRY-USERNAME" \
-        --set registry_password="REGISTRY-PASSWORD" \
-        --set custom_builder_image="BUILDER-IMAGE-TAG" \
-        --set admin_users="ADMIN-USERS" \
-        -f /tmp/build-service-${version}.tgz \
-        -m /tmp/relocated.json
-
-Where:
-
-* `BUILD-SERVICE-INSTALLATION-NAME` is the name you give your Build Service installation.
-* `CLUSTER-NAME` is the name of the Kubernetes cluster where Build Service is installed.
-* `IMAGE-REGISTRY` is the domain of the image registry that you configured.
-    <p class="note"><strong>Note:</strong> For Docker Hub, the domain must be <code>https://index.docker.io/v1/</code>.
-  Do not include subpaths in the registry. <code>gcr.io</code> and <code>acr.io</code> are
-  examples of valid fields for the registry.</p>
-* `REGISTRY-USERNAME` is the username you use to access the registry. `gcr.io` expects `_json_key`
-   as the username when using JSON key file authentication.
-* `REGISTRY-PASSWORD` is the password you use to access the registry.
-    <p class="note"><strong>Note:</strong> [Secrets in Tanzu Build Service](secrets-in-tbs.html) for more information about how the registry username and password are used in Tanzu Build Service.</p>
-* `BUILDER-IMAGE-TAG` is the tag where Build Service will create. This should be in the `IMAGE-REGISTRY` ex: `my.harbor.io/build-service/default-builder`
-* `ADMIN-USERS` is a comma separated list of users who will be granted admin privileges on Build Service.
-
-Other optional parameters you can add using the `--set` flag:
-
+* `admin_users` is a comma separated list of users who will be granted admin privileges on Build Service.
 * `admin_groups`: a comma separated list of groups that will be granted admin privileges on Build Service.
 * `http_proxy`: The HTTP proxy to use for network traffic.
 * `https_proxy`: The HTTPS proxy to use for network traffic.
