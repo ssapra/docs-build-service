@@ -59,6 +59,10 @@ Build Service can be installed on any Kubernetes cluster (v1.14 or later).
 * duffle install configuration has been updated to remove the build service "gateway".
 * "kpack only" installation option has been removed.
 
+### Known Issues
+
+`pb secrets delete git` & `pb secrets delete registry` will fail with a lack of permissions. [A workaround is available through kubectl.](https://docs.pivotal.io/build-service/0-1-0/managing-secrets.html#delete-git-creds)
+
 ### Upgrade Path
 
 No supported upgrade paths.
