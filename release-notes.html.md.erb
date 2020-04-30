@@ -33,20 +33,32 @@ Tanzu Build Service 0.1.0 ships with the following components:
 * [CNB lifecycle v0.7.2](https://github.com/buildpacks/lifecycle/releases/tag/v0.7.2)
 * [pb cli v0.1.0](https://network.pivotal.io/products/build-service/#/releases/603387)
 
-Tanzu Build Service 0.1.0 ships with the following Buildpacks:
+Tanzu Build Service 0.1.0 installs the following Buildpacks:
+
+**Note:** In order to `docker pull` an image from the TanzuNet Registry, the user must authenticate themselves using `docker login registry.pivotal.io` and their TanzuNet credentials. 
 
 * Tanzu Java `io.pivotal.java`
+    * `docker pull registry.pivotal.io/tbs-dependencies/iopivotaljava:v2.1.273`
 * Tanzu NodeJS `io.pivotal.nodejs`
-* .NET Core `org.cloudfoundry.dotnet-core`
+    * `docker pull registry.pivotal.io/tbs-dependencies/iopivotalnodejs:v2.0.7`
+* .NET Core `org.cloudfoundry.dotnet-core` 
+    * `docker pull registry.pivotal.io/tbs-dependencies/orgcloudfoundrydotnet-core:v0.0.6`
 * Python `org.cloudfoundry.python`
+    * `docker pull registry.pivotal.io/tbs-dependencies/orgcloudfoundrypython:v0.0.1`
 * Golang `org.cloudfoundry.go`
+    * `docker pull registry.pivotal.io/tbs-dependencies/orgcloudfoundrygo:v0.0.3`
 * PHP `org.cloudfoundry.php`
+    * `docker pull registry.pivotal.io/tbs-dependencies/orgcloudfoundryphp:v0.0.0-RC1`
 * HTTPD `org.cloudfoundry.httpd`
+    * `docker pull registry.pivotal.io/tbs-dependencies/orgcloudfoundryhttpd:0.0.21`
 * NGINX `org.cloudfoundry.nginx`
+    * `docker pull registry.pivotal.io/tbs-dependencies/orgcloudfoundrynginx:0.0.25`
 
 Tanzu Build Service 0.1.0 ships with the following stacks:
 
 * cflinuxfs3 `org.cloudfoundry.stacks.cflinuxfs3`
+    * `docker pull registry.pivotal.io/tbs-dependencies/build:1584989900`
+    * `docker pull registry.pivotal.io/tbs-dependencies/run:1584989900`
 
 ### Product Dependencies
 
