@@ -33,7 +33,9 @@ Tanzu Build Service 0.1.0 ships with the following components:
 * [CNB lifecycle v0.7.2](https://github.com/buildpacks/lifecycle/releases/tag/v0.7.2)
 * [pb cli v0.1.0](https://network.pivotal.io/products/build-service/#/releases/603387)
 
-Tanzu Build Service 0.1.0 ships with the following Buildpacks:
+Tanzu Build Service 0.1.0 installs the following Buildpacks:
+
+**Note:** In order to `docker pull` an image from the TanzuNet Registry, the user must authenticate themselves using `docker login registry.pivotal.io` and their TanzuNet credentials. 
 
 * Tanzu Java `io.pivotal.java`
     * `docker pull registry.pivotal.io/tbs-dependencies/iopivotaljava:v2.1.273`
