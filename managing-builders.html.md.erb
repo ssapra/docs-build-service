@@ -11,12 +11,14 @@ To create a builder with the `pb` cli, you must create a builder configuration Y
 
 * `name`: The name of the builder.
 
-* `tag`: The registry location where the builder will be created.
+* `tag`: The registry location where the builder is created.
 
 * `scope`: Defines whether the builder is available to the all users in the cluster or to users of the currently targeted project. One of 'Cluster' or 'Project'.
 
-* `order`: The buildpack order that the builder will use. For more information on listing buildpacks in groups,
-see [builder.toml](https://buildpacks.io/docs/reference/builder-config/#order-_list-required_) in the Buildpacks.io documentation.
+* `order`: The buildpack order that the builder uses.
+  For more information about listing buildpacks in groups,
+  see [builder.toml](https://buildpacks.io/docs/reference/builder-config/#order-_list-required_)
+  in the Buildpacks.io documentation.
 
 <p class='note'><strong>Note:</strong> Build Service must have the appropriate credentials to push to <code>tag</code>. Build Service has access to the registry used at install time and any secrets attached to the current project.</p>
 
