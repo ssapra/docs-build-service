@@ -3,22 +3,21 @@ title: Using Tanzu Build Service Without Projects
 owner: Build Service Team
 ---
 
-Tanzu Build Service projects are a resource that simplifies kubernetes namespaces and RBAC to provide multitenancy for images, secrets, and builders.
+Tanzu Build Service projects are a resource that simplifies kubernetes namespaces and RBAC to provide multi-tenancy for images, secrets, and builders.
 
-Projects are optional if users don't need to multitentancy or if they prefer to manage multitenacy via alternative mechanisms.
+Projects are optional if users do not require multi-tenancy or if they prefer to manage multi-tenancy via alternative mechanisms.
 
+## <a id='using-pb-without-projects'></a> Using the `tbctl` cli
 
-## <a id='using-pb-without-projects'></a> Using the `pb` cli
+The `tbctl` cli may work with existing namespaces by targeting them with the `-n` flag that is available for namespaced resources.
 
-The pb cli can work with existing namespaces by targeting them as projects.
-
-1. Get kubeconfig access to the Kubernetes cluster that has the Build Service installed.
-
-
-1. Use the pb cli to target the namespace you want to create build service resources in.
+For example:
 
 ```
-pb project target NAMESPACE-NAME
+tbctl image create ... -n NAMESPACE-NAME
+tbctl image patch ... -n NAMESPACE-NAME
+tbctl secret create ... -n NAMESPACE-NAME
+tbctl custom-builder create ... -n NAMESPACE-NAME
 ```
 
-<p class='note'><strong>Note:</strong> By default, the <code>pb</code> cli will use the <code>default</code> namespace if no namespace has been targeted.</p>
+<p class='note'><strong>Note:</strong> By default, the <code>tbctl</code> cli will use the <code>default</code> namespace if no namespace has been provided.</p>
