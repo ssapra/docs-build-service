@@ -7,37 +7,37 @@ Visit the [Build Service dependencies tile on PivNet](https://network.pivotal.io
 
 ## <a id='online-update'></a> Online update of Dependencies
 
-If the `pb` CLI has access to pull images from the Pivnet Registry, the stack images and buildpacks used by build service can be updated using the following commands.
+If the `kp` CLI has access to pull images from the Pivnet Registry. The stack images and buildpacks used by build service can be updated using the following commands.
 
 ### <a id='online-stack-update'></a> Stack Update
 
-Update the stack:
+Update a stack:
 
-    pb stack update --build-image registry.pivotal.io/tbs-dependencies/build@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run@sha256:<image-sha>
+    kp stack update <stack-name> --build-image registry.pivotal.io/tbs-dependencies/build@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run@sha256:<image-sha>
 
 <p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
 
 The updated stack can be viewed with the following command:
 
-    pb stack status
+    kp stack status <stack-name>
 
 ### <a id='online-store-update'></a> Store Update
 
-Update the store:
+Update a store:
 
-    pb store add registry.pivotal.io/tbs-dependencies/<buildpack-name>:<buildpack-tag>
+    kp store add <store-name> registry.pivotal.io/tbs-dependencies/<buildpack-name>:<buildpack-tag>
 
 Additionally, multiple buildpacks can be added to Build Service by passing multiple image references
 
-    pb store add registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag> registry.pivotal.io/tbs-dependencies/<buildpack2>:<buildpack2-tag> registry.pivotal.io/tbs-dependencies/<buildpack3>:<buildpack3-tag>
+    kp store add <store-name> registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag> registry.pivotal.io/tbs-dependencies/<buildpack2>:<buildpack2-tag> registry.pivotal.io/tbs-dependencies/<buildpack3>:<buildpack3-tag>
 
-To list the buildpacks now available to build service:
+To list the buildpacks now available in the store:
 
-    pb store list
+    kp store status <store-name>
 
 ## <a id='offline-update'></a> Offline update of Dependencies
 
-If the `pb` CLI cannot access the images in the Pivnet Registry, the stack images and buildpacks used by build service can be updated by first downloading those images and saving them as `.tar` files. These file can be provided to the `pb` CLI to upload to build service.
+If the `kp` CLI cannot access the images in the Pivnet Registry, the stack images and buildpacks used by build service can be updated by first downloading those images and saving them as `.tar` files. These file can be provided to the `kp` CLI to upload to build service.
 
 ### <a id='offline-stack-update'></a> Stack Update
 
@@ -53,13 +53,13 @@ Save those images to disk:
 
 Update the stack with the saved image:
 
-    pb stack update --build-image build.tar --run-image run.tar --local
+    kp stack update <stack-name> --build-image build.tar --run-image run.tar
 
 <p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
 
 The updated stack can be viewed with the following command:
 
-    pb stack status
+    kp stack status
 
 ### <a id='offline-store-update'></a> Store Update
 
@@ -76,12 +76,12 @@ Save those images to disk:
 
 Update the store with the previously saved images:
 
-    pb store add buildpack1.tar --local
+    kp store add <store-name> buildpack1.tar
 
 Additionally, multiple buildpacks can be added to Build Service by passing multiple image references
 
-    pb store add buildpack1.tar buildpack2.tar --local
+    kp store add <store-name> buildpack1.tar buildpack2.tar
 
-To list the buildpacks now available to build service:
+To list the buildpacks now available in the store:
 
-    pb store list
+    kp store status <store-name>
