@@ -7,15 +7,18 @@ Visit the [Build Service dependencies tile on PivNet](https://network.pivotal.io
 
 ## <a id='online-update'></a> Online update of Dependencies
 
-If the `kp` CLI has access to pull images from the Pivnet Registry. The stack images and buildpacks used by build service can be updated using the following commands.
+If the `kp` CLI has access to pull images from the TanzuNet Registry. The stack images and buildpacks used by build service can be updated using the following commands.
 
-### <a id='online-stack-update'></a> Stack Update
+### <a id='online-stack-update'></a> Stacks Update
 
-Update a stack:
+Update the stacks:
 
-    kp stack update <stack-name> --build-image registry.pivotal.io/tbs-dependencies/build@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run@sha256:<image-sha>
+    kp stack update base --build-image registry.pivotal.io/tbs-dependencies/build-base@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-base@sha256:<image-sha>
+    kp stack update default --build-image registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha>
+    kp stack update full --build-image registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha>
+    kp stack update tiny --build-image registry.pivotal.io/tbs-dependencies/build-tiny@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-tiny@sha256:<image-sha>
 
-<p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
+<p class="note"><strong>Note:</strong> Different stacks may have different build and run images. Both build and run images need to be provided to update the stack.</p>
 
 The updated stack can be viewed with the following command:
 
@@ -43,17 +46,17 @@ If the `kp` CLI cannot access the images in the Pivnet Registry, the stack image
 
 Fetch the stack images into the docker daemon:
 
-    docker pull registry.pivotal.io/tbs-dependencies/build@sha256:<image-sha>
-    docker pull registry.pivotal.io/tbs-dependencies/run@sha256:<image-sha>
+    docker pull registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha>
+    docker pull registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha>
 
 Save those images to disk:
 
-    docker save registry.pivotal.io/tbs-dependencies/build@sha256:<image-sha> > build.tar
-    docker save registry.pivotal.io/tbs-dependencies/run@sha256:<image-sha> > run.tar
+    docker save registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha> > build.tar
+    docker save registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha> > run.tar
 
 Update the stack with the saved image:
 
-    kp stack update <stack-name> --build-image build.tar --run-image run.tar
+    kp stack update full --build-image build.tar --run-image run.tar
 
 <p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
 
