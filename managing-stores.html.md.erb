@@ -3,11 +3,17 @@ title: Managing Stores
 owner: Build Service Team
 ---
 
-A Store provides a collection of buildpacks that can be utilized by Builders. Buildpacks are distributed and added to a store in buildpackages which are docker images.
+A Store provides a collection of buildpacks that can be utilized by Builders. Buildpacks are distributed and added to a store in buildpackages which are docker images containing one or more buildpacks.
 
-Build Service ships with curated collection of Tanzu buildpacks for Java, and Paketo buildpacks for Nodejs, Python, go, PHP, httpd, and Dotnet. It is important to keep these buildpacks up-to-date. Updates to these buildpacks are provided on the [Tanzu Network Build Service Dependency](https://network.pivotal.io/products/tbs-dependencies/) page.
+Build Service ships with curated collection of Tanzu buildpacks for Java, and Paketo buildpacks for Nodejs, go, PHP, nginx, httpd, and .NET Core. It is important to keep these buildpacks up-to-date. Updates to these buildpacks are provided on the [Tanzu Network Build Service Dependency](https://network.pivotal.io/products/tbs-dependencies/) page.
 
 In addition to supported Tanzu and Paketo buildpacks, custom buildpackages can be uploaded to Build Service stores.
+
+## <a id='buildpacks-buildpackages'></a> Creating Buildpacks and Buildpackages
+
+Documentation for creating buildpacks is available [here](https://buildpacks.io/docs/buildpack-author-guide/create-a-buildpack/).
+
+Documentation for creating buildpackages is available [here](https://buildpacks.io/docs/buildpack-author-guide/package-a-buildpack/).
 
 <p class='note'><strong>Note:</strong> Only Build Service Admins can perform store commands.</p>
 
@@ -49,14 +55,6 @@ Users can add multiple buildpackages at a time from a Docker registry or from a 
 
 <p class='note'><strong>Note:</strong> At this time <code>kp</code> does not support the <code>.cnb</code> buildpackage format</p>
 
-## <a id='add-buildpackages-to-store'></a> Creating Buildpackages
-
-Documentation for creating buildpackages is available [here](https://buildpacks.io/docs/buildpack-author-guide/package-a-buildpack/).
-
-A buildpackage can be packaged into a build service ready buildpackage with:
-
-    pack package-buildpack
-
 ## <a id='remove-buildpackages-from-store'></a> Removing Buildpackages from a Store
 
 Users can remove a buildpackage from a store:
@@ -65,17 +63,17 @@ Users can remove a buildpackage from a store:
 
 <p class='note'><strong>Note:</strong> Buildpackages must be removed from stores by full image reference. The <code><buildpackage></code> args should include their digests and will look like <code>registry.io/repository@sha256:<sha256></code>.</p>
 
-## <a id='list-buildpackages-in-store'></a> Listing Buildpackages in a Store
+## <a id='show-buildpackages-in-store'></a> Store Status
+
+Users can use the `kp` cli to get details about a store including buildpackages and their buildpacks, as well as meta-buildpacks. [Meta-buildpacks](https://buildpacks.io/docs/concepts/components/buildpack/#meta-buildpack) are buildpacks that indicate the order that other buildpacks run:
 
 To view the buildpackages in a store:
 
     kp store status <store-name>
 
-To list buildpackages & buildpacks and the display the order of "meta-buildpacks":
+To view buildpackages & their individual buildpacks as well as display the order of meta-buildpacks:
 
     kp store status <store-name> --verbose
-
-<p class='note'><strong>Note:</strong> The output of this command is helpful because it mirrors the format used when creating custom builders.</p>
 
 ## <a id='kpack-resources'></a> Corresponding kpack Resource
 
