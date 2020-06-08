@@ -1,0 +1,82 @@
+---
+title: Managing Stores
+owner: Build Service Team
+---
+
+A Store provides a collection of buildpacks that can be utilized by Builders. Buildpacks are distributed and added to a store in buildpackages which are docker images.
+
+Build Service ships with curated collection of Tanzu buildpacks for Java, and Paketo buildpacks for Nodejs, Python, go, PHP, httpd, and Dotnet. It is important to keep these buildpacks up-to-date. Updates to these buildpacks are provided on the [Tanzu Network Build Service Dependency](https://network.pivotal.io/products/tbs-dependencies/) page.
+
+In addition to supported Tanzu and Paketo buildpacks, custom buildpackages can be uploaded to Build Service stores.
+
+<p class='note'><strong>Note:</strong> Only Build Service Admins can perform store commands.</p>
+
+## <a id='list-stores'></a> Listing Stores
+
+Users can view the existing stores with:
+
+    kp store list
+
+## <a id='create-store'></a> Creating a Store
+
+Tanzu Build Service ships with a `default` store containing all of the supported buildpacks. Users can create additional stores with:
+
+
+    kp store create <store-name> <buildpackage-1> <buildpackage-2> --default-repository <image-repository>
+
+Where `<image-repository>` is the Docker repository where the buildpackage images will be stored.
+This can be set to the same value used during installation for the `docker_repository` during the `duffle` install described in the [install docs](installing.html#other-install).
+
+<p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to the registry used for the <code>default-repository</code> on the local machine.</p>
+
+## <a id='add-buildpackages-to-store'></a> Adding Buildpackages to a Store
+
+Users can add multiple buildpackages at a time from a Docker registry or from a file on the local machine:
+
+* If using a Docker registry:
+
+    ```
+    kp store add <store-name> <buildpackage-1> <buildpackage-2> ...
+    ```
+
+<p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to build service registry on the local machine.</p>
+
+* If using local stack images created with `docker save`:
+
+    ```
+    kp store add <store-name> <path-to-buildpackage-1>.tar <path-to-buildpackage-2>.tar ...  --local
+    ```
+
+<p class='note'><strong>Note:</strong> At this time <code>kp</code> does not support the <code>.cnb</code> buildpackage format</p>
+
+## <a id='add-buildpackages-to-store'></a> Creating Buildpackages
+
+Documentation for creating buildpackages is available [here](https://buildpacks.io/docs/buildpack-author-guide/package-a-buildpack/).
+
+A buildpackage can be packaged into a build service ready buildpackage with:
+
+    pack package-buildpack
+
+## <a id='remove-buildpackages-from-store'></a> Removing Buildpackages from a Store
+
+Users can remove a buildpackage from a store:
+
+    kp store remove <store-name> <buildpackage>
+
+<p class='note'><strong>Note:</strong> Buildpackages must be removed from stores by full image reference. The <code><buildpackage></code> args should include their digests and will look like <code>registry.io/repository@sha256:<sha256></code>.</p>
+
+## <a id='list-buildpackages-in-store'></a> Listing Buildpackages in a Store
+
+To view the buildpackages in a store:
+
+    kp store status <store-name>
+
+To list buildpackages & buildpacks and the display the order of "meta-buildpacks":
+
+    kp store status <store-name> --verbose
+
+<p class='note'><strong>Note:</strong> The output of this command is helpful because it mirrors the format used when creating custom builders.</p>
+
+## <a id='kpack-resources'></a> Corresponding kpack Resource
+
+All Build Service builders utilize cluster scoped [Store Resources](https://github.com/pivotal/kpack/blob/master/docs/custombuilders.md#store).
