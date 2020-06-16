@@ -304,7 +304,7 @@ Visit the [Build Service dependencies tile on PivNet](https://network.pivotal.io
 
 If the `kp` CLI has access to pull images from the Pivnet Registry, the stack images and buildpacks used by build service can be updated using the following commands.
 
-#### Stack Update
+#### <a id='update-stack'></a> Stack Update
 
 Update the stacks:
 
@@ -319,7 +319,7 @@ An updated stack can be viewed with the following command:
 
     kp stack status <stack-name>
 
-#### Store Update
+#### <a id='update-store'></a> Store Update
 
 Update a store:
 
@@ -335,7 +335,7 @@ To list the buildpacks now available in the store:
 
 ### <a id='update-offline-deps'></a> Offline update of Dependencies
 
-If the `kp` CLI cannot access the images in the Pivnet Registry, the stack images and buildpacks used by build service can be updated by first downloading those images and saving them as `.tar` files. These file can be provided to the `kp` CLI to upload to build service.
+If the `kp` CLI cannot access the images in the Pivnet Registry, the stack images and buildpacks used by build service can be updated by first downloading those images and saving them locally. These file can be provided to the `kp` CLI to upload to build service.
 
 #### Stack Update
 
@@ -361,29 +361,7 @@ The updated stack can be viewed with the following command:
 
 #### Store Update
 
-Fetch the buildpack images into the docker daemon:
-
-    docker pull registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag>
-    docker pull registry.pivotal.io/tbs-dependencies/<buildpack2:<buildpack2-tag>
-
-Save those images to disk:
-
-    docker save registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag> > buildpack1.tar
-    docker save registry.pivotal.io/tbs-dependencies/<buildpack2>:<buildpack2-tag> > buildpack2.tar
-
-
-Update the store with the previously saved images:
-
-    kp store add <store-name> buildpack1.tar --local
-
-Additionally, multiple buildpacks can be added to Build Service by passing multiple image references
-
-    kp store add buildpack1.tar buildpack2.tar --local
-
-To list the buildpacks now available in the store:
-
-    kp store status <store-name>
-
+Updating the Store offline with new buildpacks is not currently supported but will be in upcoming releases. To update the store, see [Store Update](#update-store).
 
 ## <a id='ensure-readable-run-image'></a> Ensuring the Run Image is Readable
 
