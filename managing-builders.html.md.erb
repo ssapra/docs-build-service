@@ -3,66 +3,106 @@ title: Managing Builders
 owner: Build Service Team
 ---
 
-<p class='note'><strong>Note:</strong> Only Build Service Admins can manage Cluster scoped builders.</p>
+A Custom Builder is a Tanzu Build Service resource used to manage [Cloud Native Buildpack builders](https://buildpacks.io/docs/concepts/components/builder/).
 
-## <a id='builder-configurations'></a> Builder Configurations
+Custom Builders contain a set of buildpacks and a stack that will be used to create images.
 
-To create a builder with the `pb` cli, you must create a builder configuration YAML that includes the following properties:
+There are two types of Custom Builders:
 
+* Custom Cluster Builders: Cluster-scoped Builders
+* Custom Builders: Namespace-scoped Builders
+
+<p class='note'><strong>Note:</strong> Only Build Service Admins can manage Custom Cluster Builders.</p>
+
+## <a id='create-builder'></a> Creating a Custom Builder
+
+To create a Custom Builder:
+
+* Custom Cluster Builder:
+
+	```
+    kp custom-cluster-builder create <name> <tag> --order <order> --stack <stack> --store <store>
+    ```
+
+* Cluster Builder:
+
+	```
+    kp custom-builder create <name> <tag> --order <order> --stack <stack> --store <store> --namespace <namespace>
+    ```
+
+Where:
 * `name`: The name of the builder.
+* `tag`: The registry location where the builder will be created.
+* `stack`: The name of the stack to be used by the builder.
+* `store`: The name of the store containing the buildpacks that will be used by the builder.
+* `namespace` The kubernetes namespace for the builder (for Custom Builders only)
+* `order`: The local path to the buildpack order YAML that the builder will use.
+  Sample order YAML files will be available on the [VMware Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies) page on Tanzu Network.
+  For more information about listing buildpacks in groups in the order YAML, see [builder.toml](https://buildpacks.io/docs/reference/builder-config/#order-_list-required_) in the Buildpacks.io documentation.
 
-* `tag`: The registry location where the builder is created.
+  Example order YAML file that would be used by a builder designed to build NodeJS and Java apps:
 
-* `scope`: Defines whether the builder is available to the all users in the cluster or to users of the currently targeted project. One of 'Cluster' or 'Project'.
+  ```
+  ---
+  - group:
+	- id: paketo-buildpacks/bellsoft-liberica
+	- id: paketo-buildpacks/gradle
+  - group:
+	- id: paketo-buildpacks/nodejs
+  ```
 
-* `order`: The buildpack order that the builder uses.
-  For more information about listing buildpacks in groups,
-  see [builder.toml](https://buildpacks.io/docs/reference/builder-config/#order-_list-required_)
-  in the Buildpacks.io documentation.
+## <a id='patch-builder'></a> Patching a Custom Builder
 
-<p class='note'><strong>Note:</strong> Build Service must have the appropriate credentials to push to <code>tag</code>. Build Service has access to the registry used at install time and any secrets attached to the current project.</p>
+You can update a Custom Builder resource using the `kp` cli. To update a custom builder given a `name`, run:
 
-## <a id='apply-builder-configurations'></a> Applying Builder Configurations
+* Custom Cluster Builder:
 
-To apply a builder configuration to Build Service:
-
-1. Create a builder configuration YAML file. For example:
-
+	```
+    kp custom-cluster-builder patch <name> --order <order> --stack <stack> --store <store>
     ```
-    name: foo
-    tag: REGISTRY-DOMAIN/PATH-TO-NEW-BUILDER
-    scope: Project OR Cluster
-    order:
-    - group:
-      -  id: org.cloudfoundry.node-engine
-      -  id: org.cloudfoundry.npm
+
+* Cluster Builder:
+
+	```
+    kp custom-builder patch <name> --order <order> --stack <stack> --store <store> --namespace <namespace>
     ```
 
-    <p class='note'><strong>Note:</strong> Using the <code>pb store list --order</code> can be useful for this task as the command returns buildpacks available for use in builders in correct order definition.</p>
+Where:
+* `name`: The name of the builder.
+* `stack`: The name of the stack to be used by the builder.
+* `store`: The name of the store containing the buildpacks that will be used by the builder.
+* `namespace` The kubernetes namespace for the builder (for Custom Builders only)
+* `order`: The local path to the buildpack order YAML that the builder will use.
+  Sample order YAML files will be available on the [VMware Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies) page on Tanzu Network.
+  For more information about listing buildpacks in groups in the order YAML, see [builder.toml](https://buildpacks.io/docs/reference/builder-config/#order-_list-required_) in the Buildpacks.io documentation.
 
-1. Apply the builder configuration by running:
+  Example order YAML file that would be used by a builder designed to build NodeJS and Java apps:
 
-    ```
-    pb builder apply -f PATH-TO-BUILDER-CONFIGURATION
-    ```
-    Where `PATH-TO-BUILDER-CONFIGURATION` is the local path where you saved the builder configuration YAML file.
+  ```
+  ---
+  - group:
+	- id: paketo-buildpacks/bellsoft-liberica
+	- id: paketo-buildpacks/gradle
+  - group:
+	- id: paketo-buildpacks/nodejs
+  ```
 
-    <p class='note'><strong>Note:</strong> When the <code>scope</code> is <code>Project</code> the builder will be applied to the currently targeted project.</p>
+<p class='note'><strong>Note:</strong> The `tag` (location in a registry) of a custom builder cannot be modified. To change this field, you must create a new custom builder.</p>
 
 ## <a id='delete-builder'></a> Deleting Builders
 
-To delete a builder:
+To delete a Custom Builder:
 
-* Delete a cluster scoped builder:
-
-    ```
-    pb builder delete <builder name> --cluster
-    ```
-
-* Delete a project scoped builder:
+* Custom Cluster Builder:
 
     ```
-    pb builder delete <builder name>
+    kp custom-cluster-builder delete <builder name>
+    ```
+
+* Custom Builder:
+
+    ```
+    kp custom-builder delete <builder name> --namespace <namespace>
     ```
 
 <p class='note'><strong>Warning:</strong> Deleting a builder will prevent image configs that reference that builder from successfully building again.</p>
@@ -71,43 +111,37 @@ To delete a builder:
 
 To get builder details:
 
-* Details for a cluster scoped builder:
+* Custom Cluster Builder:
 
     ```
-    pb builder get <builder name> --cluster
+    kp custom-cluster-builder status <builder-name>
     ```
 
-* Details for a project scoped builder:
+* Custom Builder:
 
     ```
-    pb builder get <builder name>
+    kp custom-builder status <builder-name> --namespace <namespace>
     ```
 
 ## <a id='list-builders'></a> Listing Builders
 
 To list all builders available to the current user:
 
-    pb builder list
+* Custom Cluster Builder:
 
-## <a id='get-builder-status'></a> Retrieving Builder Status
-
-To get the current builder status:
-
-* Status for a cluster scoped builder:
-
-    ```
-    pb builder status <builder name> --cluster
+	```
+    kp custom-cluster-builder list
     ```
 
-* Status for a project scoped builder:
+* Custom Builder:
 
-    ```
-    pb builder status <builder name>
-    ```
+	```
+	kp custom-builder list --namespace <namespace>
+	```
 
 ## <a id='kpack-builder-resources'></a> Corresponding kpack Resources
 
-All Build Service builders are represented as kpack resources.
+All Build Service Custom Builders are represented as kpack resources.
 
-Project Scoped builders utilize the [CustomBuilder](https://github.com/pivotal/kpack/blob/master/docs/custombuilders.md#custom-builder) resource. Cluster Scoped builders utilize the
-[CustomClusterBuilder](https://github.com/pivotal/kpack/blob/master/docs/customclusterbuilders.md#custom-cluster-builder) resource.
+* [CustomBuilder](https://github.com/pivotal/kpack/blob/master/docs/custombuilders.md#custom-builder)
+* [CustomClusterBuilder](https://github.com/pivotal/kpack/blob/master/docs/customclusterbuilders.md#custom-cluster-builder)
