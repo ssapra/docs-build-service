@@ -5,7 +5,7 @@ owner: Build Service Team
 
 A Store provides a collection of buildpacks that can be utilized by Builders. Buildpacks are distributed and added to a store in buildpackages which are docker images containing one or more buildpacks.
 
-Build Service ships with curated collection of Tanzu buildpacks for Java, and Paketo buildpacks for Nodejs, go, PHP, nginx, httpd, and .NET Core. It is important to keep these buildpacks up-to-date. Updates to these buildpacks are provided on the [Tanzu Network Build Service Dependency](https://network.pivotal.io/products/tbs-dependencies/) page.
+Build Service ships with a curated collection of Tanzu buildpacks for Java, and Paketo buildpacks for Nodejs, go, PHP, nginx, httpd, and .NET Core. It is important to keep these buildpacks up-to-date. Updates to these buildpacks are provided on the [Tanzu Network Build Service Dependency](https://network.pivotal.io/products/tbs-dependencies/) page.
 
 In addition to supported Tanzu and Paketo buildpacks, custom buildpackages can be uploaded to Build Service stores.
 
@@ -37,7 +37,7 @@ This can be set to the same value used during installation for the `docker_repos
 
 ## <a id='add-buildpackages-to-store'></a> Adding Buildpackages to a Store
 
-Users can add multiple buildpackages at a time from a Docker registry or from a file on the local machine:
+Users can add multiple buildpackages at a time from a registry or from a file on the local machine:
 
 * If using a Docker registry:
 
@@ -47,13 +47,11 @@ Users can add multiple buildpackages at a time from a Docker registry or from a 
 
 <p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to build service registry on the local machine.</p>
 
-* If using local stack images created with `docker save`:
+* If using local `.cnb` buildpackage files created as described in the [buildpackages docs](https://buildpacks.io/docs/buildpack-author-guide/package-a-buildpack/):
 
     ```
-    kp store add <store-name> <path-to-buildpackage-1>.tar <path-to-buildpackage-2>.tar ...  --local
+    kp store add <store-name> <path-to-buildpackage-1>.cnb <path-to-buildpackage-2>.cnb ...
     ```
-
-<p class='note'><strong>Note:</strong> At this time <code>kp</code> does not support the <code>.cnb</code> buildpackage format</p>
 
 ## <a id='remove-buildpackages-from-store'></a> Removing Buildpackages from a Store
 
