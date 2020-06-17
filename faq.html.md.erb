@@ -30,15 +30,16 @@ Build Service is shipped using a duffle bundle, which is composed of the kuberne
 
 Tanzu Build Service ships with the following buildpacks:
 
-* Tanzu Java `tanzu-buildpacks/java`
-* Paketo NodeJS `paketo-buildpacks/nodejs`
-* Paketo .NET Core `paketo-buildpacks/dotnet-core`
-* Paketo Python `paketo-buildpacks/python`
-* Paketo Golang `paketo-buildpacks/go`
-* Paketo PHP `paketo-buildpacks/php`
-* Paketo HTTPD `paketo-buildpacks/httpd`
-* Paketo NGINX `paketo-buildpacks/nginx`
-* Paketo Procfile `paketo-buildpacks/procfile`
+| Name | ID | Link |
+|-|-|-|
+| Tanzu Java | `tanzu-buildpacks/java` | N/A |
+| Paketo NodeJS | `paketo-buildpacks/nodejs` | https://github.com/paketo-buildpacks/nodejs |
+| Paketo .NET Core | `paketo-buildpacks/dotnet-core` | https://github.com/paketo-buildpacks/dotnet-core |
+| Paketo Golang | `paketo-buildpacks/go` | https://github.com/paketo-buildpacks/go |
+| Paketo PHP | `paketo-buildpacks/php` | https://github.com/paketo-buildpacks/php |
+| Paketo HTTPD | `paketo-buildpacks/httpd` | https://github.com/paketo-buildpacks/httpd |
+| Paketo NGINX | `paketo-buildpacks/nginx` | https://github.com/paketo-buildpacks/nginx |
+| Paketo Procfile | `paketo-buildpacks/procfile` | https://github.com/paketo-buildpacks/procfile |
 
 Updated Buildpacks and new buildpacks will be available on [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) release page.
 
@@ -106,3 +107,20 @@ If you are unable to see a recently built image in the Harbor UI, try pulling
 it using the `docker` CLI to verify that it exists.
 
 ---
+## How do I configure credentials for using gcr as my installation registry?
+
+You can use Google Container Registry for your Tanzu Build Service installation registry.
+
+If you have trouble configuring the registry credentials for gcr when following the [install docs](installing.html#other-install), use the following to set the gcr credentials:
+
+	registry_name="_json_key"
+	registry_password="$(cat /path/to/gcp/service/account/key.json)"
+	duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
+        --set kubernetes_env=CLUSTER-NAME \
+        --set docker_registry=DOCKER-REGISTRY \
+        --set docker_repository=DOCKER-REPOSITORY \
+        --set registry_username="$registry_name" \
+        --set registry_password="$registry_password" \
+        --set custom_builder_image="BUILDER-IMAGE-TAG" \
+        -f /tmp/build-service-${version}.tgz \
+        -m /tmp/relocated.json
