@@ -5,6 +5,18 @@ owner: Build Service Team
 
 Visit the [Build Service dependencies tile on PivNet](https://network.pivotal.io/products/tbs-dependencies). Build Service can be updated with those artifacts both directly against the PivNet registry or via the downloaded versions of those images.
 
+#### <a id='tanzu-net-registry-sign-in'></a> Accessing the Tanzu Net Registry
+
+The Tanzu Net registry (registry.pivotal.io) contains the stack and buildpack images needed to keep Tanzu Build Service up to date to keep applications secure. Once you login to the Tanzu Net registry, you can use the `kp` cli to update dependencies.
+
+You will need the `docker` cli to authenticate with the Tanzu Net registry.
+
+To login to the Tanzu Net registry, run:
+
+	docker login registry.pivotal.io
+
+When prompted for a username and password, use the same credentials you used to login to [Tanzu Net](network.pivotal.io).
+
 ## <a id='online-update'></a> Online update of Dependencies
 
 If the `kp` CLI has access to pull images from the TanzuNet Registry. The stack images and buildpacks used by build service can be updated using the following commands.
@@ -18,7 +30,7 @@ Update the stacks:
     kp stack update full --build-image registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha>
     kp stack update tiny --build-image registry.pivotal.io/tbs-dependencies/build-tiny@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-tiny@sha256:<image-sha>
 
-<p class="note"><strong>Note:</strong> Different stacks may have different build and run images. Both build and run images need to be provided to update the stack.</p>
+<p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
 
 The updated stack can be viewed with the following command:
 
@@ -66,25 +78,4 @@ The updated stack can be viewed with the following command:
 
 ### <a id='offline-store-update'></a> Store Update
 
-Fetch the buildpack images into the docker daemon:
-
-    docker pull registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag>
-    docker pull registry.pivotal.io/tbs-dependencies/<buildpack2:<buildpack2-tag>
-
-Save those images to disk:
-
-    docker save registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag> > buildpack1.tar
-    docker save registry.pivotal.io/tbs-dependencies/<buildpack2>:<buildpack2-tag> > buildpack2.tar
-
-
-Update the store with the previously saved images:
-
-    kp store add <store-name> buildpack1.tar
-
-Additionally, multiple buildpacks can be added to Build Service by passing multiple image references
-
-    kp store add <store-name> buildpack1.tar buildpack2.tar
-
-To list the buildpacks now available in the store:
-
-    kp store status <store-name>
+Offline store updates using the Tanzu Net registry is not currently supported but will be in upcoming releases.
