@@ -16,7 +16,7 @@ There are two types of Custom Builders:
 
 ## <a id='create-builder'></a> Creating a Custom Builder
 
-To create a Custom Builder:
+Use the `kp` cli to create a Custom Builder:
 
 * Custom Cluster Builder:
 
@@ -29,6 +29,8 @@ To create a Custom Builder:
 	```
     kp custom-builder create <name> <tag> --order <order> --stack <stack> --store <store> --namespace <namespace>
     ```
+
+`kp ccb create` and `kp cb create` are respective aliases.
 
 Where:
 * `name`: The name of the builder.
@@ -66,6 +68,8 @@ You can update a Custom Builder resource using the `kp` cli. To update a custom 
 	```
     kp custom-builder patch <name> --order <order> --stack <stack> --store <store> --namespace <namespace>
     ```
+
+`kp ccb patch` and `kp cb patch` are respective aliases.
 
 Where:
 * `name`: The name of the builder.
