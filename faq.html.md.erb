@@ -7,7 +7,7 @@ owner: Build Service Team
 
 **CNBs** are build tools that adhere to the <a href="https://github.com/buildpacks/spec">CNB v3 Specification</a> and transform source code into an OCI compliant runnable image. The v3 specification, lifecycle, and local CLI (`pack`) are governed by the open source <a href="https://buildpacks.io">Cloud Native Buildpacks project.</a>
 
-<a href="https://github.com/pivotal/kpack">kpack</a> is a collection of open source resoure controllers that together function as a Kubernetes native build service. The product provides a declarative image type that builds an image and schedules image rebuilds when dependencies of the image change. kpack is a platform implementation of CNBs in that it utilizes CNBs and the v3 lifecycle to execute image builds.
+<a href="https://github.com/pivotal/kpack">kpack</a> is a collection of open source resource controllers that together function as a Kubernetes native build service. The product provides a declarative image type that builds an image and schedules image rebuilds when dependencies of the image change. kpack is a platform implementation of CNBs in that it utilizes CNBs and the v3 lifecycle to execute image builds.
 
 **Tanzu Build Service** is a commercial product owned and operated by VMware that utilizes kpack and CNBs. Build Service provides additional abstractions intended to ease the use of the above technologies in Enterprise settings. These abstractions are covered in detail throughout the documentation on this site. Additionally, customers of Build Service are entitled to support and VMware Tanzu  buildpacks.
 
@@ -22,7 +22,7 @@ By default Build Service will tag each built image twice. The first tag will be 
 
 ## How does TBS work in air gapped environments?
 
-Build Service is shipped using a duffle bundle, which is composed of the kubernetes manifests and images required to successfully install Build Service. The `relocate` command ensure all the images can be relocated to airgapped registries, and by provideing the credentials to the air-gapped registry when executing the `install` command, Build Service can then use that secret to pull images from said registry, hence working in air gapped environments.
+Build Service is shipped using a duffle bundle, which is composed of the kubernetes manifests and images required to successfully install Build Service. The `relocate` command ensure all the images can be relocated to airgapped registries, and by providing the credentials to the air-gapped registry when executing the `install` command, Build Service can then use that secret to pull images from said registry, hence working in air-gapped environments.
 
 ---
 
@@ -30,14 +30,16 @@ Build Service is shipped using a duffle bundle, which is composed of the kuberne
 
 Tanzu Build Service ships with the following buildpacks:
 
-* Tanzu Java `io.pivotal.java`
-* Tanzu NodeJS `io.pivotal.nodejs`
-* .NET Core `org.cloudfoundry.dotnet-core`
-* Python `org.cloudfoundry.python`
-* Golang `org.cloudfoundry.go`
-* PHP `org.cloudfoundry.php`
-* HTTPD `org.cloudfoundry.httpd`
-* NGINX `org.cloudfoundry.nginx`
+| Name | ID | Link |
+|-|-|-|
+| Tanzu Java | `tanzu-buildpacks/java` | N/A |
+| Paketo NodeJS | `paketo-buildpacks/nodejs` | https://github.com/paketo-buildpacks/nodejs |
+| Paketo .NET Core | `paketo-buildpacks/dotnet-core` | https://github.com/paketo-buildpacks/dotnet-core |
+| Paketo Golang | `paketo-buildpacks/go` | https://github.com/paketo-buildpacks/go |
+| Paketo PHP | `paketo-buildpacks/php` | https://github.com/paketo-buildpacks/php |
+| Paketo HTTPD | `paketo-buildpacks/httpd` | https://github.com/paketo-buildpacks/httpd |
+| Paketo NGINX | `paketo-buildpacks/nginx` | https://github.com/paketo-buildpacks/nginx |
+| Paketo Procfile | `paketo-buildpacks/procfile` | https://github.com/paketo-buildpacks/procfile |
 
 Updated Buildpacks and new buildpacks will be available on [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) release page.
 
@@ -49,59 +51,39 @@ When interacting with a registry or a git repo that has been deployed using a se
 
 ---
 
-Question: How do I configure a secret to publish images to Dockerhub?
+## How do I configure a secret to publish images to Dockerhub?
 
-Dockerhub requires the secret registry to be exactly: "https://index.docker.io/v1/". 
-
-1. Create a YAML file with these values:
+1. Create a dockerhub secret with the `kp` cli:
 
     ```
-    project: PROJECT-NAME
-    repository: https://index.docker.io/v1/
-    username: DOCKERHUB-USERNAME
-    password: DOCKERHUB-PASSWORD
+    kp secret create my-dockerhub-creds --dockerhub DOCKERHUB-USERNAME
     ```
-    Where:
-    * `PROJECT-NAME` is the name of your Build Service project/namespace.
-    * `DOCKERHUB-USERNAME` is your dockerhub username.
-    * `DOCKERHUB-PASSWORD` is your dockerhub password.
 
-1. Create the secret by running:
-
-    ```
-    pb secrets registry apply -f SECRET-YAML-FILE
-    ```
-    Where `SECRET-YAML-FILE` is the YAML file you created in the previous step.
-
+    Where `DOCKERHUB-USERNAME` is your dockerhub username
+    You will be prompted for your dockerhub password
 
 ---
 
 ## How can I configure an image to pull from a private GitHub repository?
 
-To configure an image to pull from a private GitHub repository:
+1. Create a github secret with the `kp` cli:
 
-1. Create a personal access token by following the procedure in [Creating a personal access token for the command line](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) in the GitHub documentation.
+	Using a [git ssh key](https://help.github.com/en/github/authenticating-to-github/adding-a-new-ssh-key-to-your-github-account)
 
-1. Create a YAML file with these values:
-
+	```
+    kp secret create my-git-ssh-cred --git git@github.com --git-ssh-key PATH-TO-GITHUB-PRIVATE-KEY
     ```
-    project: PROJECT-NAME
-    repository: GITHUB-REPOSITORY-URL
-    username: PERSONAL-ACCESS-TOKEN
-    password: PASSWORD
-    ```
-    Where:
-    * `PROJECT-NAME` is the name of your Build Service project/namespace.
-    * `GITHUB-REPOSITORY-URL` is the URL of your GitHub repository.
-    * `PERSONAL-ACCESS-TOKEN` is the personal access token you generated in the previous step.
-    * `PASSWORD` is the password for your GitHub repository.
 
-1. Create the secret by running:
+    Where `PATH-TO-GITHUB-PRIVATE-KEY` is the absolute local path to the github ssh private key
 
-    ```
-    pb secrets git apply -f SECRET-YAML-FILE
-    ```
-    Where `SECRET-YAML-FILE` is the YAML file you created in the previous step.
+    Or with a basic auth github username and password
+
+	```
+	kp secret create my-git-cred --git https://github.com --git-user GITHUB-USERNAME
+	```
+
+	Where `GITHUB-USERNAME` is your github username
+	You will be prompted for your github password
 
 ---
 
@@ -109,12 +91,12 @@ To configure an image to pull from a private GitHub repository:
 
 The run image must be publicly readable or readable with the registry credentials configured in a project/namespace.
 
-To see where the build service run image is located run: `pb stack status`.
+To see where the build service run image is located run: `kp stack status STACK-NAME`.
 
 To update the the location of the run image:
 
 1. Use `kubectl` to update the `buildservice.pivotal.io/defaultRepository` annotation on the `build-service-stack` Stack resource.
-1. Re-run [`pb stack update`](managing-stack.html) with the most recent build image and run image from the [build-service-dependencies](https://network.pivotal.io/products/tbs-dependencies/) page.
+1. Re-run [`kp stack update`](managing-stack.html) with the most recent build image and run image from the [build-service-dependencies](https://network.pivotal.io/products/tbs-dependencies/) page.
 
 ---
 
@@ -125,3 +107,20 @@ If you are unable to see a recently built image in the Harbor UI, try pulling
 it using the `docker` CLI to verify that it exists.
 
 ---
+## How do I configure credentials for using gcr as my installation registry?
+
+You can use Google Container Registry for your Tanzu Build Service installation registry.
+
+If you have trouble configuring the registry credentials for gcr when following the [install docs](installing.html#other-install), use the following to set the gcr credentials:
+
+	registry_name="_json_key"
+	registry_password="$(cat /path/to/gcp/service/account/key.json)"
+	duffle install BUILD-SERVICE-INSTALLATION-NAME -c /tmp/credentials.yml  \
+        --set kubernetes_env=CLUSTER-NAME \
+        --set docker_registry=DOCKER-REGISTRY \
+        --set docker_repository=DOCKER-REPOSITORY \
+        --set registry_username="$registry_name" \
+        --set registry_password="$registry_password" \
+        --set custom_builder_image="BUILDER-IMAGE-TAG" \
+        -f /tmp/build-service-${version}.tgz \
+        -m /tmp/relocated.json
