@@ -3,24 +3,30 @@ title: Managing Images and Builds
 owner: Build Service Team
 ---
 
+This topic contains the following sections:
+
+- [Images](#images)
+- [Builds](#builds)
+- [Managing Images with kubectl](#image-with-kubectl)
+
 # <a id='images'></a> Images
 
-Images provide a configuration for build service to build and maintain a docker image utilizing Tanzu, Paketo, and custom [Cloud Native Buildpacks](https://buildpacks.io).
+Images provide a configuration for Build Service to build and maintain a Docker image utilizing Tanzu, Paketo, and custom [Cloud Native Buildpacks](https://buildpacks.io).
 
 Build Service will monitor the inputs to the image configuration to rebuild the image when the underlying source or buildpacks have changed.
 
-The following procedures describe how to create and manage images in Build Service with the `kp` cli.
+The following procedures describe how to create and manage images in Build Service with the `kp` CLI.
 
 ## <a id='create-image'></a> Creating Images
 
 Prerequisites:
 
 * [Access to a cluster](accessing-tbs.html) running Build Service.
-* Configured write [secrets](managing-secrets.html) for your docker registry.
+* Configured write [secrets](managing-secrets.html) for your Docker registry.
 
 #### Source Code
 
-The `kp` cli supports creating Images using source code from the following locations:
+The `kp` CLI supports creating Images using source code from the following locations:
 
 * [Git based source](#create-image-with-git-repo)
 * [Blob store](#create-image-by-referencing-blob-store-source)
@@ -49,17 +55,18 @@ To create an image using source code from a git repository run:
       --git-revision <git-revision>
 
 Where:
+
 * `name`: The name of the image.
 * `tag`: The registry location where the image will be created.
 * `custom-builder`: (optional) Custom Builder name to be used in the image. Cannot be used with `custom-cluster-builder`.
 * `custom-cluster-builder`: (optional) Custom Cluster Builder name to be used in the image. Defaults to `default` when `custom-builder` is not set. Cannot be used with `custom-builder`.
-* `namespace`: (optional) The kubernetes namespace for the image. Defaults to the local kubernetes current-context namespace.
+* `namespace`: (optional) The Kubernetes namespace for the image. Defaults to the local Kubernetes current-context namespace.
 * `env` (optional): Image environment variable configuration as key=val pairs (`env_var=env_val`). The `--env` flag can be specified multiple times.
 * `--wait` flag (optional) Waits for image create to be reconciled and tails resulting build logs.
-* `git-repo` Git repository url of the source code.
+* `git-repo` Git repository URL of the source code.
 * `git-revision` (optional) The Git revision of the code that the image is built against. Can be either a `branch`, `tag` or a commit `sha`. When you target the image against a branch, Build Service triggers a build for every new commit. Defaults to `master`.
 
-<p class='note'><strong>Note:</strong> If the `git-repo` is a private repository, you must configure the git credentials. For more info, see [Managing Git Repositories for a Project](managing-secrets.html#manage-git-repos)</p>
+<p class='note'><strong>Note:</strong> If the <code>git-repo</code> is a private repository, you must configure the git credentials. For more information, see <a href="managing-secrets.html#manage-git-repos">Managing Git Repositories for a Project</a>.</p>
 
 ### <a id='create-image-by-referencing-blob-store-source'></a> Create an Image With Source Code In A Blob Store
 
@@ -75,16 +82,17 @@ To create an image using source code from blob store:
 	  --blob <blob-url>
 
 Where:
+
 * `name`: The name of the image.
 * `tag`: The registry location where the image will be created.
 * `custom-builder`: (optional) Custom Builder name to be used in the image. Cannot be used with `custom-cluster-builder`.
 * `custom-cluster-builder`: (optional) Custom Cluster Builder name to be used in the image. Defaults to `default` when `custom-builder` is not set. Cannot be used with `custom-builder`.
-* `namespace`: (optional) The kubernetes namespace for the image. Defaults to the local kubernetes current-context namespace.
+* `namespace`: (optional) The Kubernetes namespace for the image. Defaults to the local Kubernetes current-context namespace.
 * `env` (optional): Image environment variable configuration as key=val pairs (`env_var=env_val`). The `--env` flag can be specified multiple times.
 * `--wait` flag (optional) Waits for image create to be reconciled and tails resulting build logs.
 * `blob-url` URL of the source code blob file.
 
-<p class='note'><strong>Note:</strong> The source code file in the blob store must be publicly viewable or the `blob-url` must contain the basic auth credentials.</p>
+<p class='note'><strong>Note:</strong> The source code file in the blob store must be publicly viewable or the <code>blob-url</code> must contain the basic authentication credentials.</p>
 
 ### <a id='create-image-with-local-source-code'></a> Creating an Image With Local Source Code
 
@@ -100,18 +108,19 @@ To create an image using source code from a local machine run:
 	  --local-path <source-path>
 
 Where:
+
 * `name`: The name of the image.
 * `tag`: The registry location where the image will be created.
 * `custom-builder`: (optional) Custom Builder name to be used in the image. Cannot be used with `custom-cluster-builder`.
 * `custom-cluster-builder`: (optional) Custom Cluster Builder name to be used in the image. Defaults to `default` when `custom-builder` is not set. Cannot be used with `custom-builder`.
-* `namespace`: (optional) The kubernetes namespace for the image. Defaults to the local kubernetes current-context namespace.
+* `namespace`: (optional) The Kubernetes namespace for the image. Defaults to the local Kubernetes current-context namespace.
 * `env` (optional): Image environment variable configuration as key=val pairs (`env_var=env_val`). The `--env` flag can be specified multiple times.
 * `--wait` flag (optional) Waits for image create to be reconciled and tails resulting build logs.
 * `source-path` Path to local source code.
 
 ## <a id='patch-images'></a> Patching Images
 
-Users can patch their existing images with the `kp` cli. Running a patch will trigger a new build of the image if any of the build inputs are changed.
+Users can patch their existing images with the `kp` CLI. Running a patch will trigger a new build of the image if any of the build inputs are changed.
 
 Patch images with the following commands:
 
@@ -138,7 +147,7 @@ Patch images with the following commands:
 	  --blob <blob-url>
     ```
 
-* With With Local Source Code
+* With Local Source Code
 
 	```
     kp image patch <name> \
@@ -150,20 +159,21 @@ Patch images with the following commands:
     ```
 
 Where:
+
 * `name`: The name of the image to patch.
-* `namespace`: (optional) The kubernetes namespace for the image. Defaults to the local kubernetes current-context namespace.
+* `namespace`: (optional) The Kubernetes namespace for the image. Defaults to the local Kubernetes current-context namespace.
 * `env` (optional): Image environment variable configuration as key=val pairs (`env_var=env_val`). The `--env` flag can be specified multiple times.
-* `git-repo` Git repository url of the source code. Must select one of `git-repo`, `blob-url`, or `source-path`
+* `git-repo` Git repository URL of the source code. Must select one of `git-repo`, `blob-url`, or `source-path`
 * `git-revision` (optional) The Git revision of the code that the image is built against. Can be either a `branch`, `tag` or a commit `sha`. When you target the image against a branch, Build Service triggers a build for every new commit. Defaults to `master`.
 * `blob-url` URL of the source code blob file. Must select one of `git-repo`, `blob-url`, or `source-path`
 * `source-path` Path to local source code. Must select one of `git-repo`, `blob-url`, or `source-path`
 
-<p class='note'><strong>Note:</strong> If the `git-repo` is a private repository, you must configure the git credentials. For more info, see [Managing Git Repositories for a Project](managing-secrets.html#manage-git-repos)</p>
-<p class='note'><strong>Note:</strong> The `tag` (location in a registry) and `name` of an image cannot be modified. To change these fields, you must create a new image.</p>
+<p class='note'><strong>Note:</strong> If the <code>git-repo</code> is a private repository, you must configure the git credentials. For more information, see <a href="managing-secrets.html#manage-git-repos">Managing Git Repositories for a Project</a>.</p>
+<p class='note'><strong>Note:</strong> The <code>tag</code> location in a registry and <code>name</code> of an image cannot be modified. To change these fields, you must create a new image.</p>
 
 ## <a id='list-images'></a> Listing Images
 
-To list all the image configurations in a kubernetes namespace:
+To list all the image configurations in a Kubernetes namespace:
 
     kp image list --namespace <namespace>
 
@@ -238,7 +248,7 @@ Reason:    COMMIT
 
 ## <a id='delete-images'></a> Deleting an Image
 
-This procedure describes how to delete a Build Service image with the `kp` cli.
+This procedure describes how to delete a Build Service image with the `kp` CLI.
 
 <p class="note warning"><strong>Warning:</strong> Deleting an image deletes the image resource and all the builds that the image resource owns. It does not delete the app images generated by those builds from the registry.</p>
 
@@ -256,7 +266,7 @@ When you successfully delete an image, you will see this message:
 
 # <a id='builds'></a> Builds
 
-The procedures in this section describe how to view information and logs for image builds using the `kp` cli.
+The procedures in this section describe how to view information and logs for image builds using the `kp` CLI.
 
 ## <a id='list-builds'></a> Listing Builds for an Image
 
@@ -291,7 +301,7 @@ The following describes the fields in the example output:
 
 * `REASON`: Describes why an image rebuild occured. These reasons include:
     * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and you run `kp image apply`.
-    * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes.
+    * `COMMIT`: Occurs when new source code is committed to a branch or tag that Build Service is monitoring for changes.
     * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image.
         <p class="note"><strong>Note:</strong> A rebuild can occur for more than one reason. When there are multiple reasons for a rebuild, the <code>kp</code> CLI output shows the primary <code>Reason</code> and appends a <code>+</code> sign to the <code>Reason</code> field. The priority rank for the <code>Reason</code>, from highest to lowest, is <code>CONFIG</code>, <code>COMMIT</code>, and <code>BUILDER</code>.</p>
     * `STACK`: Occurs when a new base OS image, called a `run image`, is available.
@@ -335,7 +345,7 @@ The following describes the fields in the example output:
 
 * `Reason`: Describes why an image rebuild occured. These reasons include:
     * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and you run `kp image apply`.
-    * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes.
+    * `COMMIT`: Occurs when new source code is committed to a branch or tag that Build Service is monitoring for changes.
     * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image.
         <p class="note"><strong>Note:</strong> A rebuild can occur for more than one reason. When there are multiple reasons for a rebuild, the <code>kp</code> CLI output shows the primary <code>Reason</code> and appends a <code>+</code> sign to the <code>Reason</code> field. The priority rank for the <code>Reason</code>, from highest to lowest, is <code>CONFIG</code>, <code>COMMIT</code>, and <code>BUILDER</code>.</p>
     * `STACK`: Occurs when a new base OS image (called a `run image`) is available.
@@ -365,6 +375,7 @@ To get logs from a build run:
 	kp build logs <image> --build <build-number> --namespace <namespace>
 
 Where:
+
 * `image-name` is the name of the image the build is associated with
 * `build-name` (optional) is the index of the build from [listing builds](#list-builds). Defaults to latest build.
 
@@ -494,13 +505,13 @@ Build successful
 
 Build Services images can be created by applying the [kpack image resources](https://github.com/pivotal/kpack/blob/master/docs/image.md) to cluster.
 
-The `default` service account should be used to utilize build service registry and git secrets.
+Use the `default` service account for Build Service registry and git secrets.
 
 ### <a id='kubectl-builders'></a> Using a Build Service Builder with kubectl
 
 The `builder` field on the kpack Image spec describes the builder that will build the image.
 
-* Using a a Custom Builder
+* Using a Custom Builder
 
     ```yaml
     builder:
@@ -524,7 +535,7 @@ For more info on manging builders, see [Managing Builders](managing-builders.htm
 
 ### <a id='kubectl-secrets'></a> Using Secrets
 
-The `default` service account should be used to utilize build service registry and git secrets. kpack will default to the `default` service account if no service account is specified.
+Use the `default` service account for Build Service registry and git secrets. kpack will default to the `default` service account if no service account is specified.
 
 ### <a id='image-status'></a> Image Status
 
