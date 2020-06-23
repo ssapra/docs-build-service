@@ -3,477 +3,494 @@ title: Managing Images and Builds
 owner: Build Service Team
 ---
 
-Images provide a configuration for build service to build and maintain a docker image utilizing Tanzu Buildpacks and custom [Cloud Native Buildpacks](https://buildpacks.io).
+# <a id='images'></a> Images
+
+Images provide a configuration for build service to build and maintain a docker image utilizing Tanzu, Paketo, and custom [Cloud Native Buildpacks](https://buildpacks.io).
 
 Build Service will monitor the inputs to the image configuration to rebuild the image when the underlying source or buildpacks have changed.
 
-The following procedures describe how to create and manage images in Build Service.
+The following procedures describe how to create and manage images in Build Service with the `kp` cli.
 
 ## <a id='create-image'></a> Creating Images
 
 Prerequisites:
 
 * [Access to a cluster](accessing-tbs.html) running Build Service.
-* `pb project target` the namespace or project you want to create an image.
 * Configured write [secrets](managing-secrets.html) for your docker registry.
 
-### <a id='image-config'></a> Image Configuration
+#### Source Code
 
-To create an image, you must create an image configuration YAML that includes the following properties:
+The `kp` cli supports creating Images using source code from the following locations:
 
-* `source`: Defines the Git location of the code that the image is built against. The `revision` can be either a `branch`, `tag` or a commit `sha`. When you target the image against a branch, Build Service triggers a build for every new commit.
+* [Git based source](#create-image-with-git-repo)
+* [Blob store](#create-image-by-referencing-blob-store-source)
+* [Local machine](#create-image-with-local-source-code)
 
-* `build`: Defines additional configuration for your app such as buildpack version numbers.
-  - Includes an `env` property that supplies values to the build by setting environment variables.
-  - Each `env` environment variable is an object with a `name` and a `value`, for example `BP_JAVA_VERSION` and `8.*`.
+You can specify only one location for app source code.
 
-* `image`: Defines the destination registry of the builds for the image. You must specify the credentials for the target registry in the `registries` section of the project configuration. For more information, see [Manage Image Registries for a Project](#manage-image-registries). The value for `image` must match the domain of one of the registries that you provided in the project configuration. Build Service uses the value of `image.tag` to refer to the image after it is created. If you update the image `tag`, Build Service creates a new image.
+#### Builders
 
-For more information about creating and applying image configurations for apps with source code in GitHub or source code saved locally, see [Apply Image Configurations](#apply-image).
+Users can select a Custom Builder or a Custom Cluster Builder to be used to create image builds. You can use any of the available Custom Builders or Custom Cluster Builders with any of the source types (git, blob, or local).
 
-## <a id='apply-image'></a> Applying Image Configurations
+If you do not use the `--custom-builder` or `--custom-cluster-builder` flags, the `default` Custom Cluster Builder will be used.
 
-Build Service supports builds against apps with source code that is saved in a Git repository or saved on your local machine. You can specify only one location for app source code.
+For more information on Builders, see [Managing Builders](managing-builders.html).
 
-### <a id='apply-image-with-git-repo'></a> Applying an Image With Source Code in a Git Repository
+### <a id='create-image-with-git-repo'></a> Creating an Image With Source Code in a Git Repository
 
-To apply an image configuration to Build Service:
+To create an image using source code from a git repository run:
 
-1. Create an image configuration YAML file. For example:
+    kp image create <name> <tag> \
+      [--custom-builder <custom-builder> or --custom-cluster-builder <custom-cluster-builder>] \
+      --namespace <namespace> \
+      --env <env> \
+      --wait \
+      --git <git-repo> \
+      --git-revision <git-revision>
 
-    ```
-    source:
-      git:
-        url: https://github.com/PATH-TO-EXAMPLE-APP
-        revision: master
-    build:
-      env:
-      - name: ENV-NAME
-        value: ENV-VALUE
-    image:
-      tag: REGISTRY-DOMAIN/PATH-TO-EXAMPLE-APP-IMAGE
-    ```
+Where:
+* `name`: The name of the image.
+* `tag`: The registry location where the image will be created.
+* `custom-builder`: (optional) Custom Builder name to be used in the image. Cannot be used with `custom-cluster-builder`.
+* `custom-cluster-builder`: (optional) Custom Cluster Builder name to be used in the image. Defaults to `default` when `custom-builder` is not set. Cannot be used with `custom-builder`.
+* `namespace`: (optional) The kubernetes namespace for the image. Defaults to the local kubernetes current-context namespace.
+* `env` (optional): Image environment variable configuration as key=val pairs (`env_var=env_val`). The `--env` flag can be specified multiple times.
+* `--wait` flag (optional) Waits for image create to be reconciled and tails resulting build logs.
+* `git-repo` Git repository url of the source code.
+* `git-revision` (optional) The Git revision of the code that the image is built against. Can be either a `branch`, `tag` or a commit `sha`. When you target the image against a branch, Build Service triggers a build for every new commit. Defaults to `master`.
 
-    Where:
-      * `PATH-TO-EXAMPLE-APP` is the path to an app on GitHub.
-      * `ENV-NAME` is the name of your build environment.
-      * `ENV-VALUE` is the value of your build environment.
-      * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
-        * **Docker Hub**: No registry required.
-        * **GCR**: Enter `gcr.io`.
-        * **Harbor**: Enter the domain that is specific to your deployment of the registry.
-        * **Artifactory**: Enter the domain that is specific to your deployment of the registry
-      * `PATH-TO-EXAMPLE-APP-IMAGE` is the local path to the image registry.
+<p class='note'><strong>Note:</strong> If the `git-repo` is a private repository, you must configure the git credentials. For more info, see [Managing Git Repositories for a Project](managing-secrets.html#manage-git-repos)</p>
 
-1. Apply the image configuration by running:
+### <a id='create-image-by-referencing-blob-store-source'></a> Create an Image With Source Code In A Blob Store
 
-    ```
-    pb image apply -f PATH-TO-IMAGE-CONFIGURATION
-    ```
-    Where `PATH-TO-IMAGE-CONFIGURATION` is the local path where you saved the image configuration YAML file.
+Users can specify source code in a blob store saved as a compressed file (`zip`, `tar.gz`, `.tar`) or a `.jar` file.
 
-### <a id='apply-image-with-local-source-code'></a> Applying an Image With Local Source Code
+To create an image using source code from blob store:
 
-Users can apply source code from a directory, compressed source code (`zip`, `tar.gz`, `.tar`), or a `.jar` file.
+	kp image create <name> <tag> \
+	  [--custom-builder <custom-builder> or --custom-cluster-builder <custom-cluster-builder>] \
+	  --namespace <namespace> \
+	  --env <env> \
+	  --wait \
+	  --blob <blob-url>
 
-To apply an image configuration that uses local source code:
+Where:
+* `name`: The name of the image.
+* `tag`: The registry location where the image will be created.
+* `custom-builder`: (optional) Custom Builder name to be used in the image. Cannot be used with `custom-cluster-builder`.
+* `custom-cluster-builder`: (optional) Custom Cluster Builder name to be used in the image. Defaults to `default` when `custom-builder` is not set. Cannot be used with `custom-builder`.
+* `namespace`: (optional) The kubernetes namespace for the image. Defaults to the local kubernetes current-context namespace.
+* `env` (optional): Image environment variable configuration as key=val pairs (`env_var=env_val`). The `--env` flag can be specified multiple times.
+* `--wait` flag (optional) Waits for image create to be reconciled and tails resulting build logs.
+* `blob-url` URL of the source code blob file.
 
-1. Create an image configuration file that has no Git properties. For example:
+<p class='note'><strong>Note:</strong> The source code file in the blob store must be publicly viewable or the `blob-url` must contain the basic auth credentials.</p>
 
-    ```
-    build:
-      env:
-      - name: ENV-NAME
-        value: ENV-VALUE
-    image:
-      tag: REGISTRY-DOMAIN/REST-OF-TAG
-    ```
-    Where:
-    * `ENV-NAME` is the name of your build environment.
-    * `ENV-VALUE` is the value of your build environment.
-    * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
-      * **Docker Hub**: No registry required.
-      * **GCR**: Enter `gcr.io`.
-      * **Harbor**: Enter the domain that is specific to your deployment of the registry.
-      * **Artifactory**: Enter the domain that is specific to your deployment of the registry
-    * `REST-OF-TAG` is the rest of the tag for your image
+### <a id='create-image-with-local-source-code'></a> Creating an Image With Local Source Code
 
-1. Apply the image configuration by running:
+Users can apply local source code from a directory, compressed source code (`zip`, `tar.gz`, `.tar`), or a `.jar` file.
 
-    ```
-    pb image apply -f PATH-TO-IMAGE-CONFIGURATION/IMAGE-CONFIGURATION.yaml -p /PATH-TO-APP-DIRECTORY
-    ```
-    Where:
-    * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
-    * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file.
-    * `PATH-TO-APP-DIRECTORY` is the local path to the app directory.
+To create an image using source code from a local machine run:
 
-<p class='note'><strong>Note:</strong> To use this feature, the user must have access to the Docker registry specified by the <code>tag</code> property on the local machine.</p>
+	kp image create <name> <tag> \
+	  [--custom-builder <custom-builder> or --custom-cluster-builder <custom-cluster-builder>] \
+	  --namespace <namespace> \
+	  --env <env> \
+	  --wait \
+	  --local-path <source-path>
 
-### <a id='apply-image-by-referencing-blob-store-source'></a> Applying an Image With Source Code In A Blob Store
+Where:
+* `name`: The name of the image.
+* `tag`: The registry location where the image will be created.
+* `custom-builder`: (optional) Custom Builder name to be used in the image. Cannot be used with `custom-cluster-builder`.
+* `custom-cluster-builder`: (optional) Custom Cluster Builder name to be used in the image. Defaults to `default` when `custom-builder` is not set. Cannot be used with `custom-builder`.
+* `namespace`: (optional) The kubernetes namespace for the image. Defaults to the local kubernetes current-context namespace.
+* `env` (optional): Image environment variable configuration as key=val pairs (`env_var=env_val`). The `--env` flag can be specified multiple times.
+* `--wait` flag (optional) Waits for image create to be reconciled and tails resulting build logs.
+* `source-path` Path to local source code.
 
-To apply an image and reference source code that lives in a blobstore:
+## <a id='patch-images'></a> Patching Images
 
-1. Create an image configuration file that has no Git properties. For example:
+Users can patch their existing images with the `kp` cli. Running a patch will trigger a new build of the image if any of the build inputs are changed.
 
-    ```
-    build:
-      source:
-        blob:
-          url: https://storage.blob.com/my-org/myapp.jar
-      env:
-      - name: ENV-NAME
-        value: ENV-VALUE
-    image:
-      tag: REGISTRY-DOMAIN/REST-OF-TAG
-    ```
-    Where:
-    * `ENV-NAME` is the name of your build environment.
-    * `ENV-VALUE` is the value of your build environment.
-    * `REGISTRY-DOMAIN` is the domain for the registry. Use the following guidance to complete the `registry` field, depending on your image registry:
-      * **Docker Hub**:No registry required.
-      * **GCR**: Enter `gcr.io`.
-      * **Harbor**: Enter the domain that is specific to your deployment of the registry.
-      * **Artifactory**: Enter the domain that is specific to your deployment of the registry
-    * `REST-OF-TAG` is the rest of the tag for your image
+Patch images with the following commands:
 
-1. Apply the image configuration by running:
+* With Source Code in a Git Repository
 
-    ```
-    pb image apply -f PATH-TO-IMAGE-CONFIGURATION/IMAGE-CONFIGURATION.yaml
-    ```
-    Where:
-    * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
-    * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file.
-
-### <a id='apply-image-with-custom-builder'></a> Applying an Image With A Custom Builder
-
-Users can use any of the available builders with any of the source types (git, blob, or local).
-
-To apply an image and reference a custom builder:
-
-1. Create an image configuration file that has builder properties:
-
-    ```
-    build:
-      source:
-        git:
-          url: https://github.com/PATH-TO-EXAMPLE-APP
-          revision: master
-    builder:
-      name: BUILDER-NAME
-      scope: Project OR Cluster
-    image:
-      tag: REGISTRY-DOMAIN/REST-OF-TAG
+	```
+    kp image patch <name> \
+	  [--custom-builder <custom-builder> or --custom-cluster-builder <custom-cluster-builder>] \
+	  --namespace <namespace> \
+	  --env <env> \
+	  --wait \
+	  --git <git-repo> \
+	  --git-revision <git-revision>
     ```
 
-1. Apply the image configuration by running:
+* With Source Code In A Blob Store
 
+	```
+    kp image patch <name> \
+	  [--custom-builder <custom-builder> or --custom-cluster-builder <custom-cluster-builder>] \
+	  --namespace <namespace> \
+	  --env <env> \
+	  --wait \
+	  --blob <blob-url>
     ```
-    pb image apply -f /PATH-TO-IMAGE-CONFIGURATION/IMAGE-CONFIGURATION.yaml
+
+* With With Local Source Code
+
+	```
+    kp image patch <name> \
+	  [--custom-builder <custom-builder> or --custom-cluster-builder <custom-cluster-builder>] \
+	  --namespace <namespace> \
+	  --env <env> \
+	  --wait \
+	  --local-path <source-path>
     ```
-    Where:
-    * `PATH-TO-IMAGE-CONFIGURATION` is the local path to the image configuration YAML file.
-    * `IMAGE-CONFIGURATION` is the name of the image configuration YAML file.
+
+Where:
+* `name`: The name of the image to patch.
+* `namespace`: (optional) The kubernetes namespace for the image. Defaults to the local kubernetes current-context namespace.
+* `env` (optional): Image environment variable configuration as key=val pairs (`env_var=env_val`). The `--env` flag can be specified multiple times.
+* `git-repo` Git repository url of the source code. Must select one of `git-repo`, `blob-url`, or `source-path`
+* `git-revision` (optional) The Git revision of the code that the image is built against. Can be either a `branch`, `tag` or a commit `sha`. When you target the image against a branch, Build Service triggers a build for every new commit. Defaults to `master`.
+* `blob-url` URL of the source code blob file. Must select one of `git-repo`, `blob-url`, or `source-path`
+* `source-path` Path to local source code. Must select one of `git-repo`, `blob-url`, or `source-path`
+
+<p class='note'><strong>Note:</strong> If the `git-repo` is a private repository, you must configure the git credentials. For more info, see [Managing Git Repositories for a Project](managing-secrets.html#manage-git-repos)</p>
+<p class='note'><strong>Note:</strong> The `tag` (location in a registry) and `name` of an image cannot be modified. To change these fields, you must create a new image.</p>
 
 ## <a id='list-images'></a> Listing Images
 
-To list all the image configurations for the currently targeted project:
+To list all the image configurations in a kubernetes namespace:
 
-    pb image list
+    kp image list --namespace <namespace>
 
 The following is an example of the output for this command:
 
 ```
-Project: some-project
-
-Images
-------
-first/image:tag
-second/image:tag
-third/image:tag
+NAME           READY    LATEST IMAGE
+first-image    True     first/image:tag
+second-image   True     second/image:tag
+first-image    False    third/image:tag
 ```
 
-### <a id='rebuild-image'></a> Image Rebuilds
+## <a id='rebuild-image'></a> Image Rebuilds
 
-Rebuilds happen in three ways. An imperative rebuild occurs when you make edits to the image configuration and run `pb image apply`. An automatic rebuild occurs when build inputs change, without you editing the image configuration itself. Finally, a user can trigger a rebuild manually.
+Rebuilds happen in three ways:
 
-You can initiate an imperative rebuild in these ways:
+1. An imperative rebuild occurs when you patch an image with `kp image patch`.
+1. An automatic rebuild occurs when build inputs change (source code, stack, or buildpacks).
+1. A user can trigger a rebuild manually.
 
-* You update the commit, branch, Git repository, or build fields on the image's configuration file and re-apply it by running `pb image apply`.
+An imperative rebuild will be initiated if any of the following changes are made to an image:
 
-* You upload a new copy of the local source code by running `pb image apply -p PATH-TO-SOURCE`, where `PATH-TO-SOURCE` is the source code path.
+* An update to the commit, branch, Git repository, or other arguments to `kp image patch`.
 
-For more information, see [Apply Image Configurations](#apply-image).
+* You upload a new copy of the local source code by running `kp image patch --local-path <source-path>`, where `<source-path>` is the source code path.
+
+For more information, see [Patching Images](#patch-images).
 
 Build Service auto-rebuilds images when one or more of the following build inputs change:
 
 * New buildpack versions are made available through an updated builder image.
-    - The Build Service Bundle on Pivotal Network includes the latest buildpacks contained in a builder image.
-    - When upgrading PBS, you must relocate new buildpack versions over to your container registry.
+    - The Build Service Bundle on [Tanzu Network](https://network.pivotal.io/products/build-service) includes the latest buildpacks contained in a builder image.
+    - When upgrading TBS, you must relocate new buildpack versions over to your container registry. See [Updating Build Service Dependencies](updating-deps.html) for more details.
 
-* There is a new commit on a branch or tag Build Service is tracking.
+* There is a new commit on a branch or tag Tanzu Build Service is tracking.
 
-* There is a new base OS image available, such as `cflinuxfs3`.
+* There is a new Stack (ie. base OS image) available, such as `full`, `tiny`, or `base`.
 
 ### <a id='trigger-rebuild-image'></a> Trigger an Image Rebuild
 
-You can initiate a manual rebuild using `pb`:
+You can initiate a manual rebuild using `kp`:
 
-    pb image trigger IMAGE-TAG
+    kp image trigger <image-name> --namespace <namespace>
 
 This is useful for debugging image builds.
 
-### <a id='monitor-builds'></a> Monitoring Builds for an Image
+## <a id='view-image-status'></a> Viewing the Status of an Image
 
-The procedures in this section describe how to view information and logs for image builds.
-
-Build Service stores the ten most recent successful builds and the ten most recent failed builds.
-
-To view logs for a build, you must provide the build number. You cannot view logs for a build by referencing the image digest.
-
-### <a id='view-all-builds'></a> Viewing All Builds for an Image
-
-To list all the builds created for an image:
-
-    pb image builds IMAGE-TAG
-
-Where `IMAGE-TAG` is the value of the field `image.tag` in the image configuration YAML file.
-
-The following is an example of the output for this command:
-
-```
-Build    Status    Started Time           Finished Time          Reason    Digest
------    ------    ------------           -------------          ------    ------
-    1    SUCCESS   2019-09-09 21:55:27    2019-07-08 21:55:54    CONFIG    *************************************************
-    2    SUCCESS   2019-09-09 21:56:55    2019-07-08 21:57:40    COMMIT    *************************************************
-    3    SUCCESS   2019-09-09 21:57:55    2019-07-08 21:58:40    STACK     *************************************************
-    4    FAILED    2019-09-09 21:58:55    2019-07-08 21:59:40    CONFIG+   --
-    5    BUILDING  2019-09-09 21:59:55    --                     BUILDER   --
-```
-
-The following describes the fields in the example output:
-
-* `Build`: Describes the index of builds in the order that they were built.
-
-* `Status`: Describes the status of a previous build image.
-
-* `Started Time`: Describes when a build started.
-
-* `Finished Time`: Describes when a build finished.
-
-* `Reason`: Describes why an image rebuild occured. These reasons include:
-    * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and you run `pb image apply`.
-    * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes.
-    * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image.
-        <p class="note"><strong>Note:</strong> A rebuild can occur for more than one reason. When there are multiple reasons for a rebuild, the <code>pb</code> CLI output shows the primary <code>Reason</code> and appends a <code>+</code> sign to the <code>Reason</code> field. The priority rank for the <code>Reason</code>, from highest to lowest, is <code>CONFIG</code>, <code>COMMIT</code>, and <code>BUILDER</code>.</p>
-    * `STACK`: Occurs when a new base OS image, called a `run image`, is available.
-
-* `Digest`: Contains the `SHA256` of the successfully built image. You can reference this SHA to run Docker commands such as `pull` and `inspect`.
-
-### <a id='view-image-status'></a> Viewing the Status of an Image
-
-When a user creates an image using the above workflow, they are also creating an image configuration against which a stream of images will be built.
+When a user creates an image using the above workflow, they are configuring Tanzu Build Service to start creating builds of the image which create container images to be pushed to a registry.
 
 If a particular build associated with an image fails, check the status of the image by running:
 
-    pb image status IMAGE-TAG
+    kp image status <image-name> --namespace <namespace>
 
-Where `IMAGE-TAG` is the value of the `image.tag` field in the image configuration YAML file.
+Where `image-name` is the name of the image. See [Listing Images](#list-images) to get image names.
 
 The following is an example output of this command:
 
 ```
-Image
------
-Status:          NOT READY
-Message:         N/A
-Latest Image:    gcr.io/myapp@sha256:9d7b1fbf7f5cb0f8efe797f30e598b5e38bb1c08ada143d4c96e4f78111a9239
+Status:          Not Ready
+Message:         --
+LatestImage:     gcr.io/myapp@sha256:9d7b1fbf7f5cb0f8efe797f30e598b5e38bb1c08ada143d4c96e4f78111a9239
 
 Last Successful Build
----------------------
-ID:        1
+Id:        1
 Reason:    CONFIG
 
 Last Failed Build
------------------
-ID:        2
+Id:        2
 Reason:    COMMIT
 ```
 
-### <a id='view-build-details'></a> Viewing Build Details for an Image
+## <a id='delete-images'></a> Deleting an Image
 
-To display retrieve a detailed Bill of Materials for a particular build:
+This procedure describes how to delete a Build Service image with the `kp` cli.
 
-    pb image build IMAGE-TAG -b BUILD-NUMBER
+<p class="note warning"><strong>Warning:</strong> Deleting an image deletes the image resource and all the builds that the image resource owns. It does not delete the app images generated by those builds from the registry.</p>
 
-Where:
+To delete an image:
 
-* `IMAGE-TAG` is the value of the `image.tag` field in the image configuration YAML file.
-* `BUILD-NUMBER` is the number of the build you want to inspect.
+    kp image delete <image> --namespace <namespace>
+
+Where `image` is the name of the image.
+
+When you successfully delete an image, you will see this message:
+
+```
+"<image>" deleted
+```
+
+# <a id='builds'></a> Builds
+
+The procedures in this section describe how to view information and logs for image builds using the `kp` cli.
+
+## <a id='list-builds'></a> Listing Builds for an Image
+
+Build Service stores the ten most recent successful builds and the ten most recent failed builds.
+
+To see a the list of builds for an image run:
+
+	kp build list <image-name> --namespace <namespace>
 
 The following is an example of the output for this command:
 
 ```
-------------------
-Retrieving information for image "gcr.io/myapp" - build 1
-------------------
-STATUS
-     Status:     SUCCESS
-     Reasons:    Config
-     Image:      gcr.io/myapp@sha256:f87b614257af05c3301c1554c4f15131793caec3adf55e45d2c612e90445765a
-------------------
-BUILD DETAILS
-     Run Image:  cloudfoundry/cnb:run@sha256:asdas098asdas
-     Builder:    cloudfoundry/cnb:bionic@sha256:grtewwads0asdvf09asdf
-
-     Source:
-         Git:        http://github.com/myapp
-         Revision:   ad123ad
-     Buildpacks:
-         Id:         io.java.etc
-         Version:    123
-
-         Id:         io.kotlin.etc
-         Version:    321
-
-------------------
+BUILD    STATUS    IMAGE                           STARTED                FINISHED               REASON
+1        SUCCESS   gcr.io/myapp@sha256:some-sha1   2019-09-09 21:55:27    2019-07-08 21:55:54    CONFIG
+2        SUCCESS   gcr.io/myapp@sha256:some-sha2   2019-09-09 21:56:55    2019-07-08 21:57:40    COMMIT
+3        SUCCESS   gcr.io/myapp@sha256:some-sha3   2019-09-09 21:57:55    2019-07-08 21:58:40    STACK
+4        FAILURE   gcr.io/myapp@sha256:some-sha4   2019-09-09 21:58:55    2019-07-08 21:59:40    CONFIG+
+5        BUILDING  gcr.io/myapp@sha256:some-sha5   2019-09-09 21:59:55    --                     BUILDER
 ```
 
 The following describes the fields in the example output:
 
-* `Status`: Describes the status of a previous build image.
+* `BUILD`: Describes the index of builds in the order that they were built.
 
-* `Reason`: Describes why an image rebuild occured. These reasons include:
-    * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and you run `pb image apply`.
+* `STATUS`: Describes the status of a previous build image.
+
+* `IMAGE`: The full image reference for the app image produced by the build.
+
+* `STARTED`: Describes when a build started.
+
+* `FINISHED`: Describes when a build finished.
+
+* `REASON`: Describes why an image rebuild occured. These reasons include:
+    * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and you run `kp image apply`.
     * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes.
     * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image.
-        <p class="note"><strong>Note:</strong> A rebuild can occur for more than one reason. When there are multiple reasons for a rebuild, the <code>pb</code> CLI output shows the primary <code>Reason</code> and appends a <code>+</code> sign to the <code>Reason</code> field. The priority rank for the <code>Reason</code>, from highest to lowest, is <code>CONFIG</code>, <code>COMMIT</code>, and <code>BUILDER</code>.</p>
-    * `STACK`: Occurs when a new base OS image (called a `run image`) is available.
+        <p class="note"><strong>Note:</strong> A rebuild can occur for more than one reason. When there are multiple reasons for a rebuild, the <code>kp</code> CLI output shows the primary <code>Reason</code> and appends a <code>+</code> sign to the <code>Reason</code> field. The priority rank for the <code>Reason</code>, from highest to lowest, is <code>CONFIG</code>, <code>COMMIT</code>, and <code>BUILDER</code>.</p>
+    * `STACK`: Occurs when a new base OS image, called a `run image`, is available.
+    * `TRIGGER`: Occurs when a new build is manually triggered.
 
-* `Image`: The full image tag for the app image produced by the build.
+## <a id='build-status'></a> Viewing Build Details for an Image
 
-* `Run Image`: The full image tag for the run image used by the app.
+To display retrieve a detailed Bill of Materials for a particular build:
 
-* `Builder`: The full image tag for the builder image used by the build.
-
-* `Source`: This field contains one of the following:
-    * For a build created from a Git commit:
-        * `Git`: The Git repository URL.
-        * `Revision`: The commit SHA.
-    * For a build created from local source code:
-        * `Local Source`: Indicates that the source code was pushed from a development workstation.
-    * For a build created from a blob:
-        * `Blob`: The blob URL.
-
-* `Buildpacks`: A list of buildpacks the build used.
-
-### <a id='view-build-logs'></a> Viewing Logs for a Build
-
-To view logs for a build:
-
-    pb image logs IMAGE-TAG -b BUILD-NUMBER
+    kp build status <image> -b <build-number>
 
 Where:
 
-* `IMAGE-TAG` is the value of the `image.tag` field in the image configuration YAML file.
-* `BUILD-NUMBER` is the number of the build with the logs you want to view.
+* `image-name` is the name of the image the build is associated with
+* `build-name` (optional) is the index of the build from [listing builds](#list-builds). Defaults to latest build.
+
+The following is an example of the output for this command:
+
+```
+Image:      gcr.io/myapp@sha256:f87b614257af05c3301c1554c4f15131793caec3adf55e45d2c612e90445765a
+Status:     SUCCESS
+Reasons:    CONFIG
+
+Builder:    gcr.io/my-builder:base@sha256:grtewwads0asdvf09asdf
+Run Image:  gcr.io/base-image:run@sha256:asdas098asdas
+
+Source:      Git
+Url:         http://github.com/myapp
+Revision:    ad123ad
+
+BUILDPACK ID        BUILDPACK VERSION
+io.java.etc         123
+io.kotlin.etc       321
+```
+
+The following describes the fields in the example output:
+
+* `Image`: The full image reference for the app image produced by the build.
+
+* `Status`: Describes the status of a previous build image.
+
+* `Reason`: Describes why an image rebuild occured. These reasons include:
+    * `CONFIG`: Occurs when a change is made to commit, branch, Git repository, or build fields on the image's configuration file and you run `kp image apply`.
+    * `COMMIT`: Occurs when new source code is committed to a branch or tag build service is monitoring for changes.
+    * `BUILDER`: Occurs when new buildpack versions are made available through an updated builder image.
+        <p class="note"><strong>Note:</strong> A rebuild can occur for more than one reason. When there are multiple reasons for a rebuild, the <code>kp</code> CLI output shows the primary <code>Reason</code> and appends a <code>+</code> sign to the <code>Reason</code> field. The priority rank for the <code>Reason</code>, from highest to lowest, is <code>CONFIG</code>, <code>COMMIT</code>, and <code>BUILDER</code>.</p>
+    * `STACK`: Occurs when a new base OS image (called a `run image`) is available.
+    * `TRIGGER`: Occurs when a new build is manually triggered.
+
+* `Builder`: The full image tag for the builder image used by the build.
+
+* `Run Image`: The full image tag for the run image used by the app.
+
+* `Source`: Describes where the source code used to build the image is coming from. Can be `Git`, `Blob`, or `Local Source`.
+* `Url`: The Git repository URL for `Git` source, the Blob file URL for `Blob` source. Unset for `Local Source`.
+* `Revision`: The Git commit sha of the source code used to create the build for `Git` source.
+
+* `BUILDPACK ID`: A list of buildpack ids the build used.
+* `BUILDPACK VERSION`: A list of buildpack versions the build used.
+
+## <a id='build-logs'></a> Getting Build Logs
+
+An image that a user creates will cause builds to be initiated for that image. Builds are where Cloud Native Buildpacks are run and apps get built into images.
+
+Build logs are a good way to debug issues and to get information about how your app is being built.
+
+If you get logs of a build in progress, the logs will be tailed and will terminate when the build completes.
+
+To get logs from a build run:
+
+	kp build logs <image> --build <build-number> --namespace <namespace>
+
+Where:
+* `image-name` is the name of the image the build is associated with
+* `build-name` (optional) is the index of the build from [listing builds](#list-builds). Defaults to latest build.
 
 The following is an example of the output of the command:
 
 ```
-[build-step-credential-initializer] {"level":"info","ts":1562684107.3441668,"logger":"fallback-logger","caller":"creds-init/main.go:40","msg":"Credentials initialized.","commit":"002a41a"}
-[build-step-credential-initializer]
-[build-step-git-source-0] git-init:main.go:81: Successfully cloned "https://github.com/buildpack/sample-java-app" @ "abde24efc17802b7e2b3814e0ead63a460e66f5f" in path "/workspace"
-[build-step-git-source-0]
-[build-step-prepare]
-[build-step-detect] Trying group 1 out of 3 with 27 buildpacks...
-[build-step-detect] ======== Results ========
-[build-step-detect] skip: Cloud Foundry Archive Expanding Buildpack
-[build-step-detect] pass: Pivotal OpenJDK Buildpack
-[build-step-detect] pass: Pivotal Build System Buildpack
-[build-step-detect] pass: Cloud Foundry Spring Boot Buildpack
-[build-step-detect] pass: Cloud Foundry Apache Tomcat Buildpack
-...
-[build-step-detect] skip: Cloud Foundry JMX Buildpack
-[build-step-detect] pass: Cloud Foundry Spring Auto-reconfiguration Buildpack
-[build-step-detect]
-[build-step-restore] Restoring cached layer 'io.pivotal.openjdk:openjdk-jdk'
-...
-[build-step-restore] Restoring cached layer 'org.cloudfoundry.springboot:spring-boot'
-[build-step-restore]
-[build-step-analyze] Analyzing image 'registry.com/sample/demo@sha256:8ff708081ee10f7039f77275f1e6eb6359cae8d90028c79a5c493ced0dc63f68'
-[build-step-analyze] Using cached layer 'io.pivotal.openjdk:openjdk-jdk'
-...
-[build-step-analyze] Rewriting metadata for layer 'org.cloudfoundry.springboot:spring-boot'
-[build-step-analyze] Writing metadata for uncached layer 'io.pivotal.clientcertificatemapper:client-certificate-mapper'
-[build-step-analyze] Writing metadata for uncached layer 'org.cloudfoundry.springautoreconfiguration:auto-reconfiguration'
-[build-step-analyze]
-[build-step-build]
-[build-step-build] Pivotal OpenJDK Buildpack 1.0.0-M9
-[build-step-build]   OpenJDK JDK 11.0.3: Reusing cached layer
-[build-step-build]   OpenJDK JRE 11.0.3: Reusing cached layer
-[build-step-build]   JVMKill Agent 1.16.0: Reusing cached layer
-[build-step-build]   Class Counter 1.0.0-M9: Reusing cached layer
-[build-step-build]   Memory Calculator 4.0.0: Reusing cached layer
-[build-step-build]
-...
-[build-step-build]     task:        java -cp $CLASSPATH $JAVA_OPTS io.buildpacks.example.sample.SampleApplication
-[build-step-build]     web:         java -cp $CLASSPATH $JAVA_OPTS io.buildpacks.example.sample.SampleApplication
-[build-step-build]
-[build-step-build] Pivotal Client Certificate Mapper Buildpack 1.0.0-M9
-[build-step-build] Cloud Foundry Spring Auto-reconfiguration Buildpack 1.0.0-M9
-[build-step-build]   Spring Auto-reconfiguration 2.7.0: Reusing cached layer
-[build-step-build]
-[build-step-export] Reusing layers from image 'index.docker.io/matthewmcnew/demo@sha256:8ff708081ee10f7039f77275f1e6eb6359cae8d90028c79a5c493ced0dc63f68'
-[build-step-export] Reusing layer 'app' with SHA sha256:02e0070ce11bac1829174ec1296dcb1f3f04a4c30a958e2c41ad5498f78898fe
-...
-[build-step-export] Reusing layer 'org.cloudfoundry.springautoreconfiguration:auto-reconfiguration' with SHA sha256:93d94baf6d0dfc4981eb7d8ddfc4ae51f5c13cf87789b64ae8c4b015318a1b43
-[build-step-export] *** Images:
-[build-step-export]       registry.com/sample/demo:latest - succeeded
-[build-step-export]       registry.com/sample/demo:b2.20190709.145448 - succeeded
-[build-step-export]
-[build-step-export] *** Digest: sha256:48a4ca8e4d8e8a9af26437588d0ce0e9d5c09b53aeb3ef64230a3d58d4b0dc90
-[build-step-export]
-[build-step-cache] Reusing layer 'io.pivotal.openjdk:openjdk-jdk' with SHA sha256:5554c7c06a266eb44a7cbdf0ecfaa14070e21af2b0bdfd1edd3b96f5168cd511
-[build-step-cache] Reusing layer 'io.pivotal.buildsystem:build-system-cache' with SHA sha256:3b03fdd870a2dc1e924a040b604c25b76efafc1324ceb08eae8eae686fc3a940
-...
-[build-step-cache] Reusing layer 'org.cloudfoundry.springboot:spring-boot' with SHA sha256:effa8b80729cafa9f9a01b21a4badb5203510de0bb2e6b309ffd2593b0a28de7
-[build-step-cache]
+===> PREPARE
+Loading secret for "gcr.io" from secret "some-creds" at location "/var/build-secrets/some-creds"
+Successfully pulled gcr.io/test-app-source@sha256:d6ddb6d02e07b2a40022929ca83d73482ae1aff99edefc10c76f43ff57d3ef40 in path "/workspace"
+===> DETECT
+6 of 32 buildpacks participating
+paketo-buildpacks/bellsoft-liberica 2.7.3
+paketo-buildpacks/maven             1.4.3
+paketo-buildpacks/executable-jar    1.2.5
+paketo-buildpacks/apache-tomcat     1.2.2
+paketo-buildpacks/dist-zip          1.3.3
+paketo-buildpacks/spring-boot       1.5.5
+===> ANALYZE
+Previous image with name "gcr.io/test-app" not found
+===> RESTORE
+===> BUILD
+
+Paketo BellSoft Liberica Buildpack 2.7.3
+  https://github.com/paketo-buildpacks/bellsoft-liberica
+  Build Configuration:
+    $BP_JVM_VERSION              11.* (default)            the Java version
+  Launch Configuration:
+    $BPL_JVM_HEAD_ROOM           0 (default)               the headroom in memory calculation
+    $BPL_JVM_LOADED_CLASS_COUNT  35% of classes (default)  the number of loaded classes in memory calculation
+    $BPL_JVM_THREAD_COUNT        250 (default)             the number of threads in memory calculation
+  BellSoft Liberica JDK 11.0.7: Contributing to layer
+    Downloading from https://github.com/bell-sw/Liberica/releases/download/11.0.7+10/bellsoft-jdk11.0.7+10-linux-amd64.tar.gz
+    Verifying checksum
+    Expanding to /layers/paketo-buildpacks_bellsoft-liberica/jdk
+    Adding 134 container CA certificates to JVM truststore
+    Writing env.build/JAVA_HOME.override
+    Writing env.build/JDK_HOME.override
+  BellSoft Liberica JRE 11.0.7: Contributing to layer
+    Downloading from https://github.com/bell-sw/Liberica/releases/download/11.0.7+10/bellsoft-jre11.0.7+10-linux-amd64.tar.gz
+    Verifying checksum
+    Expanding to /layers/paketo-buildpacks_bellsoft-liberica/jre
+    Writing env.launch/JAVA_HOME.override
+    Writing env.launch/MALLOC_ARENA_MAX.override
+    Writing profile.d/active-processor-count.sh
+  Memory Calculator 4.0.0: Contributing to layer
+    Downloading from https://github.com/cloudfoundry/java-buildpack-memory-calculator/releases/download/v4.0.0/memory-calculator-4.0.0.tgz
+    Verifying checksum
+    Expanding to /layers/paketo-buildpacks_bellsoft-liberica/memory-calculator
+    Writing profile.d/memory-calculator.sh
+  Class Counter: Contributing to layer
+    Copying to /layers/paketo-buildpacks_bellsoft-liberica/class-counter
+  JVMKill Agent 1.16.0: Contributing to layer
+    Downloading from https://github.com/cloudfoundry/jvmkill/releases/download/v1.16.0.RELEASE/jvmkill-1.16.0-RELEASE.so
+    Verifying checksum
+    Copying to /layers/paketo-buildpacks_bellsoft-liberica/jvmkill
+    Writing env.launch/JAVA_OPTS.append
+  Link-Local DNS: Contributing to layer
+    Copying to /layers/paketo-buildpacks_bellsoft-liberica/link-local-dns
+    Writing profile.d/link-local-dns.sh
+  Java Security Properties: Contributing to layer
+    Writing env.launch/JAVA_OPTS.append
+    Writing env.launch/JAVA_SECURITY_PROPERTIES.override
+  Security Providers Configurer: Contributing to layer
+    Copying to /layers/paketo-buildpacks_bellsoft-liberica/security-providers-configurer
+    Writing profile.d/security-providers-classpath.sh
+    Writing profile.d/security-providers-configurer.sh
+  OpenSSL Certificate Loader: Contributing to layer
+    Copying to /layers/paketo-buildpacks_bellsoft-liberica/openssl-security-provider
+    Writing profile.d/openssl-certificate-loader.sh
+
+Paketo Maven Buildpack 1.4.3
+  https://github.com/paketo-buildpacks/maven
+  Build Configuration:
+    $BP_MAVEN_BUILD_ARGUMENTS  -Dmaven.test.skip=true package (default)  the arguments to pass to Maven
+    $BP_MAVEN_BUILT_ARTIFACT   target/*.[jw]ar (default)                 the built application artifact explicitly.  Supersedes $BP_MAVEN_BUILT_MODULE
+    $BP_MAVEN_BUILT_MODULE      (default)                                the module to find application artifact in
+    Creating cache directory /home/vcap/.m2
+  Compiled Application: Contributing to layer
+    Executing mvnw -Dmaven.test.skip=true package
+[INFO] --- spring-boot-maven-plugin:2.3.0.RELEASE:repackage (repackage) @ spring-petclinic ---
+[INFO] Replacing main artifact with repackaged archive
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  03:10 min
+[INFO] Finished at: 2020-06-09T21:35:17Z
+[INFO] ------------------------------------------------------------------------
+  Removing source code
+
+Paketo Executable JAR Buildpack 1.2.5
+    Writing env.launch/CLASSPATH
+  Process types:
+    executable-jar: java -cp "${CLASSPATH}" ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher
+    task:           java -cp "${CLASSPATH}" ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher
+    web:            java -cp "${CLASSPATH}" ${JAVA_OPTS} org.springframework.boot.loader.JarLauncher
+
+Paketo Spring Boot Buildpack 1.5.5
+  Image labels:
+    org.opencontainers.image.title
+    org.opencontainers.image.version
+    org.springframework.boot.spring-configuration-metadata.json
+    org.springframework.boot.version
+===> EXPORT
+Adding layer 'launcher'
+Adding layer 'paketo-buildpacks/bellsoft-liberica:class-counter'
+Adding layer 'paketo-buildpacks/bellsoft-liberica:java-security-properties'
+Adding layer 'paketo-buildpacks/bellsoft-liberica:jre'
+Adding layer 'paketo-buildpacks/bellsoft-liberica:jvmkill'
+Adding layer 'paketo-buildpacks/bellsoft-liberica:link-local-dns'
+Adding layer 'paketo-buildpacks/bellsoft-liberica:memory-calculator'
+Adding layer 'paketo-buildpacks/bellsoft-liberica:openssl-security-provider'
+Adding layer 'paketo-buildpacks/bellsoft-liberica:security-providers-configurer'
+Adding layer 'paketo-buildpacks/executable-jar:class-path'
+Adding 1/1 app layer(s)
+Adding layer 'config'
+*** Images (sha256:af858b3972b567fffa5792a9bed924c3638aba5eab4593c5a43364a67871efdc):
+      gcr.io/test-app
+      gcr.io/test-app:b1.20200609.213101
+Adding cache layer 'paketo-buildpacks/bellsoft-liberica:jdk'
+Adding cache layer 'paketo-buildpacks/maven:application'
+Adding cache layer 'paketo-buildpacks/maven:cache'
+===> COMPLETION
+Build successful
 ```
 
-### <a id='view-running-build-logs'></a> Viewing Logs for a Running Build
-
-You can stream logs that show the progress of a build. The logs terminate when the build completes.
-
-To view logs for a running build:
-
-    pb image logs IMAGE-TAG -b BUILD-NUMBER -f
-
-Where:
-
-* `IMAGE-TAG` is the value of the `image.tag` field in the image configuration YAML file.
-* `BUILD-NUMBER` is the number of the build with the logs you want to view.
-
-### <a id='delete-images'></a> Deleting an Image
-
-This procedure describes how to delete a Build Service image.
-
-<p class="note warning"><strong>Warning:</strong> Deleting an image also deletes all the builds that the image owns. It does not delete the images generated by those builds.</p>
-
-To delete an image:
-
-    pb image delete IMAGE-TAG
-
-Where `IMAGE-TAG` is the value of the `image.tag` field in the image configuration YAML file.
-
-When you successfully delete an image, you see this message:
-
-```
-Successfully deleted image IMAGE-TAG
-```
-
-## <a id='image-with-kubectl'></a> Managing Images with kubectl
+# <a id='image-with-kubectl'></a> Managing Images with kubectl
 
 Build Services images can be created by applying the [kpack image resources](https://github.com/pivotal/kpack/blob/master/docs/image.md) to cluster.
 
@@ -483,16 +500,16 @@ The `default` service account should be used to utilize build service registry a
 
 The `builder` field on the kpack Image spec describes the builder that will build the image.
 
-* Using a a Project Builder
+* Using a a Custom Builder
 
     ```yaml
     builder:
         name: project-builder-name
         kind: CustomBuilder
     ```
-    - `name`: The name of the project scoped builder.
+    - `name`: The name of the Custom Builder.
 
-* Using a a Cluster Builder
+* Using a Custom Cluster Builder
 
     ```yaml
     builder:
@@ -503,18 +520,17 @@ The `builder` field on the kpack Image spec describes the builder that will buil
 
 For more info on manging builders, see [Managing Builders](managing-builders.html).
 
-<p class='note'><strong>Warning:</strong> Unlike with <code>pb</code> you will need to explicitly set the builder in the image configuration and it will not default to the <code>default</code> builder.</p>
+<p class='note'><strong>Warning:</strong> Unlike with <code>kp</code> you will need to explicitly set the builder in the image configuration and it will not default to the <code>default</code> builder.</p>
 
 ### <a id='kubectl-secrets'></a> Using Secrets
 
 The `default` service account should be used to utilize build service registry and git secrets. kpack will default to the `default` service account if no service account is specified.
 
-
 ### <a id='image-status'></a> Image Status
 
 When an image has successfully built with its current configuration, its status will report the up to date fully qualified built image reference.
 
-This information is available with `kubectl describe <image-name>`.
+This information is available with `kubectl describe image <image-name>`.
 
 ```yaml
 status:
