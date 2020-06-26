@@ -138,7 +138,7 @@ Other optional parameters you can add using the `--set` flag:
 
 * To install Build Service, you must configure a User Account and Authentication (UAA) client credentials.
 
-* <strong>Optional:</strong> configure your PKS tile with `oidc` as described [here](configure-oidc.html)
+* <strong>Optional:</strong> configure your PKS tile with `oidc` as described [here](#pks-as-oidc-provider).
 
 ### <a id='retrieve-credentials'></a> Retrieve PKS Cluster Credentials
 
@@ -273,6 +273,29 @@ Other optional parameters you can add using the `--set` flag:
 * `http_proxy`: The HTTP proxy to use for network traffic.
 * `https_proxy`: The HTTPS proxy to use for network traffic.
 * `no_proxy`: A comma-separated list of hostnames that should not use a proxy.
+
+### <a id='pks-as-oidc-provider'></a> Configuring PKS as an OIDC Provider
+
+The authentication and authorization processes for Build Service use a combination of RBAC rules and
+third-party authentication, including OpenID Connect (OIDC).
+You may configure UAA as an OIDC provider for your PKS deployment to provide authentication for Build Service.
+
+To configure UAA as an OIDC provider for your PKS deployment:
+
+1. Navigate to the OpsManager Installation Dashboard.
+
+1. Click the PKS tile.
+
+1. Select **UAA**.
+
+1. Under **Configure created clusters to use UAA as the OIDC provider**, select **Enable**.
+
+1. Ensure the values in the **UAA OIDC Groups Prefix** and **UAA OIDC Username Prefix** fields are the same and record them. Eg. `"oidc:"`. You will need these values during the installation of Build Service.
+      <p class="note"><strong>Note:</strong> Ensure you add a <code>:</code> at the end of the desired prefix.</p>
+
+1. Click **Save**.
+
+1. In the OpsManager Installation Dashboard, click **Review Pending Changes**, then **Apply Changes**.
 
 ## <a id='verify-installation'></a> Verify Installation
 
