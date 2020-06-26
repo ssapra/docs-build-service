@@ -12,6 +12,7 @@ owner: Build Service Team
 The `pb` cli has been deprecated in favor of the `kp` cli for interacting with Tanzu Build Service. The `kp` cli will be shipped with Tanzu Build Service in place of `pb`. For more details see [Using Tanzu Build Service](using.html).
 
 Notable improvements in the `kp` cli:
+
 * The `kp` cli is more interoperable with `kubectl`.
 	* `kp` output is formatted to look consistent with `kubectl` output.
 	* Unlike `pb`, `kp` does not utilize a alternative YAML format used to apply kpack resources. Instead, `kp` provides imperative commands to interact with Tanzu Build Service.
@@ -26,8 +27,8 @@ Tanzu Build Service 0.2.0 now ships with four stacks. Output from `kp stack list
 
 	NAME                READY    ID
     base                True     io.buildpacks.stacks.bionic
-    default             True     io.paketo.stacks.full
-    full                True     io.paketo.stacks.full
+    default             True     org.cloudfoundry.stacks.cflinuxfs3
+    full                True     org.cloudfoundry.stacks.cflinuxfs3
     tiny                True     io.paketo.stacks.tiny
 
 The stacks are used in Custom Cluster Builders. The `default` stack is installed and will be used when a stack is not selected for a builder, but the stack image is the same as the `full` stack.
@@ -36,11 +37,11 @@ For more details on stacks, see [Managing Stacks](managing-stacks.html).
 
 Same with the new stacks, Tanzu Build Service 0.2.0 now ships with four Custom Cluster Builders. Output from `kp custom-cluster-builder list`:
 
-	NAME                  READY    STACK                         IMAGE
-    base                  true     io.buildpacks.stacks.bionic   my-registry.io/ccb:base@sha256:abc123
-    default               true     io.paketo.stacks.full         my-registry.io/ccb:default@sha256:abc123
-    full                  true     io.paketo.stacks.full         my-registry.io/ccb:full@sha256:abc123
-    tiny                  true     io.paketo.stacks.tiny         my-registry.io/ccb:tiny@sha256:abc123
+	NAME                  READY    STACK                                   IMAGE
+    base                  true     io.buildpacks.stacks.bionic             my-registry.io/ccb:base@sha256:abc123
+    default               true     org.cloudfoundry.stacks.cflinuxfs3      my-registry.io/ccb:default@sha256:abc123
+    full                  true     org.cloudfoundry.stacks.cflinuxfs3      my-registry.io/ccb:full@sha256:abc123
+    tiny                  true     io.paketo.stacks.tiny                   my-registry.io/ccb:tiny@sha256:abc123
 
 Builders are used when creating images and can apply to different app use cases. The `default` Custom Cluster Builder is used when a builder is not selected for an image but is installed with the same buildpacks and stack as the `full` builder.
 
@@ -77,7 +78,7 @@ Tanzu Build Service 0.2.0 ships with the following buildpacks:
 Tanzu Build Service 0.2.0 ships with the following stacks:
 
 * base `io.buildpacks.stacks.bionic`
-* full `io.paketo.stacks.full`
+* full/default `org.cloudfoundry.stacks.cflinuxfs3`
 * tiny `io.paketo.stacks.tiny`
 
 Updates to the buildpacks and stacks are provided in the [VMware Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies).
