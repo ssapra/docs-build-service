@@ -100,11 +100,20 @@ To update the the location of the run image:
 
 ---
 
-## Why don't my image builds appear in my Harbor registry?
+## Why don't my image builds appear in my Harbor v1.X.X registry?
 
 There is a known bug in Harbor that, at times, prevents the UI from showing images.
 If you are unable to see a recently built image in the Harbor UI, try pulling
 it using the `docker` CLI to verify that it exists.
+
+---
+
+## How do I fix "unsupported status code 500" when creating a builder on my Harbor v2.X.X registry?
+
+Some builders are very large and can overwhelm Harbor's default database connection.
+You can remediate this issue by increasing the `database.maxOpenConns` setting in the 
+helm `values.yaml` file. Increase this value from 100 to 300.
+The exact setting can be found [here](https://github.com/goharbor/harbor-helm/blob/ab57e34774ad57fe6506ad5161b2d7b207e1dfd1/values.yaml#L689).
 
 ---
 ## How do I configure credentials for using gcr as my installation registry?
