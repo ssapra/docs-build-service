@@ -7,7 +7,8 @@ This topic describes how to install and configure Tanzu Build Service.
 
 ## <a id='overview'></a> Overview
 
-Build Service can be installed on any Kubernetes cluster (v1.14 or later) including PKS, GKE and AKS clusters. The installation instructions are divided between the PKS installation (which uses oidc for authentication) and the install on other hosted Kubernetes clusters.
+Build Service can be installed on any Kubernetes cluster (v1.14 or later) including PKS, GKE and AKS clusters.
+The installation instructions are divided between the PKS installation, which uses OpenID Connect (OIDC) for authentication, and the install on other hosted Kubernetes clusters.
 
 ## <a id='prerequisites'></a> Prerequisites
 
@@ -66,7 +67,10 @@ To create a credentials file:
 This procedure relocates images from the Build Service bundle that you downloaded from Tanzu Network
 to an internal image registry.
 
-<p class="note"><strong>Note:</strong> Keep in mind an image <strong>repository</strong> (eg. gcr.io/repository) is a location inside an image <strong>registry</strong> (eg. gcr.io) </p>
+<p class="note"><strong>Note:</strong> Keep in mind an image <strong>repository</strong>
+   (for example, gcr.io/repository) is a location inside an image <strong>registry</strong>
+   (for example, gcr.io).
+</p>
 
 To move the images from the Build Service bundle to an image registry:
 
@@ -83,7 +87,9 @@ To move the images from the Build Service bundle to an image registry:
     duffle relocate -f /tmp/build-service-${version}.tgz -m /tmp/relocated.json -p IMAGE-REPOSITORY
     ```
 
-    <p class="note"><strong>Note:</strong> When relocating to a harbor/gcr repository, the IMAGE-REGISTRY will need to be appended with the destination folder for the images eg. IMAGE-REGISTRY/build-service-imgs</p>
+    <p class="note"><strong>Note:</strong> When relocating to a harbor/gcr repository,
+       the IMAGE-REGISTRY will need to be appended with the destination folder for the images,
+       for example, <code>IMAGE-REGISTRY/build-service-imgs</code>.</p>
 
     For example:
     * Dockerhub `duffle relocate -f /tmp/build-service-0.2.0.tgz -m /tmp/relocated.json -p my-dockerhub-repo`
@@ -206,7 +212,10 @@ To create a credentials file:
 This procedure relocates images from the Build Service bundle that you downloaded from Tanzu Network
 to an internal image registry.
 
-<p class="note"><strong>Note:</strong> Keep in mind an image <strong>repository</strong> (eg. gcr.io/repository) is a location inside an image <strong>registry</strong> (eg. gcr.io) </p>
+<p class="note"><strong>Note:</strong> Keep in mind an image <strong>repository</strong>
+   (for example, gcr.io/repository) is a location inside an image <strong>registry</strong>
+   (for example, gcr.io).
+</p>
 
 To move the images from the Build Service bundle to an image registry:
 
@@ -323,7 +332,7 @@ You should see an output that looks as follows:
 Visit the [Build Service dependencies tile on PivNet](https://network.pivotal.io/products/tbs-dependencies). Build Service can be updated with those artifacts both directly against the PivNet registry or via the downloaded versions of those images.
 
 
-### <a id='update-online-deps'></a> Online update of Dependencies
+### <a id='update-online-deps'></a> Online Update of Dependencies
 
 If the `kp` CLI has access to pull images from the Pivnet Registry, the stack images and buildpacks used by build service can be updated using the following commands.
 
@@ -356,9 +365,10 @@ To list the buildpacks now available in the store:
 
     kp store status <store-name>
 
-### <a id='update-offline-deps'></a> Offline update of Dependencies
+### <a id='update-offline-deps'></a> Offline Update of Dependencies
 
-If the `kp` CLI cannot access the images in the Pivnet Registry, the stack images and buildpacks used by build service can be updated by first downloading those images and saving them locally. These file can be provided to the `kp` CLI to upload to build service.
+If the `kp` CLI cannot access the images in the Pivnet Registry, the stack images and buildpacks used by build service can be updated by first downloading those images and saving them locally.
+These files can be provided to the `kp` CLI to upload to build service.
 
 #### Stack Update
 
@@ -376,7 +386,7 @@ Update the stack with the saved image:
 
     kp stack update default --build-image build.tar --run-image run.tar --local
 
-<p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack</p>
+<p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
 
 The updated stack can be viewed with the following command:
 
@@ -394,7 +404,7 @@ The location of the run image can be identified by running the following command
 
     kp stack status <stack-name>
 
-To update the the location of the run image:
+To update the location of the run image:
 
 1. Using `kubectl` update the `buildservice.pivotal.io/defaultRepository` annotation on the `build-service-stack` Stack resource to a location that can be accessed publicly.
 1. Re-run [`kp stack update`](managing-stacks.html) with the most recent build image and run image from the [build-service-dependencies](updating-deps.html) page.
