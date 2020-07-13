@@ -7,33 +7,50 @@ Visit the [The Paketo Buildpacks Github repo](https://github.com/paketo-buildpac
 
 ## <a id='online-update'></a> Online update of Dependencies
 
-The Paketo repository contains references to images for buildpacks that are divided by language family (java, node, etc...) and stack images. Use the `kp` CLI to update these dependencies by referring to the desired images using the below commands. 
+The Paketo repository contains references to images called "buildpackages" that are divided by language family (java, node, etc...) and stacks. Use the `kp` CLI to update these dependencies by referring to the desired images using the below commands. 
+
+<p class="note"><strong>Note:</strong> The NodeJS and Java buildpackages are not currently available for store updates. TBS is installed with the NodeJS and Java buildpacks and updates will be supplied in the future.</p>
 
 ### <a id='online-stack-update'></a> Stacks Update
 
 Update the stacks:
-
+```
     kp stack update base --build-image gcr.io/paketo-buildpacks/build:base-cnb --run-image gcr.io/paketo-buildpacks/run:base-cnb
     kp stack update default --build-image gcr.io/paketo-buildpacks/build:full-cnb-cf --run-image index.docker.io/paketobuildpacks/build:full-cnb-cf
-    kp stack update default --build-image gcr.io/paketo-buildpacks/build:full-cnb-cf --run-image index.docker.io/paketobuildpacks/build:full-cnb-cf
+    kp stack update full --build-image gcr.io/paketo-buildpacks/build:full-cnb-cf --run-image index.docker.io/paketobuildpacks/build:full-cnb-cf
     kp stack update tiny --build-image gcr.io/paketo-buildpacks/build:tiny-cnb --run-image gcr.io/paketo-buildpacks/run:tiny-cnb
-
+```
 <p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
 
 The updated stack can be viewed with the following command:
 
-    kp stack status <stack-name>
+     `kp stack status <stack-name>`
 
 ### <a id='online-store-update'></a> Store Update
-	    	    
+
+The current list of buildpackages available for updates and their image references
+
+```
+paketo-buildpacks/go                gcr.io/paketo-buildpacks/go
+paketo-buildpacks/dotnet-core       gcr.io/paketo-buildpacks/dotnet-core
+paketo-buildpacks/php               gcr.io/paketo-buildpacks/php
+paketo-buildpacks/httpd             gcr.io/paketo-buildpacks/httpd
+paketo-buildpacks/nginx             gcr.io/paketo-buildpacks/nginx
+paketo-buildpacks/procfile          gcr.io/paketo-buildpacks/procfile
+```
+	  
 Update a store:
+	    
+     `kp store add <store-name> gcr.io/paketo-buildpacks/buildpackage`
+	    
+Here is an example to update the `dotnet-core` buildpackage
+	    
+     `kp store add default gcr.io/paketo-buildpacks/dotnet-core`
 
-    kp store add <store-name> gcr.io/paketo-buildpacks/language-family
+Additionally, multiple buildpackages can be added to Build Service by passing multiple image references
 
-Additionally, multiple buildpacks can be added to Build Service by passing multiple image references
-
-    kp store add <store-name> gcr.io/paketo-buildpacks/language-family1 gcr.io/paketo-buildpacks/language-family2 gcr.io/paketo-buildpacks/language-family3
+    `kp store add <store-name> gcr.io/paketo-buildpacks/buildpacakge-1 gcr.io/paketo-buildpacks/buildpackage-2 gcr.io/paketo-buildpacks/buildpackage-3`
 
 To list the buildpacks now available in the store:
 
-    kp store status <store-name>
+    `kp store status <store-name>`
