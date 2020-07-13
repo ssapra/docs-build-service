@@ -3,54 +3,79 @@ title: Updating Build Service Dependencies
 owner: Build Service Team
 ---
 
-Visit the [The Paketo Buildpacks Github repo](https://github.com/paketo-buildpacks). Build Service can be updated with the artifacts provided in the repo via the GCR registry in which these dependencies live.
+Visit the [Build Service dependencies tile on PivNet](https://network.pivotal.io/products/tbs-dependencies). Build Service can be updated with those artifacts both directly against the PivNet registry or via the downloaded versions of those images.
+
+#### <a id='tanzu-net-registry-sign-in'></a> Accessing the Tanzu Net Registry
+
+The Tanzu Net registry (registry.pivotal.io) contains the stack and buildpack images needed to keep Tanzu Build Service up to date to keep applications secure. Once you login to the Tanzu Net registry, you can use the `kp` cli to update dependencies.
+
+You will need the `docker` cli to authenticate with the Tanzu Net registry.
+
+To login to the Tanzu Net registry, run:
+
+	docker login registry.pivotal.io
+
+When prompted for a username and password, use the same credentials you used to login to [Tanzu Net](https://network.pivotal.io).
 
 ## <a id='online-update'></a> Online update of Dependencies
 
-The Paketo repository contains references to images called "buildpackages" that are divided by language family (java, node, etc...) and stacks. Use the `kp` CLI to update these dependencies by referring to the desired images using the below commands. 
-
-<p class="note"><strong>Note:</strong> The NodeJS and Java buildpackages are not currently available for store updates. TBS is installed with the NodeJS and Java buildpacks and updates will be supplied in the future.</p>
+If the `kp` CLI has access to pull images from the TanzuNet Registry. The stack images and buildpacks used by build service can be updated using the following commands.
 
 ### <a id='online-stack-update'></a> Stacks Update
 
 Update the stacks:
-```
-    kp stack update base --build-image gcr.io/paketo-buildpacks/build:base-cnb --run-image gcr.io/paketo-buildpacks/run:base-cnb
-    kp stack update default --build-image gcr.io/paketo-buildpacks/build:full-cnb-cf --run-image index.docker.io/paketobuildpacks/build:full-cnb-cf
-    kp stack update full --build-image gcr.io/paketo-buildpacks/build:full-cnb-cf --run-image index.docker.io/paketobuildpacks/build:full-cnb-cf
-    kp stack update tiny --build-image gcr.io/paketo-buildpacks/build:tiny-cnb --run-image gcr.io/paketo-buildpacks/run:tiny-cnb
-```
+
+    kp stack update base --build-image registry.pivotal.io/tbs-dependencies/build-base@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-base@sha256:<image-sha>
+    kp stack update default --build-image registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha>
+    kp stack update full --build-image registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha>
+    kp stack update tiny --build-image registry.pivotal.io/tbs-dependencies/build-tiny@sha256:<image-sha> --run-image registry.pivotal.io/tbs-dependencies/run-tiny@sha256:<image-sha>
+
 <p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
 
 The updated stack can be viewed with the following command:
 
-     `kp stack status <stack-name>`
+    kp stack status <stack-name>
 
 ### <a id='online-store-update'></a> Store Update
 
-The current list of buildpackages available for updates and their image references
-
-```
-paketo-buildpacks/go                gcr.io/paketo-buildpacks/go
-paketo-buildpacks/dotnet-core       gcr.io/paketo-buildpacks/dotnet-core
-paketo-buildpacks/php               gcr.io/paketo-buildpacks/php
-paketo-buildpacks/httpd             gcr.io/paketo-buildpacks/httpd
-paketo-buildpacks/nginx             gcr.io/paketo-buildpacks/nginx
-paketo-buildpacks/procfile          gcr.io/paketo-buildpacks/procfile
-```
-	  
 Update a store:
-	    
-     `kp store add <store-name> gcr.io/paketo-buildpacks/buildpackage`
-	    
-Here is an example to update the `dotnet-core` buildpackage
-	    
-     `kp store add default gcr.io/paketo-buildpacks/dotnet-core`
 
-Additionally, multiple buildpackages can be added to Build Service by passing multiple image references
+    kp store add <store-name> registry.pivotal.io/tbs-dependencies/<buildpack-name>:<buildpack-tag>
 
-    `kp store add <store-name> gcr.io/paketo-buildpacks/buildpacakge-1 gcr.io/paketo-buildpacks/buildpackage-2 gcr.io/paketo-buildpacks/buildpackage-3`
+Additionally, multiple buildpacks can be added to Build Service by passing multiple image references
+
+    kp store add <store-name> registry.pivotal.io/tbs-dependencies/<buildpack1>:<buildpack1-tag> registry.pivotal.io/tbs-dependencies/<buildpack2>:<buildpack2-tag> registry.pivotal.io/tbs-dependencies/<buildpack3>:<buildpack3-tag>
 
 To list the buildpacks now available in the store:
 
-    `kp store status <store-name>`
+    kp store status <store-name>
+
+## <a id='offline-update'></a> Offline update of Dependencies
+
+If the `kp` CLI cannot access the images in the Pivnet Registry, the stack images and buildpacks used by build service can be updated by first downloading those images and saving them as `.tar` files. These file can be provided to the `kp` CLI to upload to build service.
+
+### <a id='offline-stack-update'></a> Stack Update
+
+Fetch the stack images into the docker daemon:
+
+    docker pull registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha>
+    docker pull registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha>
+
+Save those images to disk:
+
+    docker save registry.pivotal.io/tbs-dependencies/build-full@sha256:<image-sha> > build.tar
+    docker save registry.pivotal.io/tbs-dependencies/run-full@sha256:<image-sha> > run.tar
+
+Update the stack with the saved image:
+
+    kp stack update full --build-image build.tar --run-image run.tar
+
+<p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
+
+The updated stack can be viewed with the following command:
+
+    kp stack status
+
+### <a id='offline-store-update'></a> Store Update
+
+Offline store updates using the Tanzu Net registry is not currently supported but will be in upcoming releases.
