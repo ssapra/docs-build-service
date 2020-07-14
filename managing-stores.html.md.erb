@@ -59,11 +59,11 @@ Users can remove a buildpackage from a store:
 
     kp store remove <store-name> <buildpackage>
 
-<p class='note'><strong>Note:</strong> Buildpackages must be removed from stores by full image reference. The <code><buildpackage></code> args should include their digests and will look like <code>registry.io/repository@sha256:<sha256></code>.</p>
+<p class='note'><strong>Note:</strong> Buildpackages must be removed from stores by full image reference. The <code>&lt;buildpackage&gt;</code> args should include their digests and will look like <code>registry.io/repository@sha256:<sha256></code>.</p>
 
 ## <a id='show-buildpackages-in-store'></a> Store Status
 
-Users can use the `kp` cli to get details about a store including buildpackages and their buildpacks, as well as meta-buildpacks. [Meta-buildpacks](https://buildpacks.io/docs/concepts/components/buildpack/#meta-buildpack) are buildpacks that indicate the order that other buildpacks run:
+Users can use the `kp` CLI to get details about a store including buildpackages and their buildpacks, as well as meta-buildpacks. [Meta-buildpacks](https://buildpacks.io/docs/concepts/components/buildpack/#meta-buildpack) are buildpacks that indicate the order that other buildpacks run:
 
 To view the buildpackages in a store:
 
