@@ -3,7 +3,7 @@ title: Managing Stores
 owner: Build Service Team
 ---
 
-A Store provides a collection of buildpacks that can be utilized by Builders. Buildpacks are distributed and added to a store in buildpackages which are docker images containing one or more buildpacks.
+A Store is a cluster level resource that provides a collection of buildpacks that can be utilized by Builders. Buildpacks are distributed and added to a store in buildpackages which are docker images containing one or more buildpacks.
 
 Build Service ships with a curated collection of Tanzu buildpacks for Java, and Paketo buildpacks for Nodejs, go, PHP, nginx, httpd, and .NET Core. It is important to keep these buildpacks up-to-date. Updates to these buildpacks are provided on the [Tanzu Network Build Service Dependency](https://network.pivotal.io/products/tbs-dependencies/) page.
 
@@ -21,19 +21,16 @@ Documentation for creating buildpackages is available [here](https://buildpacks.
 
 Users can view the existing stores with:
 
-    kp store list
+    kp clusterstore list
 
 ## <a id='create-store'></a> Creating a Store
 
 Tanzu Build Service ships with a `default` store containing all of the supported buildpacks. Users can create additional stores with:
 
 
-    kp store create <store-name> <buildpackage-1> <buildpackage-2> --default-repository <image-repository>
+    kp clusterstore create <store-name> -b <buildpackage-1> -b <buildpackage-2>
 
-Where `<image-repository>` is the Docker repository where the buildpackage images will be stored.
-This can be set to the same value used during installation for the `docker_repository` during the `duffle` install described in the [install docs](installing.html#other-install).
-
-<p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to the registry used for the <code>default-repository</code> on the local machine.</p>
+<p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to the registry used for installation on the local machine.</p>
 
 ## <a id='add-buildpackages-to-store'></a> Adding Buildpackages to a Store
 
@@ -42,22 +39,22 @@ Users can add multiple buildpackages at a time from a registry or from a file on
 * If using a Docker registry:
 
     ```
-    kp store add <store-name> <buildpackage-1> <buildpackage-2> ...
+    kp clusterstore add <store-name> -b <buildpackage-1> -b <buildpackage-2> ...
     ```
 
-<p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to build service registry on the local machine.</p>
+<p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to the registry used for installation on the local machine.</p>
 
 * If using local `.cnb` buildpackage files created as described in the [buildpackages docs](https://buildpacks.io/docs/buildpack-author-guide/package-a-buildpack/):
 
     ```
-    kp store add <store-name> <path-to-buildpackage-1>.cnb <path-to-buildpackage-2>.cnb ...
+    kp clusterstore add <store-name> -b <path-to-buildpackage-1>.cnb -b <path-to-buildpackage-2>.cnb ...
     ```
 
 ## <a id='remove-buildpackages-from-store'></a> Removing Buildpackages from a Store
 
 Users can remove a buildpackage from a store:
 
-    kp store remove <store-name> <buildpackage>
+    kp clusterstore remove <store-name> -b <buildpackage>
 
 <p class='note'><strong>Note:</strong> Buildpackages must be removed from stores by full image reference. The <code>&lt;buildpackage&gt;</code> args should include their digests and will look like <code>registry.io/repository@sha256:<sha256></code>.</p>
 
@@ -67,11 +64,22 @@ Users can use the `kp` CLI to get details about a store including buildpackages 
 
 To view the buildpackages in a store:
 
-    kp store status <store-name>
+    kp clusterstore status <store-name>
 
 To view buildpackages & their individual buildpacks as well as display the order of meta-buildpacks:
 
-    kp store status <store-name> --verbose
+    kp clusterstore status <store-name> --verbose
+    
+## <a id='kpack-resources'></a> Migrating Buildpacks
+
+Build Service will never automatically remove buildpackages from the store unless you explicitly remove them. 
+In this way, users can continue to use older buildpacks until the operator is ready to migrate them.
+
+How you migrate is entirely dependent on the configuration of your Builder resources:
+    * Builders that do not provide a buildpack version will automatically update to the latest buildpack version if it is available. 
+    * Builders that explicitly specify a buildpack version will not update automatically.
+
+With the above in mind, migrating buildpackages in the store is as simple as `kp clusterstore add`ing newer buildpackages and `kp clusterstore remove`ing older buildpackages as necessary. 
 
 ## <a id='kpack-resources'></a> Corresponding kpack Resource
 
