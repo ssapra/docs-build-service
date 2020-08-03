@@ -3,11 +3,15 @@ title: Using Tanzu Build Service with Projects
 owner: Build Service Team
 ---
 
-The following procedures describe how to manage projects and project members with build service.
+[Projects Operator for Kubernetes](Need a link) is a separate open source project from VMWare that works with Tanzu Build Service.
+A `project` is a resource that simplifies kubernetes namespaces and RBAC to provide multi-tenancy for images, secrets, and builders.
 
-A `project` is a Build Service resource that simplifies kubernetes namespaces and RBAC to provide multi-tenancy for images, secrets, and builders.
+The following procedures describe how to manage projects and project members with Build Service.
 
-Projects are optional.
+## <a id='projects-operator-installation'></a> Installing Projects Operator for Kubernetes
+
+Tanzu Build Service installs a ClusterRole on the cluster named `build-service-user-role`. To allow Projects Operator to integrate with Build Service,
+provide the ClusterRole `build-service-user-role` as the `CLUSTER_ROLE_REF` to use during Projects Operator installation. 
 
 ## <a id='create-project'></a> Creating a Project
 
