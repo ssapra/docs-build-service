@@ -79,7 +79,11 @@ How you migrate is entirely dependent on the configuration of your Builder resou
     * Builders that do not provide a buildpack version will automatically update to the latest buildpack version if it is available. 
     * Builders that explicitly specify a buildpack version will not update automatically.
 
-With the above in mind, migrating buildpackages in the store is as simple as `kp clusterstore add`ing newer buildpackages and `kp clusterstore remove`ing older buildpackages as necessary. 
+With the above in mind, migrating buildpackages in the store is as simple as `kp clusterstore add`ing newer buildpackages and `kp clusterstore remove`ing older buildpackages as necessary.
+
+If you'd like fine-grained control over buildpack updates, you can create multiple stores to manage buildpack versions.
+Then, you can point individual builders at the desired store. Each store may pin buildpack versions or update them as needed
+without effecting other builders or fanning out large, sweeping changes.
 
 ## <a id='kpack-resources'></a> Corresponding kpack Resource
 
