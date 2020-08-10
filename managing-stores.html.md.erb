@@ -72,21 +72,44 @@ kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpack
 kp clusterstore add default registry.pivotal.io/tbs-dependencies/paketo-buildpacks_procfile:<version>
 ```
 
-### <a id='add-buildpackages-to-store'></a> Offline Adding Buildpackages to a Store from Tanzu Network
+### <a id='add-buildpackages-to-store-offline'></a> Offline Adding Buildpackages to a Store from Tanzu Network
 
 If your Tanzu Build Service installation is in an offline/air-gapped environment, you can update stores with the following offline workflow:
 
-Here is a list of how to update each buildpack that is included with Tanzu Build Service by default:
+1. Download the Dependency Descriptor file (`descriptor-<version>.yml`) from the latest release on the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) page on Tanzu Network.
+
+2. Download the `kp` CLI for your operating system from the latest release on the [Tanzu Build Service](https://network.pivotal.io/products/tbs-dependencies/build-service) page.
+
+3. Download the `kbld` CLI for your operating system from the latest release on the [kbld](https://network.pivotal.io/products/kbld) page.
+
+4. Download the dependency images for Tanzu Build Service to your local machine with `kbld`:
 
 ```
-kp clusterstore add default registry.pivotal.io/tanzu-java-buildpack/java:<version>
-kp clusterstore add default registry.pivotal.io/tanzu-nodejs-buildpack/nodejs:<version>
-kp clusterstore add default registry.pivotal.io/tanzu-go-buildpack/go:<version>
-kp clusterstore add default registry.pivotal.io/tbs-dependencies/paketo-buildpacks_dotnet-core:<version>
-kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_php:<version>
-kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_nginx:<version>
-kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_httpd:<version>
-kp clusterstore add default registry.pivotal.io/tbs-dependencies/paketo-buildpacks_procfile:<version>
+docker login registry.pivotal.io
+
+kbld package -f descriptor-<version>.yml \
+  --output /tmp/packaged-dependencies.tar
+```
+
+5. Move the output file `packaged-dependencies.tar` to a machine that has access to the "offline" environment
+
+6. Upload the dependency images to the registry used to deploy Tanzu Build Service:
+
+```
+docker login <build-service-registry>
+
+kbld unpackage -f descriptor-<version>.yml \
+  --input /tmp/packaged-dependencies.tar \
+  --repository <IMAGE-REPOSITORY> \
+  --lock-output /tmp/dependencies-relocated.lock
+```
+
+Where `IMAGE-REPOSITORY` is the repository used to install Tanzu Build Service. This should be the same value as `IMAGE-REPOSITORY` used in the [Installation Steps](installing.html#other-install).
+
+7. Now that dependencies are relocated to the internal registry, you can use the following command to update the necessary resources:
+
+```
+kbld -f descriptor-<version>.yml -f /tmp/dependencies-relocated.lock | kp import -f -
 ```
 
 ## <a id='remove-buildpackages-from-store'></a> Removing Buildpackages from a Store
