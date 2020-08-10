@@ -1,72 +1,151 @@
 ---
-title: Managing Stacks
+title: Managing ClusterStacks
 owner: Build Service Team
 ---
 
-A Stack provides the build and run images for the Cloud Native Buildpack stack that will be used in a builder.
+A ClusterStack is a cluster scoped resource that provides the build and run images for the [Cloud Native Buildpack stack](https://buildpacks.io/docs/concepts/components/stack/) that will be used in a [Builder](managing-builders.html).
 
-Build Service ships with the following stacks:
+The [Tanzu Network Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) page provides the following stacks and their updates.
 
 | Name | ID |
 |---|---|
-| base | io.buildpacks.stacks.bionic |
-| default | org.cloudfoundry.stacks.cflinuxfs3 |
-| full | org.cloudfoundry.stacks.cflinuxfs3 |
 | tiny | io.paketo.stacks.tiny |
+| base | io.buildpacks.stacks.bionic |
+| full | io.buildpacks.stacks.bionic |
 
-Updates to these stacks are provided on the [Tanzu Network Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) page.
+**kp cli** can be used to manage clusterstack
+```
+$ kp clusterstack
+Cluster Stack Commands
 
-<p class='note'><strong>Note:</strong> Only Build Service Admins (users with the <code>pb-admin-role</code> kubernetes ClusterRole) can perform stack commands.</p>
+Usage:
+  kp clusterstack [command]
 
-## <a id='create-stack'></a> Creating a Stack
+Aliases:
+  clusterstack, csk
 
-Users can create a stack using build and run images from a Docker registry or the local machine:
+Available Commands:
+  create      Create a cluster stack
+  delete      Delete a cluster stack
+  list        List cluster stacks
+  status      Display cluster stack status
+  update      Update a cluster stack
 
-- If using a Docker registry:
+Flags:
+  -h, --help   help for clusterstack
+
+Use "kp clusterstack [command] --help" for more information about a command.
+```
+
+<p class='note'><strong>Note:</strong> Only Build Service Admins (users with the <code>pb-admin-role</code> kubernetes ClusterRole) can perform clusterstack commands.</p>
+
+## <a id='create-stack'></a> Creating a ClusterStack
+
+Users can create a clusterstack using build and run images from a Docker registry or the local machine. The run and build images provided during clusterstack creation will be uploaded to the canonical repository, which is the `docker-repository` specified during TBS install.
+
+
+- If using a Docker registry for the stack images:
 
     ```
-    kp stack create <stack-name> -b <build image> -r <run-image>
+    kp clusterstack create <clusterstack-name> -b <build image> -r <run-image>
     ```
 
-<p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to build service registry on the local machine.</p>
+   The user must have read access to the source Docker registry and write access to the canonical registry on the local machine.
+
+    Example:
+    ```
+    kp csk create my-clusterstack \
+     -b gcr.io/test/stack/run:latest
+     -r gcr.io/test/stack/build:latest
+    ```
 
 * If using local stack images created with `docker save`:
 
     ```
-    kp stack create <stack-name> -b <path to build-image>.tar -r <path to run-image>.tar
+    kp clusterstack create <clusterstack-name> -b <path to build-image>.tar -r <path to run-image>.tar
     ```
 
-## <a id='update-stack'></a> Updating a Stack
+    The user must have write access to the canonical registry on the local machine.
 
-Users can update a stack using build and run images from a Docker registry or the local machine:
+    Example:
+    ```
+    kp clusterstack create my-clusterstack \
+      -b ./local-build-image.tar \
+      -r ./local-run-image.tar
+    ```
+
+## <a id='update-stack'></a> Updating a ClusterStack
+
+Users can update a stack using build and run images from a Docker registry or the local machine. The run and build images provided during clusterstack update will be uploaded to the canonical repository, which is the docker-repository specified during TBS install.
 
 - If using a Docker registry:
 
     ```
-    kp stack update <stack-name> -b <build image> -r <run-image>
+    kp clusterstack update <stack-name> -b <build image> -r <run-image>
     ```
 
-<p class='note'><strong>Note:</strong> The user must have read access to the source Docker registry and write access to build service registry on the local machine.</p>
+    The user must have read access to the source Docker registry and write access to the canonical registry on the local machine.
+
+    Example:
+    ```
+    kp csk update my-clusterstack \
+     -b gcr.io/test/stack/run:latest
+     -r gcr.io/test/stack/build:latest
+    ```
 
 * If using local stack images created with `docker save`:
 
     ```
-    kp stack update <stack-name> -b <path to build-image>.tar -r <path to run-image>.tar
+    kp clusterstack update <stack-name> -b <path to build-image>.tar -r <path to run-image>.tar
     ```
 
-## <a id='get-stack-status'></a> Retrieving a Stack Status
+    The user must have write access to the canonical registry on the local machine.
 
-Users can get the current status of a stack:
+    Example:
+    ```
+    kp csk update my-clusterstack \
+      -b ./local-build-image.tar \
+      -r ./local-run-image.tar
+    ```
 
-    kp stack status <stack-name>
+## <a id='get-stack-status'></a> Retrieving ClusterStack Status
+
+Users can get the current status of a clusterstack:
+
+```
+kp clusterstack status <stack-name>
+```
 
 The following is an example of the output for this command:
 
-	Status:          Ready
-    ID:             org.cloudfoundry.stacks.cflinuxfs3
-    Run Image:      paketo/run:full-cnb
-    Build Image:    paketo/build:full-cnb
+```
+Status:          Ready
+ID:             org.cloudfoundry.stacks.cflinuxfs3
+Run Image:      paketo/run:full-cnb
+Build Image:    paketo/build:full-cnb
+```
 
-## <a id='kpack-resources'></a> Corresponding kpack Resource
+## <a id='delete-stacks'></a> Delete a ClusterStack
 
-All Build Service builders utilize a cluster scoped [Stack Resource](https://github.com/pivotal/kpack/blob/master/docs/custombuilders.md#stack) with the name `build-service-stack`.
+Users can delete an existing clusterstack:
+
+```
+kp clusterstack delete <stack-name>
+```
+
+**Note**: User will not be prompted for a confirmation to delete.
+
+
+## <a id='list-stacks'></a> List all ClusterStacks
+
+Users can view the list of all ClusterStacks created:
+
+The following is an example of the output for this command:
+
+```
+NAME       READY    ID
+base       True     io.buildpacks.stacks.bionic
+default    True     io.buildpacks.stacks.bionic
+full       True     org.cloudfoundry.stacks.cflinuxfs3
+tiny       True     io.paketo.stacks.tiny
+```
