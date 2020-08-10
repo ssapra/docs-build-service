@@ -34,7 +34,9 @@ Tanzu Build Service ships with a `default` store containing all of the supported
 
 ## <a id='add-buildpackages-to-store'></a> Adding Buildpackages to a Store
 
-Users can add multiple buildpackages at a time from a registry or from a file on the local machine:
+Users can add multiple buildpackages at a time from a registry or from a file on the local machine.
+
+This command is useful for users that want to only consume certain buildpacks rather than update all dependencies with `kp import`.
 
 * If using a Docker registry:
 
@@ -144,8 +146,8 @@ How you migrate is entirely dependent on the configuration of your Builder resou
 With the above in mind, migrating buildpackages in the store is as simple as `kp clusterstore add`ing newer buildpackages and `kp clusterstore remove`ing older buildpackages as necessary.
 
 If you'd like fine-grained control over buildpack updates, you can create multiple stores to manage buildpack versions.
-Then, you can point individual builders at the desired store. Each store may pin buildpack versions or update them as needed
-without effecting other builders or fanning out large, sweeping changes.
+Then, you can point individual builders at the desired store. Each store can be updated as needed
+without affecting other builders or fanning out large, sweeping changes.
 
 ## <a id='kpack-resources'></a> Corresponding kpack Resource
 
