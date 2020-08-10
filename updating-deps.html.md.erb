@@ -14,7 +14,9 @@ You can use the `kp` CLI to update any resource.
 
 ### <a id='online-bulk-update'></a> Bulk Update
 
-You can update all of the dependencies that are installed by default with Tanzu Build Service with the `kp import` command:
+This workflow can be used to update all dependencies (stacks and stores) in Tanzu Build Service with a single command. This can be used as a wholesale way to keep Tanzu Build Service up-to-date.
+
+You can update all of the dependencies that are installed by default with Tanzu Build Service with the `kp import` command.
 
 1. Download the Dependency Descriptor file (`descriptor-<version>.yaml`) from the latest release on the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) page on Tanzu Network.
 
@@ -40,6 +42,10 @@ default
 ```
 
 ### <a id='online-stack-update'></a> Cluster Stacks Update
+
+This section described how to update individual cluster stacks. This provides a more fine-grained way to patch operating system packages.
+
+New stack versions will be provided on the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) page on Tanzu Network.
 
 To update specific cluster stacks with the `kp` CLI:
 
@@ -84,7 +90,7 @@ kp clusterstore add <store-name> -b <buildpackage-image1> -b <buildpackage-image
 
 <p class="note"><strong>Note:</strong> Any number of buildpackages can be added to a store at a time with multiple `-b` flags.</p>
 
-#### <a id='online-store-update-tanzu-net'></a> Buildpack Updates
+#### <a id='online-store-update-tanzu-net'></a> Updating Buildpacks From Tanzu Network
 
 New Cloud Native Buildpacks (packaged as buildpackages) will be available on [Tanzu Network](https://network.pivotal.io)
 and should be uploaded to a Tanzu Build Service to keep application images patched.
@@ -94,8 +100,7 @@ New versions of the Java, NodeJS, and Go buildpacks will be released on their re
 * [Java](https://network.pivotal.io/products/tanzu-java-buildpack)
 * [NodeJS](https://network.pivotal.io/products/tanzu-nodejs-buildpack)
 * [Go](https://network.pivotal.io/products/tanzu-go-buildpack)
-
-New versions of all other buildpacks will be released on the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies) page.
+* New versions of all other buildpacks will be released on the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies) page.
 
 Here is a list of how to update each buildpack that is included with Tanzu Build Service by default:
 
