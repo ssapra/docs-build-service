@@ -5,7 +5,7 @@ owner: Build Service Team
 
 A Store is a cluster level resource that provides a collection of buildpacks that can be utilized by Builders. Buildpacks are distributed and added to a store in buildpackages which are docker images containing one or more buildpacks.
 
-Build Service ships with a curated collection of Tanzu buildpacks for Java, and Paketo buildpacks for Nodejs, go, PHP, nginx, httpd, and .NET Core. It is important to keep these buildpacks up-to-date. Updates to these buildpacks are provided on the [Tanzu Network Build Service Dependency](https://network.pivotal.io/products/tbs-dependencies/) page.
+Build Service ships with a curated collection of Tanzu buildpacks for Java, Nodejs, Go, PHP, nginx, and httpd and Paketo buildpacks for procfile, and .NET Core. It is important to keep these buildpacks up-to-date. Updates to these buildpacks are provided on [Tanzu Network](https://network.pivotal.io/).
 
 In addition to supported Tanzu and Paketo buildpacks, custom buildpackages can be uploaded to Build Service stores.
 
@@ -49,6 +49,45 @@ Users can add multiple buildpackages at a time from a registry or from a file on
     ```
     kp clusterstore add <store-name> -b <path-to-buildpackage-1>.cnb -b <path-to-buildpackage-2>.cnb ...
     ```
+
+### <a id='add-buildpackages-to-store-tanzu'></a> Adding Buildpackages to a Store from Tanzu Network
+
+Updated versions of all supported Buildpacks will be available on [Tanzu Network](https://network.pivotal.io) as registry images. Updated Buildpacks will be found in the following locations:
+
+* [Java](https://network.pivotal.io/products/tanzu-java-buildpack)
+* [NodeJS](https://network.pivotal.io/products/tanzu-nodejs-buildpack)
+* [Go](https://network.pivotal.io/products/tanzu-go-buildpack)
+* [PHP, .NET Core, nginx, httpd, procfile](https://network.pivotal.io/products/tbs-dependencies)
+
+Here is a list of how to update each buildpack that is included with Tanzu Build Service by default:
+
+```
+kp clusterstore add default registry.pivotal.io/tanzu-java-buildpack/java:<version>
+kp clusterstore add default registry.pivotal.io/tanzu-nodejs-buildpack/nodejs:<version>
+kp clusterstore add default registry.pivotal.io/tanzu-go-buildpack/go:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/paketo-buildpacks_dotnet-core:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_php:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_nginx:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_httpd:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/paketo-buildpacks_procfile:<version>
+```
+
+### <a id='add-buildpackages-to-store'></a> Offline Adding Buildpackages to a Store from Tanzu Network
+
+If your Tanzu Build Service installation is in an offline/air-gapped environment, you can update stores with the following offline workflow:
+
+Here is a list of how to update each buildpack that is included with Tanzu Build Service by default:
+
+```
+kp clusterstore add default registry.pivotal.io/tanzu-java-buildpack/java:<version>
+kp clusterstore add default registry.pivotal.io/tanzu-nodejs-buildpack/nodejs:<version>
+kp clusterstore add default registry.pivotal.io/tanzu-go-buildpack/go:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/paketo-buildpacks_dotnet-core:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_php:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_nginx:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/tanzu-buildpacks_httpd:<version>
+kp clusterstore add default registry.pivotal.io/tbs-dependencies/paketo-buildpacks_procfile:<version>
+```
 
 ## <a id='remove-buildpackages-from-store'></a> Removing Buildpackages from a Store
 
