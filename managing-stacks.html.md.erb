@@ -13,30 +13,32 @@ The [Tanzu Network Build Service Dependencies](https://network.pivotal.io/produc
 | base | io.buildpacks.stacks.bionic |
 | full | io.buildpacks.stacks.bionic |
 
+Information on what these stacks contain and their ideal use cases can be found [here](https://github.com/paketo-buildpacks/stacks#use-cases)
+
 **kp cli** can be used to manage clusterstack
 
-  ```
-  $ kp clusterstack
-  Cluster Stack Commands
+```
+$ kp clusterstack
+Cluster Stack Commands
 
-  Usage:
-    kp clusterstack [command]
+Usage:
+  kp clusterstack [command]
 
-  Aliases:
-    clusterstack, csk
+Aliases:
+  clusterstack, csk
 
-  Available Commands:
-    create      Create a cluster stack
-    delete      Delete a cluster stack
-    list        List cluster stacks
-    status      Display cluster stack status
-    update      Update a cluster stack
+Available Commands:
+  create      Create a cluster stack
+  delete      Delete a cluster stack
+  list        List cluster stacks
+  status      Display cluster stack status
+  update      Update a cluster stack
 
-  Flags:
-    -h, --help   help for clusterstack
+Flags:
+  -h, --help   help for clusterstack
 
-  Use "kp clusterstack [command] --help" for more information about a command.
-  ```
+Use "kp clusterstack [command] --help" for more information about a command.
+```
 
 <p class='note'><strong>Note:</strong> Only Build Service Admins (i.e. users with the <code>pb-admin-role</code> kubernetes ClusterRole) can perform clusterstack commands.</p>
 
