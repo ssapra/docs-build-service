@@ -151,3 +151,39 @@ All Build Service Custom Builders are represented as kpack resources.
 
 * [CustomBuilder](https://github.com/pivotal/kpack/blob/master/docs/custombuilders.md#custom-builder)
 * [CustomClusterBuilder](https://github.com/pivotal/kpack/blob/master/docs/customclusterbuilders.md#custom-cluster-builder)
+
+## <a id='pin-buildpack-version'></a> Pinning Buildpack versions
+
+You can pin buildpack versions by specifying the version for buildpacks in the order file.
+
+As an **example**, consider the clusterbuilder created below:
+
+```
+kp cb create pinned \
+  --tag build-service-private.jfrog.io/test/pinned \
+  --order order.yml
+```
+where the contents of order.yml file is
+
+```
+---
+- group:
+  - id: tanzu-buildpacks/httpd
+    version: 0.0.23
+  - id: tanzu-buildpacks/nginx
+    version: 0.0.29
+  - id: tanzu-buildpacks/php-composer
+    version: 0.0.15
+  - id: tanzu-buildpacks/php-dist
+    version: 0.0.28
+  - id: tanzu-buildpacks/php-web
+    version: 0.0.11
+- group:
+  - id: tanzu-buildpacks/node-engine
+    version: 0.0.42
+  - id: tanzu-buildpacks/npm
+    version: 0.0.39
+  - id: tanzu-buildpacks/yarn-install
+    version: 0.0.34
+```
+<p class='note'><strong>Note:</strong> Pinning buildpacks results in the Builder not creating new Images for updates made available for the pinned buildpack.</p>

@@ -40,7 +40,7 @@ The [Tanzu Network Build Service Dependencies](https://network.pivotal.io/produc
 
 <p class='note'><strong>Note:</strong> Only Build Service Admins (i.e. users with the <code>pb-admin-role</code> kubernetes ClusterRole) can perform clusterstack commands.</p>
 
-## <a id='create-stack'></a> Creating a ClusterStack
+## <a id='create-stack'></a> Create a ClusterStack
 
 Users can create a clusterstack using build and run images from a Docker registry or the local machine.
 The run and build images provided during clusterstack creation will be uploaded to the `canonical repository`, which is the `docker-repository` specified during TBS install.
@@ -80,7 +80,7 @@ The run and build images provided during clusterstack creation will be uploaded 
       -r ./local-run-image.tar
     ```
 
-## <a id='update-stack'></a> Updating a ClusterStack
+## <a id='update-stack'></a> Update a ClusterStack
 
 Users can update a stack using build and run images from a Docker registry or the local machine.
 The run and build images provided during clusterstack update will be uploaded to the `canonical repository`, which is the `docker-repository` specified during TBS install.
@@ -117,7 +117,7 @@ The run and build images provided during clusterstack update will be uploaded to
       -r ./local-run-image.tar
     ```
 
-## <a id='get-stack-status'></a> Retrieving a ClusterStack Status
+## <a id='get-stack-status'></a> Get ClusterStack Status
 
 Users can get the current status of a clusterstack:
 
@@ -157,3 +157,7 @@ default    True     io.buildpacks.stacks.bionic
 full       True     org.cloudfoundry.stacks.cflinuxfs3
 tiny       True     io.paketo.stacks.tiny
 ```
+
+## <a id='image-update-stack-updates-only'></a> How to update an Image for Stack updates only?
+
+To achieve Stack only updates for an Image, you can [pin the Buildpack versions](managing-builders.html#pin-buildpack-version) in the Builder used for creating the Image.
