@@ -47,13 +47,16 @@ This section described how to update individual cluster stacks. This provides a 
 
 New stack versions will be provided on the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/) page on Tanzu Network.
 
-To update specific cluster stacks with the `kp` CLI:
+To update specific cluster stacks, go to the latest release of the [Tanzu Build Service Dependencies](https://network.pivotal.io/products/tbs-dependencies/)
+page on Tanzu Network to find the image references and their `<sha256>` sums. Example commands will be provided on this page.
+
+Use the following `kp` CLI commands to update the desired stack:
 
 ```
-kp clusterstack update base --build-image registry.pivotal.io/tbs-dependencies/build-base --run-image registry.pivotal.io/tbs-dependencies/run-base
-kp clusterstack update default --build-image registry.pivotal.io/tbs-dependencies/build-full --run-image registry.pivotal.io/tbs-dependencies/run-full
-kp clusterstack update full --build-image registry.pivotal.io/tbs-dependencies/build-full --run-image registry.pivotal.io/tbs-dependencies/run-full
-kp clusterstack update tiny --build-image registry.pivotal.io/tbs-dependencies/build-tiny --run-image registry.pivotal.io/tbs-dependencies/run-tiny
+kp clusterstack update base --build-image registry.pivotal.io/tbs-dependencies/build-base@<sha256> --run-image registry.pivotal.io/tbs-dependencies/run-base@<sha256>
+kp clusterstack update default --build-image registry.pivotal.io/tbs-dependencies/build-full@<sha256> --run-image registry.pivotal.io/tbs-dependencies/run-full@<sha256>
+kp clusterstack update full --build-image registry.pivotal.io/tbs-dependencies/build-full@<sha256> --run-image registry.pivotal.io/tbs-dependencies/run-full@<sha256>
+kp clusterstack update tiny --build-image registry.pivotal.io/tbs-dependencies/build-tiny@<sha256> --run-image registry.pivotal.io/tbs-dependencies/run-tiny@<sha256>
 ```
 
 <p class="note"><strong>Note:</strong> Both build and run images need to be provided to update the stack.</p>
